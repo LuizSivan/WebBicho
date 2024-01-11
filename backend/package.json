@@ -1,0 +1,19 @@
+{
+  "name": "webbicho",
+  "version": "1.0.0",
+  "description": "",
+  "main": "wb-server",
+  "scripts": {
+    "debug": "ts-node-dev src/web-server.ts --transpile-only --ignore-watch node_modules --respawn",
+    "build": "tsc",
+    "start": "node ./dist/wb-server.js"
+  },
+  "author": "Luiz Silva",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
