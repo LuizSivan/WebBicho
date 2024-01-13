@@ -1,8 +1,8 @@
-import { DataSource, DataSourceOptions } from 'typeorm';
+import { DataSource, DataSourceOptions, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
+import dotenv from 'dotenv';
 
-require('dotenv').config();
-
-const DEFAULT_DB: string = 'webbicho';
+dotenv.config();
+export const DEFAULT_DB: string = 'webbicho';
 
 const OPTIONS: DataSourceOptions = {
 	type: 'postgres',
@@ -17,4 +17,29 @@ const OPTIONS: DataSourceOptions = {
 };
 
 export const appDataSource: DataSource = new DataSource(OPTIONS);
+export const Maintenance: DataSource = new DataSource({
+	...OPTIONS,
+	database: 'postgres',
+	entities: []
+});
 
+const connections: Map<String, DataSource> = new Map();
+
+export function getDataSource(tenant: string): DataSource {
+	if (connections.has(tenant)) {
+		return connections.get(tenant) as DataSource;
+	} else {
+		return appDataSource;
+	}
+}
+
+export function getRepository<T extends ObjectLiteral>(
+		target: EntityTarget<T>,
+		tenant: string = DEFAULT_DB
+): Repository<T> {
+	try {
+		return getDataSource(tenant).getRepository(target);
+	} catch (e) {
+		return appDataSource.getRepository(target);
+	}
+}
