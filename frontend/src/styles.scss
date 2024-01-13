@@ -1,3 +1,37 @@
 /* You can add global styles to this file, and also import other style files */
-@import "primeng/resources/themes/lara-light-blue/theme.css";
+
 @import "primeng/resources/primeng.css";
+@import "primeicons/primeicons.css";
+@import "primeflex/primeflex.css";
+@import "primeng/resources/themes/lara-dark-blue/theme.css";
+
+@layer reset, primeng;
+
+:root {
+  $primaryColor: #80ddff !important;
+
+  background: $primaryColor;
+}
+
+:root .dark-theme {
+  $primaryColor: #1b5af8 !important;
+}
+
+html {
+  font-size: 1rem;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--surface-ground);
+  color: var(--text-color);
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+

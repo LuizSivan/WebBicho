@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { ThemeService } from './services/theme.service';
 
 @Component({
 	selector: 'app-root',
@@ -8,7 +9,13 @@ import { Component } from '@angular/core';
 export class AppComponent {
 	title = 'Webbicho';
 	
-	teste() {
-		alert('OLHA SÓ');
+	constructor(
+			private themeService: ThemeService
+	) {
+		// this.themeService.loadDefaultTheme();
+	}
+	
+	teste(): void {
+		// this.themeService.switchTheme();
 	}
 }

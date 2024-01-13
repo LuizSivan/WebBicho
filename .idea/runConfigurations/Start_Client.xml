@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Start Client" type="js.build_tools.npm">
+  <configuration default="false" name="Start Client" type="js.build_tools.npm" activateToolWindowBeforeRun="false">
     <package-json value="$PROJECT_DIR$/frontend/package.json" />
     <command value="run" />
     <scripts>
@@ -8,6 +8,8 @@
     <node-interpreter value="project" />
     <package-manager value="yarn" />
     <envs />
-    <method v="2" />
+    <method v="2">
+      <option name="FwBeforeLaunchTask" enabled="true" />
+    </method>
   </configuration>
 </component>
