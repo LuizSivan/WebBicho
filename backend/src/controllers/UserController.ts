@@ -58,6 +58,13 @@ class UserController extends GenericController<User> {
 				getRepository(User)
 		);
 	}
+	
+	public removeFields(entity: User): User {
+		delete entity.verified;
+		delete entity.password;
+		delete entity.role;
+		return entity;
+	}
 }
 
 export default new UserController();

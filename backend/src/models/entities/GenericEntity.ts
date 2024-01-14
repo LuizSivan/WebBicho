@@ -11,11 +11,11 @@ export class GenericEntity extends BaseEntity {
 	updatedBy?: string;
 	
 	@CreateDateColumn()
-	createdAt?: Date;
+	createdAt: Date;
 	
 	@UpdateDateColumn()
-	updatedAt?: Date;
+	updatedAt: Date;
 	
 	@Column({default: false})
-	deleted?: boolean = false;
+	deleted: boolean = false;
 }

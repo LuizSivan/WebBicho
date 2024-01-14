@@ -22,13 +22,13 @@ const transporter: Transporter = nodemailer.createTransport({
 class AuthController {
 	public async login(
 			request: Request,
-			response: Response
+			response: Response,
 	): Promise<any> {
 		try {
 			const {username, password} = request.body;
 			const repository: Repository<User> = getRepository(User);
 			const user: User | null = await repository.findOne({
-				select: ['id', 'username', 'password', 'verified'],
+				select: ['id', 'username', 'password', 'verified', 'createdAt'],
 				where: [
 					{username: username},
 					{email: username}
@@ -41,8 +41,15 @@ class AuthController {
 			if (!passwordMatch) {
 				return response.status(403).json({message: 'Login e/ou senha inválidos'});
 			}
+			const cutoffTime: Date = new Date(Date.now() - 15 * 60 * 1000);
 			if (!user?.verified) {
-				return response.status(403).json({message: 'Necessário realizar verificação'});
+				let message: string = 'Necessário realizar verificação';
+				const deleteUser: boolean = user.createdAt < cutoffTime;
+				if (deleteUser) {
+					message = 'Usuário não encontrado';
+					await repository.delete({id: user.id});
+				}
+				return response.status(deleteUser ? 404 : 403).json({message: message});
 			}
 			const login: User = await repository.findOneByOrFail({id: user.id});
 			login.token = await getToken(login);
@@ -74,7 +81,7 @@ class AuthController {
 				});
 			}
 			const newUser: User = {...request.body};
-			newUser.password = await bcrypt.hash(newUser.password, 10);
+			newUser.password = await bcrypt.hash(newUser.password as string, 10);
 			await repository.insert({...newUser, verified: false});
 			const saved: User = await repository.findOneByOrFail({id: newUser.id});
 			await sendVerificationEmail(saved);
@@ -99,9 +106,9 @@ class AuthController {
 				where: {id: userId}
 			});
 			if (user && !user.verified) {
-				user.verified = true;
-				await repository.save(user);
-				return response.status(200).json(user);
+				await repository.update({id: user.id}, {...user, verified: true});
+				const saved: User = await repository.findOneByOrFail({id: user.id});
+				return response.status(200).json(saved);
 			}
 			return response.status(400).json({message: 'Usuário já verificado ou não encontrado'});
 		} catch (error: any) {
