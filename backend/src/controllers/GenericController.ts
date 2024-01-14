@@ -40,6 +40,67 @@ class GenericController<T extends GenericEntity> {
 			return response.status(500).json({message: error.message});
 		}
 	}
+	
+	public async create(
+			request: Request,
+			response: Response,
+			repository: Repository<ObjectLiteral>
+	): Promise<any> {
+		try {
+			const entity: ObjectLiteral = this.removeFields(request.body);
+			const userId: string = request.header('user-id') as string;
+			entity.createdBy = userId;
+			entity.updatedBy = userId;
+			await repository.insert(entity);
+			const saved: ObjectLiteral | null = await repository.findOneByOrFail({id: entity.id});
+			return response.status(201).json(saved);
+		} catch (error: any) {
+			return response.status(500).json({message: error.message});
+		}
+	}
+	
+	public async update(
+			request: Request,
+			response: Response,
+			repository: Repository<ObjectLiteral>
+	): Promise<any> {
+		try {
+			const id: string = request.query?.id as string;
+			const exists: boolean = await repository.existsBy({id: id});
+			if (!exists) {
+				return response.status(404).json({message: 'Entidade não encontrada'});
+			}
+			const entity: ObjectLiteral = this.removeFields(request.body);
+			entity.updatedBy = request.header('user-id') as string;
+			await repository.save(entity);
+			const saved: ObjectLiteral | null = await repository.findOneBy({id: id});
+			return response.status(200).json(saved);
+		} catch (error: any) {
+			return response.status(500).json({message: error.message});
+		}
+	}
+	
+	public async delete(
+			request: Request,
+			response: Response,
+			repository: Repository<ObjectLiteral>
+	): Promise<any> {
+		try {
+			const id: string = request.query?.id as string;
+			const exists: boolean = await repository.existsBy({id: id});
+			if (!exists) {
+				return response.status(404).json({message: 'Entidade não encontrada'});
+			}
+			await repository.delete(id);
+			return response.status(204).send();
+		} catch (error: any) {
+			return response.status(500).json({message: error.message});
+		}
+	}
+	
+	public removeFields(entity: ObjectLiteral): ObjectLiteral {
+		return entity;
+	}
 }
 
 export default GenericController;

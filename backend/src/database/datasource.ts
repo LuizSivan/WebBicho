@@ -1,7 +1,5 @@
 import { DataSource, DataSourceOptions, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
-import dotenv from 'dotenv';
 
-dotenv.config();
 export const DEFAULT_DB: string = 'webbicho';
 
 const OPTIONS: DataSourceOptions = {
@@ -13,7 +11,7 @@ const OPTIONS: DataSourceOptions = {
 	database: DEFAULT_DB,
 	entities: [__dirname + '/../models/entities/*.{js,ts}'],
 	synchronize: true,
-	logging: Boolean(process.env.LOG) ?? true,
+	logging: true,
 };
 
 export const appDataSource: DataSource = new DataSource(OPTIONS);

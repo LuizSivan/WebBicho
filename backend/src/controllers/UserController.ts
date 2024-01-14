@@ -25,6 +25,39 @@ class UserController extends GenericController<User> {
 				getRepository(User)
 		);
 	}
+	
+	public async create(
+			request: Request,
+			response: Response,
+	): Promise<any> {
+		return super.create(
+				request,
+				response,
+				getRepository(User)
+		);
+	}
+	
+	public async update(
+			request: Request,
+			response: Response,
+	): Promise<any> {
+		return super.update(
+				request,
+				response,
+				getRepository(User)
+		);
+	}
+	
+	public async delete(
+			request: Request,
+			response: Response,
+	): Promise<any> {
+		return super.delete(
+				request,
+				response,
+				getRepository(User)
+		);
+	}
 }
 
 export default new UserController();

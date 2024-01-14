@@ -18,7 +18,7 @@ export class User extends GenericEntity {
 	@Column({length: 255, unique: true})
 	email: string;
 	
-	@Column({select: false, length: 20})
+	@Column({select: false, length: 60})
 	password: string;
 	
 	@Column({nullable: true, length: 400})
@@ -29,10 +29,13 @@ export class User extends GenericEntity {
 		enum: EUserRole,
 		default: EUserRole.USER,
 	})
-	role: EUserRole;
+	role?: EUserRole;
 	
 	@Column({type: 'text', nullable: true})
 	avatar: string;
+	
+	@Column({default: false, update: false})
+	verified: boolean;
 	
 	token?: string;
 }
