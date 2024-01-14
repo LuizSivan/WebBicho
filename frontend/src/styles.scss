@@ -5,16 +5,7 @@
 @import "primeflex/primeflex.css";
 @import "primeng/resources/themes/lara-dark-blue/theme.css";
 
-@layer reset, primeng;
-
 :root {
-  $primaryColor: #80ddff !important;
-
-  background: $primaryColor;
-}
-
-:root .dark-theme {
-  $primaryColor: #1b5af8 !important;
 }
 
 html {
