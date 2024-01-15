@@ -61,6 +61,9 @@ async function inicializa(): Promise<void> {
 	}
 	try {
 		await appDataSource.initialize();
+	} catch (e) {
+	}
+	try {
 		await appDataSource.query(`CREATE EXTENSION if not exists unaccent;`);
 	} catch (e) {
 	}

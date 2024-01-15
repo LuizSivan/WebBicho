@@ -1,7 +1,9 @@
 import { DataSource, DataSourceOptions, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
+import path from 'node:path';
 
 export const DEFAULT_DB: string = 'webbicho';
 
+const __dirEntity: string = path.join(__dirname, '..');
 const OPTIONS: DataSourceOptions = {
 	type: 'postgres',
 	host: process.env.DBHOST || 'localhost',
@@ -9,7 +11,7 @@ const OPTIONS: DataSourceOptions = {
 	username: process.env.DBUSER || 'postgres',
 	password: process.env.DBPASSWORD || 'LT03122020',
 	database: DEFAULT_DB,
-	entities: [__dirname + '/../models/entities/*.{js,ts}'],
+	entities: [__dirEntity + '/models/entities/**/*.{js,ts}'],
 	synchronize: true,
 	logging: true,
 };
