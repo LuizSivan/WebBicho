@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { GenericEntity } from './GenericEntity';
+import { GenericEntity } from '../GenericEntity';
 
 export enum EUserRole {
 	ADMINISTRATOR = 'ADMINISTRATOR',

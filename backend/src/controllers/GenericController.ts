@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { FindManyOptions, ObjectLiteral, Repository } from 'typeorm';
-import { GenericEntity } from '../models/entities/GenericEntity';
+import { GenericEntity } from '../models/GenericEntity';
 import { Page } from '../models/classes/Page';
 
 class GenericController<T extends GenericEntity> {
@@ -17,7 +17,7 @@ class GenericController<T extends GenericEntity> {
 				skip: (page - 1) * pageSize,
 			};
 			const [data, count]: [T[], number] = await repository.findAndCount(options);
-			const paged: Page<T> = new Page(data, count, pageSize, page);
+			const paged: Page<T> = new Page(data, page, Math.ceil(count / pageSize), count);
 			return response.status(200).json(paged);
 		} catch (error: any) {
 			return response.status(500).json({message: error.message});
@@ -47,7 +47,7 @@ class GenericController<T extends GenericEntity> {
 			repository: Repository<ObjectLiteral>
 	): Promise<any> {
 		try {
-			const entity: ObjectLiteral = this.removeFields(request.body);
+			const entity: ObjectLiteral = request.body;
 			const userId: string = request.header('user-id') as string;
 			entity.createdBy = userId;
 			entity.updatedBy = userId;
@@ -70,7 +70,7 @@ class GenericController<T extends GenericEntity> {
 			if (!exists) {
 				return response.status(404).json({message: 'Entidade não encontrada'});
 			}
-			const entity: ObjectLiteral = this.removeFields(request.body);
+			const entity: ObjectLiteral = request.body;
 			entity.updatedBy = request.header('user-id') as string;
 			await repository.save(entity);
 			const saved: ObjectLiteral | null = await repository.findOneBy({id: id});
@@ -96,10 +96,6 @@ class GenericController<T extends GenericEntity> {
 		} catch (error: any) {
 			return response.status(500).json({message: error.message});
 		}
-	}
-	
-	public removeFields(entity: ObjectLiteral): ObjectLiteral {
-		return entity;
 	}
 }
 

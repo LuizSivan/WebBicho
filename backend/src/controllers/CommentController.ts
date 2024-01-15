@@ -1,9 +1,9 @@
 import GenericController from './GenericController';
-import { User } from '../models/entities/User';
+import { Comment } from '../models/entities/Comment';
 import { Request, Response } from 'express';
 import { getRepository } from '../database/datasource';
 
-class UserController extends GenericController<User> {
+class CommentController extends GenericController<Comment> {
 	public async get(
 			request: Request,
 			response: Response,
@@ -11,7 +11,7 @@ class UserController extends GenericController<User> {
 		return super.get(
 				request,
 				response,
-				getRepository(User)
+				getRepository(Comment)
 		);
 	}
 	
@@ -22,7 +22,18 @@ class UserController extends GenericController<User> {
 		return super.getById(
 				request,
 				response,
-				getRepository(User)
+				getRepository(Comment)
+		);
+	}
+	
+	public async create(
+			request: Request,
+			response: Response,
+	): Promise<any> {
+		return super.create(
+				request,
+				response,
+				getRepository(Comment)
 		);
 	}
 	
@@ -30,11 +41,10 @@ class UserController extends GenericController<User> {
 			request: Request,
 			response: Response,
 	): Promise<any> {
-		this.removeFields(request);
 		return super.update(
 				request,
 				response,
-				getRepository(User)
+				getRepository(Comment)
 		);
 	}
 	
@@ -45,15 +55,9 @@ class UserController extends GenericController<User> {
 		return super.delete(
 				request,
 				response,
-				getRepository(User)
+				getRepository(Comment)
 		);
-	}
-	
-	public removeFields(request: Request): void {
-		delete request.body.password;
-		delete request.body.verified;
-		delete request.body.role;
 	}
 }
 
-export default new UserController();
+export default new CommentController();
