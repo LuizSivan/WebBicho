@@ -1,5 +1,8 @@
 import { DataSource, DataSourceOptions, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
 import path from 'node:path';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const DEFAULT_DB: string = 'webbicho';
 
