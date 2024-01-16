@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { checkJwt } from '../auth/check-jwt';
+import { checkIsAdmin, checkJwt } from '../auth/check-jwt';
 import UserController from '../controllers/UserController';
 import authRoutes from './auth-routes';
 import PostController from '../controllers/PostController';
@@ -28,5 +28,7 @@ routes
 		.post('/comment', CommentController.create)
 		.put('/comment', CommentController.update)
 		.delete('/comment/:id', CommentController.delete);
+
+routes.use(checkIsAdmin);
 
 export default routes;
