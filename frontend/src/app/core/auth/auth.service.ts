@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { Observable } from 'rxjs';
-import { IAuthenticatedToken } from '../interfaces/i-authenticated-token';
-import { HttpRequest } from '../utils/http-request';
+import { IAuthenticatedToken } from '../../shared/interfaces/i-authenticated-token';
+import { HttpRequest } from '../../shared/utils/http-request';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({
 	providedIn: 'root'
 })
 export class AuthService {
+	
+	readonly endpoint: string = 'auth';
 	
 	constructor(
 			private cookieService: CookieService,
@@ -30,11 +32,7 @@ export class AuthService {
 	
 	checkAuthStatus(): Observable<IAuthenticatedToken> {
 		return new HttpRequest<IAuthenticatedToken>(this.http)
-				.setEndpoint(this.getEndpoint())
+				.setEndpoint(this.endpoint)
 				.doGet();
-	}
-	
-	private getEndpoint(): string {
-		return 'auth';
 	}
 }

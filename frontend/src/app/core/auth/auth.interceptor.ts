@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
-import { AuthService } from '../../shared/services/auth.service';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -14,9 +14,9 @@ export class AuthInterceptor implements HttpInterceptor {
 	}
 	
 	intercept(
-			request: HttpRequest<unknown>,
+			request: HttpRequest<any>,
 			next: HttpHandler
-	): Observable<HttpEvent<unknown>> {
+	): Observable<HttpEvent<any>> {
 		if (this.router.url.startsWith('/login') || this.router.url.includes('/register')) {
 			return next.handle(request);
 		}

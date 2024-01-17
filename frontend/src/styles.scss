@@ -1,28 +1,17 @@
 /* You can add global styles to this file, and also import other style files */
 
-@import "primeng/resources/primeng.css";
-@import "primeicons/primeicons.css";
-@import "primeflex/primeflex.css";
-@import "primeng/resources/themes/lara-dark-blue/theme.css";
+$gutter: 1rem; //for primeflex grid system
+@import "assets/layout/styles/layout/layout.scss";
 
-:root {
-}
+/* PrimeNG */
+@import "../node_modules/primeng/resources/primeng.min.css";
+@import "../node_modules/primeflex/primeflex.scss";
+@import "../node_modules/primeicons/primeicons.css";
 
-html {
-  font-size: 1rem;
-  height: 100%;
-}
-
-body {
-  font-family: var(--font-family);
-  background-color: var(--surface-ground);
-  color: var(--text-color);
-  padding: 0;
-  margin: 0;
-  min-height: 100%;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+/* Demos */
+@import "assets/demo/styles/flags/flags.css";
+@import "assets/demo/styles/badges.scss";
+@import "assets/demo/styles/code.scss";
 
 
 
