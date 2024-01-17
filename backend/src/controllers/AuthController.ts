@@ -115,6 +115,34 @@ class AuthController {
 			return response.status(500).json({message: error.message});
 		}
 	}
+	
+	public async authenticateToken(
+			request: Request,
+			response: Response
+	): Promise<any> {
+		try {
+			const token: string = request.headers['auth'] as string;
+			const decoded: JwtPayload = jwt.verify(token, secret) as JwtPayload;
+			const expirationDate: Date = new Date(decoded?.exp as number * 1000);
+			const formattedExpirationDate: string = new Intl.DateTimeFormat('pt-BR', {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+				fractionalSecondDigits: 3,
+			}).format(expirationDate);
+			const json: any = {
+				expirationDate: formattedExpirationDate,
+				user: decoded.sub,
+			};
+			return response.status(200).json(json);
+		} catch (error: any) {
+			console.error('Erro ao decodificar o token:', error.message);
+			return response.status(403).json({message: 'Acesso negado'});
+		}
+	}
 }
 
 async function getToken(user: User, expiration: string = '12h'): Promise<string> {
