@@ -10,7 +10,7 @@ import { MailOptions } from 'nodemailer/lib/sendmail-transport';
 import { HOST } from '../wb-server';
 
 const transporter: Transporter = nodemailer.createTransport({
-	service: 'gmail',
+	service: process.env.SMTP,
 	port: 465,
 	secure: true,
 	auth: {
@@ -82,9 +82,9 @@ class AuthController {
 			}
 			const newUser: User = {...request.body};
 			newUser.password = await bcrypt.hash(newUser.password as string, 10);
+			await sendVerificationEmail(newUser);
 			await repository.insert({...newUser, verified: false});
 			const saved: User = await repository.findOneByOrFail({id: newUser.id});
-			await sendVerificationEmail(saved);
 			return response.status(201).json(saved);
 		} catch (error: any) {
 			return response.status(500).json({message: error.message});
@@ -99,11 +99,11 @@ class AuthController {
 			const token: string = request.query.token as string;
 			const payload: string | JwtPayload = jwt.verify(token, secret);
 			response.locals.jwtPayload = payload;
-			const userId: string = payload.sub as string;
+			const userEmail: string = payload.sub as string;
 			const repository: Repository<User> = getRepository(User);
 			const user: User | null = await repository.findOne({
 				select: ['id', 'username', 'email', 'verified'],
-				where: {id: userId}
+				where: {email: userEmail}
 			});
 			if (user && !user.verified) {
 				await repository.update({id: user.id}, {...user, verified: true});
@@ -153,30 +153,40 @@ async function getToken(user: User, expiration: string = '12h'): Promise<string>
 	const options: SignOptions = {
 		issuer: 'WB-SERVER',
 		algorithm: 'HS256',
-		subject: user.id,
+		subject: user.email,
 		expiresIn: expiration,
 	};
 	return jwt.sign(payload, secret, options);
 }
 
-async function sendVerificationEmail(user: User): Promise<void> {
-	const token: string = await getToken(user, '15m');
-	const port: string = HOST.includes('127.0.0.1') ? ':4400' : '';
-	const verificationLink: string = `${HOST}${port}/auth/verify?token=${token}`;
-	const message: string = `
+function sendVerificationEmail(user: User): Promise<void> {
+	return new Promise(async (resolve, reject) => {
+		const token: string = await getToken(user, '15m');
+		const port: string = HOST.includes('127.0.0.1') ? ':4400' : '';
+		const verificationLink: string = `${HOST}${port}/auth/verify?token=${token}`;
+		const message: string = `
         <p>Olá, ${user?.name ?? user.username}!</p>
         <p>Bem-vindo à WebBicho. Para garantir a segurança da sua conta, por favor, clique no link abaixo para verificar seu endereço de e-mail:</p>
         <p><a href="${verificationLink}">Clique aqui para verificar seu e-mail</a></p>
         <p>Se você não solicitou a verificação da sua conta, por favor, ignore este e-mail.</p>
         <p>Atenciosamente,<br/>WebBicho</p>
     `;
-	const mailOptions: MailOptions = {
-		from: 'luizsv.dev@gmail.com',
-		to: user?.email,
-		subject: 'Verificação de conta',
-		html: message
-	};
-	await transporter.sendMail(mailOptions);
+		const mailOptions: MailOptions = {
+			from: process.env.EMAIL,
+			to: user?.email,
+			subject: 'Verificação de conta',
+			html: message
+		};
+		transporter.sendMail(mailOptions, (err: Error | null, info: any): void => {
+			if (err) {
+				console.error(`Erro ao enviar o e-mail: ${err.message}`);
+				reject({message: `Erro ao enviar o e-mail de verificação: ${err.message}`});
+			} else {
+				console.log('E-mail enviado:', info);
+				resolve();
+			}
+		});
+	});
 }
 
 export default new AuthController();
