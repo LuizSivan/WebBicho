@@ -12,7 +12,7 @@ const OPTIONS: DataSourceOptions = {
 	host: process.env.DBHOST || 'localhost',
 	port: Number(process.env.DBPORT || 5432),
 	username: process.env.DBUSER || 'postgres',
-	password: process.env.DBPASSWORD || 'LT03122020',
+	password: process.env.DBPASSWORD || '1',
 	database: DEFAULT_DB,
 	entities: [__dirEntity + '/models/entities/**/*.{js,ts}'],
 	synchronize: true,

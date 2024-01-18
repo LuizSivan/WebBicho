@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { FindManyOptions, ObjectLiteral, Repository } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, Repository } from 'typeorm';
 import { GenericEntity } from '../models/GenericEntity';
 import { Page } from '../models/classes/Page';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 class GenericController<T extends GenericEntity> {
 	public async get(
@@ -27,11 +28,11 @@ class GenericController<T extends GenericEntity> {
 	public async getById(
 			request: Request,
 			response: Response,
-			repository: Repository<ObjectLiteral>
+			repository: Repository<T>
 	): Promise<any> {
 		try {
 			const id: string = request.params?.id as string;
-			const data: ObjectLiteral | null = await repository.findOneBy({id: id});
+			const data: T | null = await repository.findOneBy({id: id} as FindOptionsWhere<T>);
 			if (data) {
 				return response.status(200).json(data);
 			}
@@ -44,15 +45,15 @@ class GenericController<T extends GenericEntity> {
 	public async create(
 			request: Request,
 			response: Response,
-			repository: Repository<ObjectLiteral>
+			repository: Repository<T>
 	): Promise<any> {
 		try {
-			const entity: ObjectLiteral = request.body;
+			const entity: T = request.body as any;
 			const userId: string = request.header('user-id') as string;
 			entity.createdBy = userId;
 			entity.updatedBy = userId;
-			await repository.insert(entity);
-			const saved: ObjectLiteral | null = await repository.findOneByOrFail({id: entity.id});
+			await repository.insert(entity as QueryDeepPartialEntity<T>);
+			const saved: T | null = await repository.findOneByOrFail({id: entity.id} as FindOptionsWhere<T>);
 			return response.status(201).json(saved);
 		} catch (error: any) {
 			return response.status(500).json({message: error.message});
@@ -62,18 +63,18 @@ class GenericController<T extends GenericEntity> {
 	public async update(
 			request: Request,
 			response: Response,
-			repository: Repository<ObjectLiteral>
+			repository: Repository<T>
 	): Promise<any> {
 		try {
 			const id: string = request.body?.id as string;
-			const exists: boolean = await repository.existsBy({id: id});
+			const exists: boolean = await repository.existsBy({id: id} as FindOptionsWhere<T>);
 			if (!exists) {
 				return response.status(404).json({message: 'Entidade não encontrada'});
 			}
-			const entity: ObjectLiteral = request.body;
+			const entity: T = request.body;
 			entity.updatedBy = request.header('user-id') as string;
 			await repository.save(entity);
-			const saved: ObjectLiteral | null = await repository.findOneBy({id: id});
+			const saved: T | null = await repository.findOneBy({id: id} as FindOptionsWhere<T>);
 			return response.status(200).json(saved);
 		} catch (error: any) {
 			return response.status(500).json({message: error.message});
@@ -83,15 +84,15 @@ class GenericController<T extends GenericEntity> {
 	public async delete(
 			request: Request,
 			response: Response,
-			repository: Repository<ObjectLiteral>
+			repository: Repository<T>
 	): Promise<any> {
 		try {
 			const id: string = request.params?.id as string;
-			const exists: boolean = await repository.existsBy({id: id});
+			const exists: boolean = await repository.existsBy({id: id} as FindOptionsWhere<T>);
 			if (!exists) {
 				return response.status(404).json({message: 'Entidade não encontrada'});
 			}
-			await repository.delete({id: id});
+			await repository.delete({id: id} as FindOptionsWhere<T>);
 			return response.status(204).send();
 		} catch (error: any) {
 			return response.status(500).json({message: error.message});
