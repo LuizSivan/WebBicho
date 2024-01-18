@@ -43,6 +43,24 @@ export class ThemeService {
 		});
 	}
 	
+	get theme(): string {
+		return this.config().theme;
+	}
+	
+	set theme(val: string) {
+		this.config.update((config) => ({
+			...config,
+			theme: val,
+		}));
+	}
+	
+	set colorScheme(val: string) {
+		this.config.update((config) => ({
+			...config,
+			colorScheme: val,
+		}));
+	}
+	
 	onMenuToggle(): void {
 		if (this.isOverlay()) {
 			this.state.overlayMenuActive = !this.state.overlayMenuActive;
@@ -136,5 +154,18 @@ export class ThemeService {
 	
 	changeScale(value: number): void {
 		document.documentElement.style.fontSize = `${value}px`;
+	}
+	
+	switchTheme(): void {
+		const theme: string = localStorage.getItem('theme') ?? 'light';
+		this.theme = theme == 'dark' ? 'lara-light-blue' : 'lara-dark-blue';
+		this.colorScheme = theme == 'dark' ? 'light' : 'dark';
+		localStorage.setItem('theme', theme == 'dark' ? 'light' : 'dark');
+	}
+	
+	loadDefaultTheme(): void {
+		const theme: string = localStorage.getItem('theme') ?? 'light';
+		this.theme = theme == 'dark' ? 'lara-dark-blue' : 'lara-light-blue';
+		this.colorScheme = theme;
 	}
 }

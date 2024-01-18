@@ -8,37 +8,31 @@ import { PrimeNGConfig } from 'primeng/api';
 	styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-	title = 'Webbicho';
+	title: string = 'Webbicho';
 	
 	constructor(
 			private themeService: ThemeService,
 			private primengConfig: PrimeNGConfig,
 	) {
 		this.primengConfig.ripple = true;
+		this.themeService.loadDefaultTheme();
 	}
 	
-	get theme(): string {
-		return this.themeService.config().theme;
-	}
-	
-	set theme(val: string) {
-		this.themeService.config.update((config) => ({
-			...config,
-			theme: val,
-		}));
-	}
-	
-	set colorScheme(val: string) {
-		this.themeService.config.update((config) => ({
-			...config,
-			colorScheme: val,
-		}));
+	get containerClass() {
+		return {
+			'layout-theme-light': this.themeService.config().colorScheme === 'light',
+			'layout-theme-dark': this.themeService.config().colorScheme === 'dark',
+			'layout-overlay': this.themeService.config().menuMode === 'overlay',
+			'layout-static': this.themeService.config().menuMode === 'static',
+			'layout-static-inactive': this.themeService.state.staticMenuDesktopInactive && this.themeService.config().menuMode === 'static',
+			'layout-overlay-active': this.themeService.state.overlayMenuActive,
+			'layout-mobile-active': this.themeService.state.staticMenuMobileActive,
+			'p-input-filled': this.themeService.config().inputStyle === 'filled',
+			'p-ripple-disabled': !this.themeService.config().ripple
+		};
 	}
 	
 	changeTheme(): void {
-		const theme: string = localStorage.getItem('theme') ?? 'light';
-		this.theme = theme == 'dark' ? 'lara-light-blue' : 'lara-dark-blue';
-		this.colorScheme = theme == 'dark' ? 'light' : 'dark';
-		localStorage.setItem('theme', theme == 'dark' ? 'light' : 'dark');
+		this.themeService.switchTheme();
 	}
 }

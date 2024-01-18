@@ -1,8 +1,37 @@
-<router-outlet></router-outlet>
-<button
-    (click)="changeTheme()"
-    icon="pi pi-times"
-    label="Mudar tema"
-    pButton
-    pRipple>
-</button>
+<div
+    [ngClass]="containerClass"
+    class="layout-wrapper">
+  <div class="layout-sidebar">
+  </div>
+  <div class="layout-main-container">
+    <div class="layout-main">
+      <div class="layout-content no-padding">
+        <div class="p-fluid grid">
+          <div class="p-field col-12">
+            <button
+                (click)="changeTheme()"
+                icon="pi pi-times"
+                label="Mudar tema"
+                pButton
+                pRipple>
+            </button>
+          </div>
+        </div>
+        <router-outlet></router-outlet>
+      </div>
+      <div class="p-fluid grid">
+        <div class="col-12">
+          <button
+              (click)="changeTheme()"
+              icon="pi pi-times"
+              label="Mudar tema"
+              pButton
+              pRipple>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class=" layout-footer no-padding p-fluid grid p-dock-bottom ">
+    </div>
+  </div>
+</div>
