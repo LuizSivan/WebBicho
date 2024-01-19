@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { IAuthenticatedToken } from '../../shared/interfaces/i-authenticated-token';
 import { HttpRequest } from '../../shared/utils/http-request';
 import { HttpClient } from '@angular/common/http';
+import { User } from '../../shared/models/entities/user';
 
 @Injectable({
 	providedIn: 'root'
@@ -34,5 +35,12 @@ export class AuthService {
 		return new HttpRequest<IAuthenticatedToken>(this.http)
 				.setEndpoint(this.endpoint)
 				.doGet();
+	}
+	
+	verifyAccount(token: string): Observable<User> {
+		return new HttpRequest<User>(this.http)
+				.setEndpoint(this.endpoint)
+				.addParam('token', token)
+				.doPatch();
 	}
 }

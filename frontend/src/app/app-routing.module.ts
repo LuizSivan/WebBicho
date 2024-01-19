@@ -2,8 +2,19 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthInterceptor } from './core/auth/auth.interceptor';
+import { LoginRegisterComponent } from './pages/login-register/login-register.component';
+import { authGuard } from './core/auth/auth.guard';
+import { VerifyAccountComponent } from './pages/verify-account/verify-account.component';
 
-const routes: Routes = [];
+const routes: Routes = [
+	{path: 'login', component: LoginRegisterComponent},
+	{path: 'verify', component: VerifyAccountComponent},
+	{
+		path: '',
+		canActivate: [authGuard],
+		children: []
+	}
+];
 
 @NgModule({
 	imports: [RouterModule.forRoot(routes, {useHash: true})],
