@@ -5,6 +5,7 @@ import { AuthInterceptor } from './core/auth/auth.interceptor';
 import { LoginRegisterComponent } from './pages/login-register/login-register.component';
 import { authGuard } from './core/auth/auth.guard';
 import { VerifyAccountComponent } from './pages/verify-account/verify-account.component';
+import { HomeComponent } from './pages/home/home.component';
 
 const routes: Routes = [
 	{path: 'login', component: LoginRegisterComponent},
@@ -12,8 +13,12 @@ const routes: Routes = [
 	{
 		path: '',
 		canActivate: [authGuard],
-		children: []
-	}
+		children: [
+			{path: 'home', component: HomeComponent},
+			{path: '', redirectTo: 'home', pathMatch: 'full'},
+		],
+	},
+	{path: '**', redirectTo: 'login'},
 ];
 
 @NgModule({

@@ -9,11 +9,6 @@ export const authGuard: CanActivateFn = async (
 ): Promise<boolean> => {
 	const authService: AuthService = inject(AuthService);
 	try {
-		const isLoginRoute: boolean = state.url.startsWith('/login');
-		const isRegisterRoute: boolean = state.url.startsWith('/register');
-		if (isLoginRoute || isRegisterRoute) {
-			return true;
-		}
 		await firstValueFrom(authService.checkAuthStatus());
 		return true;
 	} catch (err) {

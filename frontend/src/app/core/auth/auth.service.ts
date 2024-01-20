@@ -40,7 +40,25 @@ export class AuthService {
 	verifyAccount(token: string): Observable<User> {
 		return new HttpRequest<User>(this.http)
 				.setEndpoint(this.endpoint)
+				.setUri('verify-account')
 				.addParam('token', token)
 				.doPatch();
+	}
+	
+	
+	register(user: User): Observable<User> {
+		return new HttpRequest<User>(this.http)
+				.setEndpoint(this.endpoint)
+				.setUri('register')
+				.addBody(user)
+				.doPost();
+	}
+	
+	login(user: User): Observable<User> {
+		return new HttpRequest<User>(this.http)
+				.setEndpoint(this.endpoint)
+				.setUri('login')
+				.addBody(user)
+				.doPost();
 	}
 }

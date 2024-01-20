@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ThemeService } from './shared/services/theme.service';
-import { PrimeNGConfig } from 'primeng/api';
+import { MenuItem, PrimeNGConfig } from 'primeng/api';
 
 @Component({
 	selector: 'app-root',
@@ -9,6 +9,7 @@ import { PrimeNGConfig } from 'primeng/api';
 })
 export class AppComponent {
 	title: string = 'Webbicho';
+	items: MenuItem[] | undefined;
 	
 	constructor(
 			private themeService: ThemeService,
@@ -16,23 +17,6 @@ export class AppComponent {
 	) {
 		this.primengConfig.ripple = true;
 		this.themeService.loadDefaultTheme();
-	}
-	
-	get containerClass() {
-		return {
-			'layout-theme-light': this.themeService.config().colorScheme === 'light',
-			'layout-theme-dark': this.themeService.config().colorScheme === 'dark',
-			'layout-overlay': this.themeService.config().menuMode === 'overlay',
-			'layout-static': this.themeService.config().menuMode === 'static',
-			'layout-static-inactive': this.themeService.state.staticMenuDesktopInactive && this.themeService.config().menuMode === 'static',
-			'layout-overlay-active': this.themeService.state.overlayMenuActive,
-			'layout-mobile-active': this.themeService.state.staticMenuMobileActive,
-			'p-input-filled': this.themeService.config().inputStyle === 'filled',
-			'p-ripple-disabled': !this.themeService.config().ripple
-		};
-	}
-	
-	changeTheme(): void {
-		this.themeService.switchTheme();
+		
 	}
 }

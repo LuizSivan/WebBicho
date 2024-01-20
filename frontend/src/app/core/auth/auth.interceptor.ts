@@ -17,9 +17,6 @@ export class AuthInterceptor implements HttpInterceptor {
 			request: HttpRequest<any>,
 			next: HttpHandler
 	): Observable<HttpEvent<any>> {
-		if (this.router.url.startsWith('/login') || this.router.url.includes('/register')) {
-			return next.handle(request);
-		}
 		const token: string = this.authService.getToken();
 		if (token) {
 			request = request.clone({
