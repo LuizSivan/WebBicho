@@ -5,6 +5,7 @@
     "ng": "ng",
     "start": "ng serve --host=127.0.0.1 --port=4400",
     "prod": "ng build --configuration=production --base-href=/",
+    "sass": "sass src:src --source-map",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -42,5 +43,6 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
     "typescript": "~5.0.2"
-  }
+  },
+  "packageManager": "yarn@4.0.2"
 }

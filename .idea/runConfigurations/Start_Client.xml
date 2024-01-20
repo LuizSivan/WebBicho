@@ -9,7 +9,16 @@
     <package-manager value="yarn" />
     <envs />
     <method v="2">
-      <option name="FwBeforeLaunchTask" enabled="true" />
+      <option name="NpmBeforeRunTask" enabled="true">
+        <package-json value="$PROJECT_DIR$/frontend/package.json" />
+        <command value="run" />
+        <scripts>
+          <script value="sass" />
+        </scripts>
+        <node-interpreter value="project" />
+        <package-manager value="yarn" />
+        <envs />
+      </option>
     </method>
   </configuration>
 </component>
