@@ -11,6 +11,13 @@
     <method v="2">
       <option name="NpmBeforeRunTask" enabled="true">
         <package-json value="$PROJECT_DIR$/frontend/package.json" />
+        <command value="install" />
+        <node-interpreter value="project" />
+        <package-manager value="yarn" />
+        <envs />
+      </option>
+      <option name="NpmBeforeRunTask" enabled="true">
+        <package-json value="$PROJECT_DIR$/frontend/package.json" />
         <command value="run" />
         <scripts>
           <script value="sass" />
