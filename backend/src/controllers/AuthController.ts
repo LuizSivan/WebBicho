@@ -8,8 +8,9 @@ import {secret} from '../auth/check-jwt';
 import nodemailer, {Transporter} from 'nodemailer';
 import {MailOptions} from 'nodemailer/lib/sendmail-transport';
 import {HOST} from '../wb-server';
-import * as fs from "fs";
-import path from "node:path";
+import * as fs from 'fs';
+import path from 'node:path';
+import {readFileAsBase64} from '../utils/utils';
 
 const transporter: Transporter = nodemailer.createTransport({
 	service: process.env.SMTP,
@@ -162,15 +163,18 @@ async function getToken(user: User, expiration: string = '12h'): Promise<string>
 }
 
 function sendVerificationEmail(user: User): Promise<void> {
-	return new Promise(async (resolve, reject) => {
+	return new Promise(async (resolve, reject): Promise<void> => {
 		const token: string = await getToken(user, '15m');
 		const port: string = HOST.includes('127.0.0.1') ? ':4400' : '';
 		const verificationLink: string = `${HOST}${port}/auth/verify?token=${token}`;
 		const templatePath: string = path.join(__dirname, '../utils/HTMLs/account-verification.html');
+		const mailPath: string = '../assets/webbicho.logo-png';
+		const mailImage: string = readFileAsBase64(mailPath);
 
 		const htmlContent: string = fs.readFileSync(templatePath, 'utf-8')
 				.replace('{{VERIFICATION_LINK}}', verificationLink)
-				.replace('{{USER_NAME}}', user.username);
+				.replace('{{USER_NAME}}', user.username)
+				.replace('{{HEADER_BANNER}}', mailImage);
 
 		const mailOptions: MailOptions = {
 			from: `WebBicho Automático <${process.env.EMAIL}>`,

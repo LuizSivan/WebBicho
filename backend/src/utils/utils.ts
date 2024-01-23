@@ -1,6 +1,7 @@
-import { Between, In, Not, Raw } from 'typeorm';
+import {Between, In, Not, Raw} from 'typeorm';
+import * as fs from 'fs';
 
-export function trataParams(searchParam: any[]): any {
+export function convertParams(searchParam: any[]): any {
 	for (const sp of searchParam) {
 		for (const field in sp) {
 			const value = sp[field];
@@ -23,4 +24,13 @@ export function trataParams(searchParam: any[]): any {
 		}
 	}
 	return searchParam;
+}
+
+export function readFileAsBase64(filePath: string): string {
+	try {
+		return fs.readFileSync(filePath, {encoding: 'base64'});
+	} catch (error) {
+		console.error(`Erro ao ler o arquivo ${filePath} em base64:`, error);
+		throw error;
+	}
 }
