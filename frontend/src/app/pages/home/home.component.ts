@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { ThemeService } from '../../shared/services/theme.service';
+import {Component} from '@angular/core';
+import {ThemeService} from '../../shared/services/theme.service';
+import {PostService} from '../../shared/services/post.service';
 
 @Component({
 	selector: 'wb-home',
@@ -8,7 +9,10 @@ import { ThemeService } from '../../shared/services/theme.service';
 })
 export class HomeComponent {
 	
-	constructor(private themeService: ThemeService) {
+	constructor(
+			private themeService: ThemeService,
+			private postService: PostService,
+	) {
 	}
 	
 	get containerClass(): any {
@@ -27,5 +31,6 @@ export class HomeComponent {
 	
 	changeTheme(): void {
 		this.themeService.switchTheme();
+		this.postService.getList([{between: [{}, {}]}]);
 	}
 }

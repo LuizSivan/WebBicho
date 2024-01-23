@@ -1,14 +1,14 @@
 import GenericController from './GenericController';
-import { Comment } from '../models/entities/Comment';
-import { Request, Response } from 'express';
-import { getRepository } from '../database/datasource';
+import {Comment} from '../models/entities/Comment';
+import {Request, Response} from 'express';
+import {getRepository} from '../database/datasource';
 
 class CommentController extends GenericController<Comment> {
-	public async get(
+	public async list(
 			request: Request,
 			response: Response,
 	): Promise<any> {
-		return super.get(
+		return super.list(
 				request,
 				response,
 				getRepository(Comment)

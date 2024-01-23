@@ -1,20 +1,31 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { HttpRequest } from '../utils/http-request';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {HttpRequest} from '../utils/http-request';
+import {IPage} from '../interfaces/i-page';
+import {GenericEntity} from '../models/entities/generic-entity';
+import {SearchParam} from '../interfaces/types/search-param';
 
 @Injectable({
 	providedIn: 'root'
 })
-export abstract class GenericService<T> {
+export abstract class GenericService<T extends GenericEntity> {
 	
-	constructor(protected http: HttpClient) {
+	http: HttpClient;
+	
+	abstract endpoint: string;
+	
+	protected constructor(
+			http: HttpClient
+	) {
+		this.http = http;
 	}
 	
-	abstract getEndpoint(): string;
-	
-	getList(): Observable<T[]> {
-		return new HttpRequest<T[]>(this.http)
+	getList(
+			searchParams: SearchParam<T>[] = []
+	): Observable<IPage<T>> {
+		return new HttpRequest<IPage<T>>(this.http)
+				.setEndpoint(this.endpoint)
 				.doGet();
 	}
 	

@@ -1,11 +1,13 @@
-import { Request, Response } from 'express';
-import { FindManyOptions, FindOptionsWhere, Repository } from 'typeorm';
-import { GenericEntity } from '../models/GenericEntity';
-import { Page } from '../models/classes/Page';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import {Request, Response} from 'express';
+import {FindManyOptions, FindOptionsWhere, Repository} from 'typeorm';
+import {GenericEntity} from '../models/GenericEntity';
+import {Page} from '../models/classes/Page';
+import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
 
 class GenericController<T extends GenericEntity> {
-	public async get(
+	//TODO: Implementar um SearchParams para todas as rotas
+	//TODO: Tratar a busca de usuários por dados sensíves
+	public async list(
 			request: Request,
 			response: Response,
 			repository: Repository<T>

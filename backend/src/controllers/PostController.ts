@@ -1,14 +1,14 @@
 import GenericController from './GenericController';
-import { Post } from '../models/entities/Post';
-import { Request, Response } from 'express';
-import { getRepository } from '../database/datasource';
+import {Post} from '../models/entities/Post';
+import {Request, Response} from 'express';
+import {getRepository} from '../database/datasource';
 
 class PostController extends GenericController<Post> {
-	public async get(
+	public async list(
 			request: Request,
 			response: Response,
 	): Promise<any> {
-		return super.get(
+		return super.list(
 				request,
 				response,
 				getRepository(Post)

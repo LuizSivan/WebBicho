@@ -1,14 +1,14 @@
 import GenericController from './GenericController';
-import { User } from '../models/entities/User';
-import { Request, Response } from 'express';
-import { getRepository } from '../database/datasource';
+import {User} from '../models/entities/User';
+import {Request, Response} from 'express';
+import {getRepository} from '../database/datasource';
 
 class UserController extends GenericController<User> {
-	public async get(
+	public async list(
 			request: Request,
 			response: Response,
 	): Promise<any> {
-		return super.get(
+		return super.list(
 				request,
 				response,
 				getRepository(User)
