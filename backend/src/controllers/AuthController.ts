@@ -167,7 +167,6 @@ function sendVerificationEmail(user: User): Promise<void> {
 		const port: string = HOST.includes('127.0.0.1') ? ':4400' : '';
 		const verificationLink: string = `${HOST}${port}/auth/verify?token=${token}`;
 		const templatePath: string = path.join(__dirname, '../assets/html/account-verification.html');
-
 		const htmlContent: string = fs.readFileSync(templatePath, 'utf-8')
 				.replace('{{VERIFICATION_LINK}}', verificationLink)
 				.replace('{{USER_NAME}}', user?.name ?? user.username);
