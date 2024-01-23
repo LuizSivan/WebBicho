@@ -3,13 +3,20 @@
 Este projeto foi desenvolvido utilizando a versão **LTS 20.11.0** do Node.js.
 Antes de prosseguir,
 
+## Links de ferramentas e utilitários
+
+* [Node.js](https://nodejs.org/en/download) *
+* [PostgreSQL](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads) *
+* [Everything](https://www.voidtools.com/downloads/)
+* [Postman](https://www.postman.com/downloads/)
+
+## Configurações de IDE
+
 * Certifique-se de ter o Node instalado na versão acima ou mais recente para melhor compatibilidade.
-
-    * Caso já tenha instalado, você pode verificar com o comando `node -v`
-
+   * Caso já tenha instalado, você pode verificar com o comando `node -v`
 * Siga o passo a passo conforme descrito.
 
-### Configuração para todos os usuários
+### Para todos os usuários
 
 1. Execute o seguinte comando para instalar globalmente o Yarn (Gerenciador de pacotes):
     ```bash
@@ -21,12 +28,12 @@ Antes de prosseguir,
    npm install @angular/cli -g
    ```
 
-### Configuração para usuários do WebStorm:
+### Para usuários do WebStorm:
 
 1. Os perfis `Start Client` e `Start Server` executam o frontend e backend, eles já instala as dependências e executam
    os processos necessários para rodar o projeto diretamente no WebStorm.
 
-## Configuração para usuários do Visual Studio Code (VSCode):
+### Para usuários do Visual Studio Code (VSCode):
 
 1. **(Opcional)** Instale a extensão ***Live Sass Compiler*** no VSCode para compilar o SCSS automaticamente.
 
@@ -34,7 +41,7 @@ Antes de prosseguir,
 
 3. Prossiga para as configurações abaixo
 
-### Configuração para usuários de Outras IDEs:
+### Para usuários de outras IDEs:
 
 1. Execute o seguinte comando para instalar globalmente o Yarn:
     ```bash
@@ -64,3 +71,24 @@ Antes de prosseguir,
     ```bash
     yarn start
     ```
+
+## Configurações de funcionamento
+
+### Variáveis de ambiente
+
+1. Crie um .env na pasta raiz do backend com estas variáveis.
+   ```env
+   # Database
+   DB_HOST=
+   DB_PORT=
+   DB_USER=
+   DB_PASSWORD=
+   
+   # Email
+   SMTP=
+   EMAIL=
+   PASSWORD=
+   
+   # Secret
+   JWT_SECRET=
+   ```

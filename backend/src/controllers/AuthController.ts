@@ -1,13 +1,15 @@
-import { Request, Response } from 'express';
-import { EUserRole, User } from '../models/entities/User';
-import { getRepository } from '../database/datasource';
+import {Request, Response} from 'express';
+import {EUserRole, User} from '../models/entities/User';
+import {getRepository} from '../database/datasource';
 import bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
-import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
-import { secret } from '../auth/check-jwt';
-import nodemailer, { Transporter } from 'nodemailer';
-import { MailOptions } from 'nodemailer/lib/sendmail-transport';
-import { HOST } from '../wb-server';
+import {Repository} from 'typeorm';
+import jwt, {JwtPayload, SignOptions} from 'jsonwebtoken';
+import {secret} from '../auth/check-jwt';
+import nodemailer, {Transporter} from 'nodemailer';
+import {MailOptions} from 'nodemailer/lib/sendmail-transport';
+import {HOST} from '../wb-server';
+import * as fs from "fs";
+import path from "node:path";
 
 const transporter: Transporter = nodemailer.createTransport({
 	service: process.env.SMTP,
@@ -164,18 +166,17 @@ function sendVerificationEmail(user: User): Promise<void> {
 		const token: string = await getToken(user, '15m');
 		const port: string = HOST.includes('127.0.0.1') ? ':4400' : '';
 		const verificationLink: string = `${HOST}${port}/auth/verify?token=${token}`;
-		const message: string = `
-        <p>Olá, ${user?.name ?? user.username}!</p>
-        <p>Bem-vindo à WebBicho. Para garantir a segurança da sua conta, por favor, clique no link abaixo para verificar seu endereço de e-mail:</p>
-        <p><a href="${verificationLink}">Clique aqui para verificar seu e-mail</a></p>
-        <p>Se você não solicitou a verificação da sua conta, por favor, ignore este e-mail.</p>
-        <p>Atenciosamente,<br/>WebBicho</p>
-    `;
+		const templatePath: string = path.join(__dirname, '../utils/HTMLs/account-verification.html');
+
+		const htmlContent: string = fs.readFileSync(templatePath, 'utf-8')
+				.replace('{{VERIFICATION_LINK}}', verificationLink)
+				.replace('{{USER_NAME}}', user.username);
+
 		const mailOptions: MailOptions = {
-			from: process.env.EMAIL,
+			from: `WebBicho Automático <${process.env.EMAIL}>`,
 			to: user?.email,
 			subject: 'Verificação de conta',
-			html: message
+			html: htmlContent
 		};
 		transporter.sendMail(mailOptions, (err: Error | null, info: any): void => {
 			if (err) {

@@ -1,4 +1,4 @@
-import { DataSource, DataSourceOptions, EntityTarget, ObjectLiteral, Repository } from 'typeorm';
+import {DataSource, DataSourceOptions, EntityTarget, ObjectLiteral, Repository} from 'typeorm';
 import path from 'node:path';
 import dotenv from 'dotenv';
 
@@ -9,10 +9,10 @@ export const DEFAULT_DB: string = 'webbicho';
 const __dirEntity: string = path.join(__dirname, '..');
 const OPTIONS: DataSourceOptions = {
 	type: 'postgres',
-	host: process.env.DBHOST || 'localhost',
-	port: Number(process.env.DBPORT || 5432),
-	username: process.env.DBUSER || 'postgres',
-	password: process.env.DBPASSWORD || '1',
+	host: process.env.DB_HOST,
+	port: Number(process.env.DB_PORT),
+	username: process.env.DB_USER,
+	password: process.env.DB_PASSWORD,
 	database: DEFAULT_DB,
 	entities: [__dirEntity + '/models/entities/**/*.{js,ts}'],
 	synchronize: true,

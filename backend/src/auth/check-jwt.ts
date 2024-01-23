@@ -1,11 +1,11 @@
-import { NextFunction, Request, Response } from 'express';
-import { EUserRole, User } from '../models/entities/User';
-import { getRepository } from '../database/datasource';
+import {NextFunction, Request, Response} from 'express';
+import {EUserRole, User} from '../models/entities/User';
+import {getRepository} from '../database/datasource';
 import jwt from 'jsonwebtoken';
 
-export const secret: string = '@WebBichoIn2024!';
-
-const HEADER_USER: string = 'user';
+export const secret: string = process.env.JWT_SECRET as string;
+export const HEADER_USER: string = 'user';
+export const HEADER_TOKEN: string = 'auth';
 
 export async function checkJwt(
 		request: Request,
@@ -13,7 +13,7 @@ export async function checkJwt(
 		next: NextFunction,
 ): Promise<any> {
 	try {
-		const token: string = request.headers['auth'] as string;
+		const token: string = request.headers[HEADER_TOKEN] as string;
 		try {
 			response.locals.jwtPayload = jwt.verify(token, secret);
 		} catch (error: any) {
@@ -37,7 +37,7 @@ export async function checkIsAdmin(
 		next: NextFunction,
 ): Promise<any> {
 	try {
-		const token: string = request.headers['auth'] as string;
+		const token: string = request.headers[HEADER_TOKEN] as string;
 		try {
 			response.locals.jwtPayload = jwt.verify(token, secret);
 		} catch (error: any) {
