@@ -31,6 +31,6 @@ export class HomeComponent {
 	
 	changeTheme(): void {
 		this.themeService.switchTheme();
-		this.postService.getList([{between: [{}, {}]}]);
+		this.postService.getList();
 	}
 }

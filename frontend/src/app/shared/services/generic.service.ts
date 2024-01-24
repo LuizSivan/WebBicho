@@ -4,7 +4,6 @@ import {Observable} from 'rxjs';
 import {HttpRequest} from '../utils/http-request';
 import {IPage} from '../interfaces/i-page';
 import {GenericEntity} from '../models/entities/generic-entity';
-import {SearchParam} from '../interfaces/types/search-param';
 
 @Injectable({
 	providedIn: 'root'
@@ -22,10 +21,11 @@ export abstract class GenericService<T extends GenericEntity> {
 	}
 	
 	getList(
-			searchParams: SearchParam<T>[] = []
+			searchParams: any[] = []
 	): Observable<IPage<T>> {
 		return new HttpRequest<IPage<T>>(this.http)
 				.setEndpoint(this.endpoint)
+				.addHeader('search-params', JSON.stringify(searchParams))
 				.doGet();
 	}
 	
