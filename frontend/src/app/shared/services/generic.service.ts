@@ -26,6 +26,7 @@ export abstract class GenericService<T extends GenericEntity> {
 	): Observable<IPage<T>> {
 		return new HttpRequest<IPage<T>>(this.http)
 				.setEndpoint(this.endpoint)
+				.addHeader('search-params', JSON.stringify(searchParams))
 				.doGet();
 	}
 	
