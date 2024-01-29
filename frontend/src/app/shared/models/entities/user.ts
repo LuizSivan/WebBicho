@@ -1,4 +1,5 @@
-import { GenericEntity } from './generic-entity';
+import {GenericEntity} from './generic-entity';
+import {Comment} from './comment';
 
 export enum EUserRole {
 	ADMINISTRATOR = 'ADMINISTRATOR',
@@ -16,8 +17,5 @@ export class User extends GenericEntity {
 	avatar?: string;
 	verified?: boolean;
 	token?: string;
-	
-	constructor() {
-		super();
-	}
+	comment: Comment;
 }

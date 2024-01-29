@@ -1,6 +1,8 @@
 import {Component} from '@angular/core';
 import {ThemeService} from '../../shared/services/theme.service';
 import {PostService} from '../../shared/services/post.service';
+import {WhereParam} from '../../shared/interfaces/types/where-param';
+import {Post} from '../../shared/models/entities/post';
 
 @Component({
 	selector: 'wb-home',
@@ -31,6 +33,31 @@ export class HomeComponent {
 	
 	changeTheme(): void {
 		this.themeService.switchTheme();
-		this.postService.getList();
+		const sp: WhereParam<Post>[] = [
+			{
+				id: {between: ['uuid1', 'uuid2']},
+				user: {
+					id: {equals: 'uuid3'},
+					name: {equals: ''},
+					comment: {
+						id: {equals: 'uuid4'},
+					}
+				}
+			}
+		];
+		this.postService.getList(0, 10);
 	}
 }
+
+/*const where: any[] = [
+	{
+		id: Between(value1, value2),
+		user: {
+			id: 'uuid',
+			name: '',
+			comment: {
+				id: 'uuid',
+			}
+		}
+	}
+]*/

@@ -1,4 +1,26 @@
-export enum EOperator {
+export type WhereParam<T> = {
+	[P in keyof T]?:
+		| WhereKey<T[P]>
+		| WhereParam<T[P]>
+};
+
+type WhereKey<T> =
+		| {equals?: T}
+		| {between?: [T, T]}
+		| {in?: T[]}
+		| {like?: string}
+		| {greaterThan?: T}
+		| {greaterThanOrEquals?: T}
+		| {lessThan?: T}
+		| {lessThanOrEquals?: T}
+		| {notEquals?: T}
+		| {notBetween?: [T, T]}
+		| {notIn?: T[]}
+		| {notLike?: string}
+		| {isNull?: null}
+		| {notNull?: null};
+
+/*export enum EOperator {
 	equals = 'equals',
 	between = 'between',
 	in = 'in',
@@ -15,26 +37,7 @@ export enum EOperator {
 	notNull = 'notNull'
 }
 
-export type SearchParam<T> = {
-	[P in keyof T]?: {
-		equals?: T[P];
-		between?: [T[P], T[P]];
-		in?: T[P][];
-		like?: string;
-		greaterThan?: T[P];
-		greaterThanOrEquals?: T[P];
-		lessThan?: T[P];
-		lessThanOrEquals?: T[P];
-		notEquals?: T[P];
-		notBetween?: [T[P], T[P]];
-		notIn?: T[P][];
-		notLike?: string;
-		isNull?: any;
-		notNull?: any;
-	};
-};
-
-type SearchParamType<T, P extends keyof T> =
+type BasicParam<T, P extends keyof T> =
 		| {equals: T[P]}
 		| {between: [T[P], T[P]]}
 		| {in: T[P][]}
@@ -53,7 +56,7 @@ type SearchParamType<T, P extends keyof T> =
 export function createParam<T, P extends keyof T>(
 		operator: EOperator,
 		value: T[P],
-): SearchParamType<T, P> {
+): BasicParam<T, P> {
 	switch (operator) {
 		case EOperator.equals:
 			return {equals: value};
@@ -86,4 +89,4 @@ export function createParam<T, P extends keyof T>(
 		default:
 			throw new Error('Invalid operator');
 	}
-}
+}*/

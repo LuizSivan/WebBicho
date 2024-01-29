@@ -3,6 +3,12 @@ import {FindManyOptions, FindOptionsWhere, Repository} from 'typeorm';
 import {GenericEntity} from '../models/GenericEntity';
 import {Page} from '../models/classes/Page';
 import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
+import {convertParams} from '../utils/utils';
+
+const HEADER_FIELDS: string = 'fields';
+const HEADER_PARAMS: string = 'search-params';
+const HEADER_RELATIONS: string = 'relations';
+const HEADER_SORT: string = 'sort-params';
 
 class GenericController<T extends GenericEntity> {
 	//TODO: Implementar um SearchParams para todas as rotas
@@ -13,14 +19,27 @@ class GenericController<T extends GenericEntity> {
 			repository: Repository<T>
 	): Promise<any> {
 		try {
-			const pageSize: number = 9;
-			const page: number = parseInt(request?.query?.page as string, 10) || 1;
+			const fields: string[] = request.headers[HEADER_FIELDS] as string[];
+			const relations: string[] = request.headers[HEADER_RELATIONS] as string[];
+			const untreatedParams: any[] = request.headers[HEADER_PARAMS] as any[];
+			const params: FindOptionsWhere<T> = convertParams(untreatedParams);
+			const order: string = request.headers[HEADER_SORT] as string;
+			const page: number = Number(request?.query?.page) || 1;
+			const size: number = Number(request?.query?.size) || 9;
 			const options: FindManyOptions = {
-				take: pageSize,
-				skip: (page - 1) * pageSize,
+				select: fields ?? undefined,
+				relations: relations ?? undefined,
+				where: params ?? undefined,
+				skip: (page - 1) * size,
+				take: size,
 			};
 			const [data, count]: [T[], number] = await repository.findAndCount(options);
-			const paged: Page<T> = new Page(data, page, Math.ceil(count / pageSize), count);
+			const paged: Page<T> = new Page(
+					data,
+					page,
+					Math.ceil(count / size),
+					count
+			);
 			return response.status(200).json(paged);
 		} catch (error: any) {
 			return response.status(500).json({message: error.message});

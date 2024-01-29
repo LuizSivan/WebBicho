@@ -1,7 +1,7 @@
-import {Between, In, Not, Raw} from 'typeorm';
+import {Between, FindOptionsWhere, In, Not, Raw} from 'typeorm';
 import * as fs from 'fs';
 
-export function convertParams(searchParam: any[]): any {
+export function convertParams(searchParam: any[]): FindOptionsWhere<any> {
 	for (const sp of searchParam) {
 		for (const field in sp) {
 			const value = sp[field];
