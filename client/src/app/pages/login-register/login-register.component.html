@@ -1,0 +1,46 @@
+<div class="layout-main-container p-fluid flex justify-content-center">
+  <p-card
+      class="flex align-self-start justify-content-center align-content-center"
+      header="Entrar">
+    <ng-template pTemplate="header">
+      <div class="flex">
+
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <div class="p-fluid grid flex justify-content-center">
+        <div class="p-field col-9">
+          <wb-label
+              [float]="true"
+              for="username"
+              label="Login ou E-mail">
+            <input
+                [(ngModel)]="user.username"
+                id="username"
+                pInputText>
+          </wb-label>
+        </div>
+        <div class="p-field col-9">
+          <wb-label
+              [float]="true"
+              for="password"
+              label="Senha">
+            <input
+                [(ngModel)]="user.password"
+                id="password"
+                pInputText>
+          </wb-label>
+        </div>
+        <div class="p-field col-4">
+          <button
+              (click)="doLogin()"
+              class=""
+              label="Entrar"
+              pButton
+              pRipple>
+          </button>
+        </div>
+      </div>
+    </ng-template>
+  </p-card>
+</div>

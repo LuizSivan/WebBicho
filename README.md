@@ -43,13 +43,13 @@ Antes de prosseguir,
 
 ### Para usuários de outras IDEs:
 
-1. Nos diretórios frontend e backend, execute o comando abaixo para instalar as dependências no diretório de cada
+1. Nos diretórios client e backend, execute o comando abaixo para instalar as dependências no diretório de cada
    projeto:
     ```bash
     yarn install
     ```
 
-2. Para compilar o SCSS no diretório frontend, utilize o seguinte comando:
+2. Para compilar o SCSS no diretório client, utilize o seguinte comando:
     * Usuários do VSCode NÃO precisam caso usem a extensão Live Sass Compiler
     ```bash
     sass src:src --source-map
@@ -60,7 +60,7 @@ Antes de prosseguir,
     yarn run debug
     ```
 
-4. No diretório do frontend, inicie-o com o comando:
+4. No diretório do client, inicie-o com o comando:
     ```bash
     yarn run start
     ```

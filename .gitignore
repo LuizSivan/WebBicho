@@ -22,7 +22,7 @@ yarn-error.log
 *.sublime-workspace
 
 # Visual Studio Code
-frontend/.vscode/tasks.json
+client/.vscode/tasks.json
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
@@ -30,7 +30,7 @@ frontend/.vscode/tasks.json
 .history/*
 
 # Miscellaneous
-frontend/.angular/cache/
+client/.angular/cache/
 .sass-cache/
 connect.lock/
 coverage/
