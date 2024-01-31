@@ -12,6 +12,7 @@ npm-debug.log
 yarn-error.log
 
 # IDEs and editors
+/.idea
 .idea/*
 !.idea/runConfigurations
 .project
@@ -45,3 +46,20 @@ typings/
 .DS_Store
 Thumbs.db
 .env
+
+# compiled output
+/dist
+/node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Tests
+/coverage
+/.nyc_output
