@@ -1,8 +1,10 @@
-import {Get, Headers, HttpException, HttpStatus, Param, Query} from '@nestjs/common';
+import {Body, Delete, Get, Headers, HttpException, HttpStatus, Param, Post, Put} from '@nestjs/common';
 import {GenericEntity} from '../../shared/models/entities/generic-entity';
 import {Page} from '../../shared/models/classes/page';
 import {GenericService} from '../../shared/services/generic.service';
-import {FindOptionsOrder} from 'typeorm';
+import {DeepPartial, FindOptionsOrder} from 'typeorm';
+
+export const HEADER_USER_ID: string = 'user-id';
 
 export class GenericController<T extends GenericEntity> {
 	
@@ -11,14 +13,14 @@ export class GenericController<T extends GenericEntity> {
 	) {
 	}
 	
-	@Get('list')
+	@Get(':page/:size')
 	public async list(
 			@Headers('fields') fields: string[],
 			@Headers('relations') relations: string[],
 			@Headers('params') params: any[],
 			@Headers('order') order: FindOptionsOrder<T>,
-			@Query('page') page: number = 1,
-			@Query('size') size: number = 9,
+			@Param('page') page: number = 1,
+			@Param('size') size: number = 9,
 	): Promise<Page<T>> {
 		try {
 			return this.service.list(
@@ -51,6 +53,50 @@ export class GenericController<T extends GenericEntity> {
 					params,
 					id
 			);
+		} catch (e: any) {
+			throw new HttpException(
+					e.message ?? 'Internal Server Error',
+					HttpStatus.INTERNAL_SERVER_ERROR,
+			);
+		}
+	}
+	
+	@Post()
+	public async create(
+			@Body() entity: DeepPartial<T>,
+			@Headers(HEADER_USER_ID) userId: string
+	): Promise<T> {
+		try {
+			return this.service.create(entity, userId);
+		} catch (e: any) {
+			throw new HttpException(
+					e.message ?? 'Internal Server Error',
+					HttpStatus.INTERNAL_SERVER_ERROR,
+			);
+		}
+	}
+	
+	@Put(':id')
+	public async update(
+			@Body() entity: DeepPartial<T>,
+			@Headers(HEADER_USER_ID) userId: string
+	): Promise<T> {
+		try {
+			return this.service.update(entity, userId);
+		} catch (e: any) {
+			throw new HttpException(
+					e.message ?? 'Internal Server Error',
+					HttpStatus.INTERNAL_SERVER_ERROR,
+			);
+		}
+	}
+	
+	@Delete(':id')
+	public async delete(
+			@Param('id') id: string,
+	): Promise<void> {
+		try {
+			await this.service.delete(id);
 		} catch (e: any) {
 			throw new HttpException(
 					e.message ?? 'Internal Server Error',
