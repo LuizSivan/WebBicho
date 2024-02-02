@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {GenericEntity} from '../models/entities/generic-entity';
-import {DeepPartial, FindManyOptions, FindOptionsOrder, FindOptionsWhere, Repository} from 'typeorm';
+import {DeepPartial, FindManyOptions, FindOneOptions, FindOptionsOrder, FindOptionsWhere, Repository} from 'typeorm';
 import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
 import {Page} from '../models/classes/page';
 
@@ -11,11 +11,19 @@ export class GenericService<T extends GenericEntity> {
 	) {
 	}
 	
-	async findById(
+	async findOne(
+			fields: string[],
+			relations: string[],
+			params: any[],
 			entityId: string
 	): Promise<T> {
 		try {
-			return await this.repository.findOneBy({id: entityId} as FindOptionsWhere<T>);
+			const options: FindOneOptions = {
+				select: fields ?? undefined,
+				relations: relations,
+				where: params.map(p => ({...p, id: entityId})),
+			};
+			return await this.repository.findOne(options);
 		} catch (e: any) {
 			throw new Error(`Erro ao buscar ${this.repository.metadata.name} ${entityId}: ${e.message}`);
 		}
@@ -31,9 +39,9 @@ export class GenericService<T extends GenericEntity> {
 	): Promise<Page<T>> {
 		try {
 			const options: FindManyOptions = {
-				select: fields ?? undefined,
-				relations: relations ?? undefined,
-				where: params ?? undefined,
+				select: fields,
+				relations: relations,
+				where: params,
 				skip: (page - 1) * size,
 				take: size,
 				order: order

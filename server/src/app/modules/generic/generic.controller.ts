@@ -1,4 +1,4 @@
-import {Get, Headers, HttpException, HttpStatus, Query} from '@nestjs/common';
+import {Get, Headers, HttpException, HttpStatus, Param, Query} from '@nestjs/common';
 import {GenericEntity} from '../../shared/models/entities/generic-entity';
 import {Page} from '../../shared/models/classes/page';
 import {GenericService} from '../../shared/services/generic.service';
@@ -19,7 +19,7 @@ export class GenericController<T extends GenericEntity> {
 			@Headers('order') order: FindOptionsOrder<T>,
 			@Query('page') page: number = 1,
 			@Query('size') size: number = 9,
-	): Promise<Page<T> | HttpException> {
+	): Promise<Page<T>> {
 		try {
 			return this.service.list(
 					page,
@@ -37,12 +37,20 @@ export class GenericController<T extends GenericEntity> {
 		}
 	}
 	
-	@Get('get-by-id')
-	public async findById(
-			@Query('id') id: string,
-	): Promise<T | HttpException> {
+	@Get(':id?')
+	public async findOne(
+			@Headers('fields') fields: string[],
+			@Headers('relations') relations: string[],
+			@Headers('params') params: any[],
+			@Param('id') id?: string,
+	): Promise<T> {
 		try {
-			return this.service.findById(id);
+			return this.service.findOne(
+					fields,
+					relations,
+					params,
+					id
+			);
 		} catch (e: any) {
 			throw new HttpException(
 					e.message ?? 'Internal Server Error',
