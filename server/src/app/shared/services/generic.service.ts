@@ -5,10 +5,13 @@ import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
 import {Page} from '../models/classes/page';
 
 @Injectable()
-export class GenericService<T extends GenericEntity> {
-	constructor(
-			public readonly repository: Repository<T>
+export abstract class GenericService<T extends GenericEntity> {
+	protected repository: Repository<T>;
+	
+	protected constructor(
+			repository: Repository<T>
 	) {
+		this.repository = repository;
 	}
 	
 	async findOne(
@@ -96,9 +99,7 @@ export class GenericService<T extends GenericEntity> {
 		}
 	}
 	
-	async delete(
-			entityId: string
-	): Promise<void> {
+	async delete(entityId: string): Promise<void> {
 		const exists: boolean = await this.repository.existsBy({id: entityId} as FindOptionsWhere<T>);
 		if (!exists) {
 			throw new Error(`${this.repository.metadata.name} não encontrado!`);
