@@ -1,7 +1,18 @@
 import fs from 'fs';
-import {Between, FindOptionsWhere, In, Not, Raw} from 'typeorm';
-import {Comparators, WhereKey, WhereParam} from '../models/types/where-param';
-import {GenericEntity} from '../models/entities/generic-entity';
+import {
+	Between,
+	FindOperator,
+	FindOptionsWhere,
+	In,
+	IsNull,
+	LessThan,
+	LessThanOrEqual,
+	MoreThan,
+	MoreThanOrEqual,
+	Not,
+	Raw
+} from 'typeorm';
+import {WhereParam} from '../models/types/where-param';
 
 export function convertParams(searchParam: any[]): FindOptionsWhere<any> {
 	for (const sp of searchParam) {
@@ -37,7 +48,7 @@ export function readFileAsBase64(filePath: string): string {
 	}
 }
 
-export function convertParams2<T extends GenericEntity>(
+export function convertParams2<T>(
 		params: WhereParam<T>[]
 ): FindOptionsWhere<T>[] {
 	const newParams: FindOptionsWhere<T>[] = [];
@@ -47,22 +58,41 @@ export function convertParams2<T extends GenericEntity>(
 	return newParams;
 }
 
-export function convertParam<T extends GenericEntity>(param: WhereParam<T>): FindOptionsWhere<T> {
-	let newParam: FindOptionsWhere<T> = {};
-	
-	for (const key in param) {
-		if (Comparators.some(prop => param[key].hasOwnProperty(prop))) {
-			// This is a WhereKey. Convert it to a compatible format.
-			newParam[key] = convertWhereKey(param[key]);
-		} else {
-			// This is a nested object. Call the function recursively.
-			newParam[key] = convertParam(param[key]);
-		}
+export function convertParam<T>(params: WhereParam<T>): FindOptionsWhere<T> {
+	let newParams: FindOptionsWhere<any> = {};
+	for (const key in params) {
+		if (!params.hasOwnProperty(key)) continue;
+		let condition = params[key];
+		if (condition.hasOwnProperty('equals'))
+			newParams[key] = condition['equals'];
+		else if (condition.hasOwnProperty('between'))
+			newParams[key] = Between(condition['between'][0], condition['between'][1]);
+		else if (condition.hasOwnProperty('in'))
+			newParams[key] = In(condition['in']);
+		else if (condition.hasOwnProperty('like'))
+			newParams[key] = new FindOperator('ilike', `unaccent(${condition['like']})`);
+		else if (condition.hasOwnProperty('greaterThan'))
+			newParams[key] = MoreThan(condition['greaterThan']);
+		else if (condition.hasOwnProperty('greaterThanOrEquals'))
+			newParams[key] = MoreThanOrEqual(condition['greaterThanOrEquals']);
+		else if (condition.hasOwnProperty('lessThan'))
+			newParams[key] = LessThan(condition['lessThan']);
+		else if (condition.hasOwnProperty('lessThanOrEquals'))
+			newParams[key] = LessThanOrEqual(condition['lessThanOrEquals']);
+		else if (condition.hasOwnProperty('notEquals'))
+			newParams[key] = Not(condition['notEquals']);
+		else if (condition.hasOwnProperty('notBetween'))
+			newParams[key] = Not(Between(condition['notBetween'][0], condition['notBetween'][1]));
+		else if (condition.hasOwnProperty('notIn'))
+			newParams[key] = Not(In(condition['notIn']));
+		else if (condition.hasOwnProperty('notLike'))
+			newParams[key] = Not(new FindOperator('ilike', `unaccent(${condition['notLike']})`));
+		else if (condition.hasOwnProperty('isNull'))
+			newParams[key] = IsNull();
+		else if (condition.hasOwnProperty('notNull'))
+			newParams[key] = Not(IsNull());
+		else if (typeof condition === 'object')
+			newParams[key] = convertParam(condition);
 	}
-	
-	return newParam;
-}
-
-function convertWhereKey<T extends GenericEntity>(comparator: WhereKey<T>) {
-	switch (comparator)
+	return newParams;
 }

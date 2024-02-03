@@ -20,7 +20,7 @@ export type WhereKey<T> =
 		| {isNull?: null}
 		| {notNull?: null};
 
-export const Comparators: string[] = [
+export const Operators: string[] = [
 	'equals',
 	'between',
 	'in',
