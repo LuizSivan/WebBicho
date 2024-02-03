@@ -33,7 +33,7 @@ export class GenericController<T extends GenericEntity> {
 			);
 		} catch (e: any) {
 			throw new HttpException(
-					e.message ?? 'Internal Server Error',
+					`Erro ao buscar lista de ${this.service.entityName}: ${e.message}`,
 					HttpStatus.INTERNAL_SERVER_ERROR,
 			);
 		}
@@ -55,7 +55,7 @@ export class GenericController<T extends GenericEntity> {
 			);
 		} catch (e: any) {
 			throw new HttpException(
-					e.message ?? 'Internal Server Error',
+					`Erro ao buscar ${this.service.entityName} ${id}: ${e.message}`,
 					HttpStatus.INTERNAL_SERVER_ERROR,
 			);
 		}
@@ -70,7 +70,7 @@ export class GenericController<T extends GenericEntity> {
 			return this.service.create(entity, userId);
 		} catch (e: any) {
 			throw new HttpException(
-					e.message ?? 'Internal Server Error',
+					`Erro ao criar ${this.service.entityName}: ${e.message}`,
 					HttpStatus.INTERNAL_SERVER_ERROR,
 			);
 		}
@@ -85,7 +85,7 @@ export class GenericController<T extends GenericEntity> {
 			return this.service.update(entity, userId);
 		} catch (e: any) {
 			throw new HttpException(
-					e.message ?? 'Internal Server Error',
+					`Erro ao atualizar ${this.service.entityName} ${entity.id}: ${e.message}`,
 					HttpStatus.INTERNAL_SERVER_ERROR,
 			);
 		}
@@ -99,7 +99,7 @@ export class GenericController<T extends GenericEntity> {
 			await this.service.delete(id);
 		} catch (e: any) {
 			throw new HttpException(
-					e.message ?? 'Internal Server Error',
+					`Erro ao deletar ${this.service.entityName} ${id}: ${e.message}`,
 					HttpStatus.INTERNAL_SERVER_ERROR,
 			);
 		}

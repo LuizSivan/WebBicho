@@ -6,12 +6,14 @@ import {Page} from '../models/classes/page';
 
 @Injectable()
 export abstract class GenericService<T extends GenericEntity> {
+	public readonly entityName: string;
 	protected repository: Repository<T>;
 	
 	protected constructor(
 			repository: Repository<T>
 	) {
 		this.repository = repository;
+		this.entityName = this.repository.metadata.name;
 	}
 	
 	async findOne(
@@ -20,16 +22,12 @@ export abstract class GenericService<T extends GenericEntity> {
 			params: any[],
 			entityId: string
 	): Promise<T> {
-		try {
-			const options: FindOneOptions = {
-				select: fields ?? undefined,
-				relations: relations,
-				where: params.map(p => ({...p, id: entityId})),
-			};
-			return await this.repository.findOne(options);
-		} catch (e: any) {
-			throw new Error(`Erro ao buscar ${this.repository.metadata.name} ${entityId}: ${e.message}`);
-		}
+		const options: FindOneOptions = {
+			select: fields,
+			relations: relations,
+			where: params.map(p => ({...p, id: entityId})),
+		};
+		return await this.repository.findOne(options);
 	}
 	
 	async list(
@@ -40,25 +38,21 @@ export abstract class GenericService<T extends GenericEntity> {
 			params: any[],
 			order: FindOptionsOrder<T>,
 	): Promise<Page<T>> {
-		try {
-			const options: FindManyOptions = {
-				select: fields,
-				relations: relations,
-				where: params,
-				skip: (page - 1) * size,
-				take: size,
-				order: order
-			};
-			const [data, count]: [T[], number] = await this.repository.findAndCount(options);
-			return new Page(
-					data,
-					page,
-					Math.ceil(count / size),
-					count
-			);
-		} catch (e) {
-			throw new Error(`Erro ao buscar lista de ${this.repository.metadata.name}: ${e.message}`);
-		}
+		const options: FindManyOptions = {
+			select: fields,
+			relations: relations,
+			where: params,
+			skip: (page - 1) * size,
+			take: size,
+			order: order
+		};
+		const [data, count]: [T[], number] = await this.repository.findAndCount(options);
+		return new Page(
+				data,
+				page,
+				Math.ceil(count / size),
+				count
+		);
 	}
 	
 	async create(
@@ -67,16 +61,12 @@ export abstract class GenericService<T extends GenericEntity> {
 	): Promise<T> {
 		const exists: boolean = await this.repository.existsBy({id: entity?.id} as FindOptionsWhere<T>);
 		if (exists) {
-			throw new Error(`${this.repository.metadata.name} já existe!`);
+			throw new Error(`${this.repository.metadata.name} ${entity?.id} já existe!`);
 		}
-		try {
-			entity.createdBy = userId;
-			entity.updatedBy = userId;
-			await this.repository.insert(entity as QueryDeepPartialEntity<T>);
-			return await this.repository.findOneByOrFail({id: entity.id} as FindOptionsWhere<T>);
-		} catch (e: any) {
-			throw new Error(`Erro ao criar ${this.repository.metadata.name}: ${e.message}`);
-		}
+		entity.createdBy = userId;
+		entity.updatedBy = userId;
+		await this.repository.insert(entity as QueryDeepPartialEntity<T>);
+		return await this.repository.findOneByOrFail({id: entity.id} as FindOptionsWhere<T>);
 	}
 	
 	async update(
@@ -87,16 +77,12 @@ export abstract class GenericService<T extends GenericEntity> {
 		if (!exists) {
 			throw new Error(`${this.repository.metadata.name} não encontrado!`);
 		}
-		try {
-			entity.updatedBy = userId;
-			await this.repository.update(
-					{id: entity.id} as FindOptionsWhere<T>,
-					entity as QueryDeepPartialEntity<T>
-			);
-			return await this.repository.findOneByOrFail({id: entity.id} as FindOptionsWhere<T>);
-		} catch (e: any) {
-			throw new Error(`Erro ao atualizar ${this.repository.metadata.name}: ${e.message}`);
-		}
+		entity.updatedBy = userId;
+		await this.repository.update(
+				{id: entity.id} as FindOptionsWhere<T>,
+				entity as QueryDeepPartialEntity<T>
+		);
+		return await this.repository.findOneByOrFail({id: entity.id} as FindOptionsWhere<T>);
 	}
 	
 	async delete(entityId: string): Promise<void> {
@@ -104,10 +90,6 @@ export abstract class GenericService<T extends GenericEntity> {
 		if (!exists) {
 			throw new Error(`${this.repository.metadata.name} não encontrado!`);
 		}
-		try {
-			await this.repository.delete({id: entityId} as FindOptionsWhere<T>);
-		} catch (e: any) {
-			throw new Error(`Erro ao deletar ${this.repository.metadata.name}: ${e.message}`);
-		}
+		await this.repository.delete({id: entityId} as FindOptionsWhere<T>);
 	}
 }
