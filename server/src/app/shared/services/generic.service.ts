@@ -71,11 +71,11 @@ export abstract class GenericService<T extends GenericEntity> {
 	
 	async update(
 			entity: DeepPartial<T>,
-			userId: string
+			userId: string,
 	): Promise<T> {
 		const exists: boolean = await this.repository.existsBy({id: entity?.id} as FindOptionsWhere<T>);
 		if (!exists) {
-			throw new Error(`${this.repository.metadata.name} não encontrado!`);
+			throw new Error(`${this.repository.metadata.name} ${entity?.id} não encontrado!`);
 		}
 		entity.updatedBy = userId;
 		await this.repository.update(
@@ -85,10 +85,17 @@ export abstract class GenericService<T extends GenericEntity> {
 		return await this.repository.findOneByOrFail({id: entity.id} as FindOptionsWhere<T>);
 	}
 	
-	async delete(entityId: string): Promise<void> {
-		const exists: boolean = await this.repository.existsBy({id: entityId} as FindOptionsWhere<T>);
+	async delete(
+			params: any[],
+			entityId: string
+	): Promise<void> {
+		if (entityId) {
+			if (!params) params = [{id: entityId}];
+			params = params.map(p => ({...p, id: entityId}));
+		}
+		const exists: boolean = await this.repository.existsBy(params as FindOptionsWhere<T>[]);
 		if (!exists) {
-			throw new Error(`${this.repository.metadata.name} não encontrado!`);
+			throw new Error(`${this.repository.metadata.name} ${entityId} não encontrado!`);
 		}
 		await this.repository.delete({id: entityId} as FindOptionsWhere<T>);
 	}

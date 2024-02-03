@@ -1,5 +1,7 @@
 import fs from 'fs';
 import {Between, FindOptionsWhere, In, Not, Raw} from 'typeorm';
+import {Comparators, WhereKey, WhereParam} from '../models/types/where-param';
+import {GenericEntity} from '../models/entities/generic-entity';
 
 export function convertParams(searchParam: any[]): FindOptionsWhere<any> {
 	for (const sp of searchParam) {
@@ -33,4 +35,34 @@ export function readFileAsBase64(filePath: string): string {
 		console.error(`Erro ao ler o arquivo ${filePath} em base64:`, error);
 		throw error;
 	}
+}
+
+export function convertParams2<T extends GenericEntity>(
+		params: WhereParam<T>[]
+): FindOptionsWhere<T>[] {
+	const newParams: FindOptionsWhere<T>[] = [];
+	for (const param of params) {
+		newParams.push(convertParam(param));
+	}
+	return newParams;
+}
+
+export function convertParam<T extends GenericEntity>(param: WhereParam<T>): FindOptionsWhere<T> {
+	let newParam: FindOptionsWhere<T> = {};
+	
+	for (const key in param) {
+		if (Comparators.some(prop => param[key].hasOwnProperty(prop))) {
+			// This is a WhereKey. Convert it to a compatible format.
+			newParam[key] = convertWhereKey(param[key]);
+		} else {
+			// This is a nested object. Call the function recursively.
+			newParam[key] = convertParam(param[key]);
+		}
+	}
+	
+	return newParam;
+}
+
+function convertWhereKey<T extends GenericEntity>(comparator: WhereKey<T>) {
+	switch (comparator)
 }
