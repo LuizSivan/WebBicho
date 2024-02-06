@@ -5,7 +5,6 @@ import {DeepPartial} from 'typeorm';
 import { User } from 'src/app/shared/models/entities/user';
 import {CheckJwtGuardGuard} from './check-jwt-guard.guard';
 import {HEADER_TOKEN} from './auth.module';
-import {HEADER_FIELDS, HEADER_PARAMS} from '../../modules/generic/generic.controller';
 
 @Controller('auth')
 export class AuthController {
