@@ -1,13 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {User} from '../models/entities/user';
 import path from 'node:path';
 import fs from 'fs';
 import nodemailer, {Transporter} from 'nodemailer';
 import {HOST} from '../../../main';
 import {MailOptions} from 'nodemailer/lib/smtp-pool';
-import {AuthService} from '../../core/auth/auth.service';
 import {DeepPartial} from 'typeorm';
 import {TokenService} from './token.service';
+import {InjectRepository} from '@nestjs/typeorm';
 
 @Injectable()
 export class MailService {
@@ -15,6 +15,7 @@ export class MailService {
 	transporter: Transporter;
 	
 	constructor(
+			@InjectRepository(User)
 			private readonly tokenService: TokenService,
 	) {
 		this.transporter = nodemailer.createTransport({
@@ -25,7 +26,7 @@ export class MailService {
 				user: process.env.EMAIL,
 				pass: process.env.PASSWORD,
 			},
-		})
+		});
 	}
 	
 	public sendVerificationEmail(user: DeepPartial<User>): Promise<void> {

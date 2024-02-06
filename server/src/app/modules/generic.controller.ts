@@ -1,7 +1,7 @@
 import {Body, Delete, Get, Headers, HttpException, HttpStatus, Param, Post, Put} from '@nestjs/common';
-import {GenericEntity} from '../../shared/models/entities/generic-entity';
-import {Page} from '../../shared/models/classes/page';
-import {GenericService} from '../../shared/services/generic.service';
+import {GenericEntity} from '../shared/models/entities/generic-entity';
+import {Page} from '../shared/models/classes/page';
+import {GenericService} from '../shared/services/generic.service';
 import {DeepPartial, FindOptionsOrder} from 'typeorm';
 
 export const HEADER_USER_ID: string = 'user-id';

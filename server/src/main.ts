@@ -9,7 +9,6 @@ dotenv.config();
 const PORT: string | number = process.env.PORT || 8070;
 export const HOST: string = process.env.HOST || 'http://127.0.0.1';
 
-
 async function bootstrap(): Promise<void> {
 	await createDatabaseIfNotExist();
 	const app: INestApplication = await NestFactory.create(AppModule);

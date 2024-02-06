@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {Injectable} from '@nestjs/common';
 import {DeepPartial} from 'typeorm';
 import {EUserRole, User} from '../models/entities/user';
 import jwt, {JwtPayload, SignOptions} from 'jsonwebtoken';
-import {SECRET} from '../../../main';
+import {SECRET} from '../../core/auth/auth.module';
 
 @Injectable()
 export class TokenService {

@@ -1,8 +1,8 @@
-import {Body, Controller, Get, Header, Headers, Param, Patch, Post, UseGuards} from '@nestjs/common';
+import {Body, Controller, Get, Headers, HttpException, HttpStatus, Param, Patch, Post, UseGuards} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {TokenService} from '../../shared/services/token.service';
 import {DeepPartial} from 'typeorm';
-import { User } from 'src/app/shared/models/entities/user';
+import {User} from 'src/app/shared/models/entities/user';
 import {CheckJwtGuardGuard} from './check-jwt-guard.guard';
 import {HEADER_TOKEN} from './auth.module';
 
@@ -19,7 +19,14 @@ export class AuthController {
 			@Body('username') username: string,
 			@Body('password') password: string,
 	): Promise<User> {
-		return this.authService.login(username, password);
+		try {
+			return this.authService.login(username, password);
+		} catch (e) {
+			throw new HttpException(
+					e.message,
+					HttpStatus.INTERNAL_SERVER_ERROR
+			);
+		}
 	}
 	
 	@Post('register')
@@ -29,7 +36,14 @@ export class AuthController {
 	
 	@Patch('verify')
 	public async verify(@Param('token') token: string): Promise<User> {
-		return this.authService.verifyAccount(token);
+		try {
+			return this.authService.verifyAccount(token);
+		} catch (e) {
+			throw new HttpException(
+					e.message,
+					HttpStatus.INTERNAL_SERVER_ERROR
+			);
+		}
 	}
 	
 	@UseGuards(CheckJwtGuardGuard)
@@ -37,6 +51,14 @@ export class AuthController {
 	public async authenticateToken(
 			@Headers(HEADER_TOKEN) token: string
 	): Promise<object> {
-		return this.tokenService.authenticateToken(token);
+		try {
+			return this.tokenService.authenticateToken(token);
+		} catch (e) {
+			console.error(`Erro ao decodificar o token: ${e.message}`);
+			throw new HttpException(
+					`Acesso negado.`,
+					HttpStatus.FORBIDDEN
+			);
+		}
 	}
 }
