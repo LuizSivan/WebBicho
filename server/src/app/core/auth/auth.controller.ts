@@ -8,57 +8,55 @@ import {HEADER_TOKEN} from './auth.module';
 
 @Controller('auth')
 export class AuthController {
-	constructor(
-			private readonly authService: AuthService,
-			private readonly tokenService: TokenService,
-	) {
-	}
-	
-	@Post('login')
-	public async login(
-			@Body('username') username: string,
-			@Body('password') password: string,
-	): Promise<User> {
-		try {
-			return this.authService.login(username, password);
-		} catch (e) {
-			throw new HttpException(
-					e.message,
-					HttpStatus.INTERNAL_SERVER_ERROR
-			);
-		}
-	}
-	
-	@Post('register')
-	public async register(@Body() entity: DeepPartial<User>): Promise<User> {
-		return this.authService.register(entity);
-	}
-	
-	@Patch('verify')
-	public async verify(@Param('token') token: string): Promise<User> {
-		try {
-			return this.authService.verifyAccount(token);
-		} catch (e) {
-			throw new HttpException(
-					e.message,
-					HttpStatus.INTERNAL_SERVER_ERROR
-			);
-		}
-	}
-	
-	@UseGuards(CheckJwtGuardGuard)
-	@Get()
-	public async authenticateToken(
-			@Headers(HEADER_TOKEN) token: string
-	): Promise<object> {
-		try {
-			return this.tokenService.authenticateToken(token);
-		} catch (e) {
-			console.error(`Erro ao decodificar o token: ${e.message}`);
-			throw new HttpException(
-					`Acesso negado.`,
-					HttpStatus.FORBIDDEN
-			);
-		}
-	}
+  constructor(
+      private readonly authService: AuthService,
+      private readonly tokenService: TokenService,
+  ) {
+  }
+  
+  @Post('login')
+  public async login(
+      @Body('username') username: string,
+      @Body('password') password: string,
+  ): Promise<User> {
+    try {
+      return this.authService.login(username, password);
+    } catch (e) {
+      throw e;
+    }
+  }
+  
+  @Post('register')
+  public async register(@Body() entity: DeepPartial<User>): Promise<User> {
+    try {
+      return this.authService.register(entity);
+    } catch (e) {
+      throw e;
+    }
+  }
+  
+  @Patch('verify')
+  public async verify(@Param('token') token: string): Promise<User> {
+    try {
+      return this.authService.verifyAccount(token);
+    } catch (e) {
+      throw e;
+    }
+  }
+  
+  @UseGuards(CheckJwtGuardGuard)
+  @Get()
+  public async authenticateToken(
+      @Headers(HEADER_TOKEN) token: string,
+  ): Promise<object> {
+    try {
+      return this.tokenService.authenticateToken(token);
+    } catch (e) {
+      console.error(`Erro ao decodificar o token: ${e.message}`);
+      throw new HttpException(
+          `Acesso negado.`,
+          HttpStatus.FORBIDDEN,
+      );
+    }
+  }
 }
