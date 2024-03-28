@@ -1,38 +1,21 @@
 export type WhereParam<T> = {
-	[P in keyof T]?:
-		| WhereKey<T[P]>
-		| WhereParam<T[P]>
+  [P in keyof T]?:
+    | WhereKey<T[P]>
+    | WhereParam<T[P]>
 };
 
 export type WhereKey<T> =
-		| {equals?: T}
-		| {between?: [T, T]}
-		| {in?: T[]}
-		| {like?: string}
-		| {greaterThan?: T}
-		| {greaterThanOrEquals?: T}
-		| {lessThan?: T}
-		| {lessThanOrEquals?: T}
-		| {notEquals?: T}
-		| {notBetween?: [T, T]}
-		| {notIn?: T[]}
-		| {notLike?: string}
-		| {isNull?: null}
-		| {notNull?: null};
-
-export const Operators: string[] = [
-	'equals',
-	'between',
-	'in',
-	'like',
-	'greaterThan',
-	'greaterThanOrEquals',
-	'lessThan',
-	'lessThanOrEquals',
-	'notEquals',
-	'notBetween',
-	'notIn',
-	'notLike',
-	'isNull',
-	'notNull'
-];
+    | { equals?: T }
+    | { between?: [T, T] }
+    | { in?: T[] }
+    | { like?: string }
+    | { greaterThan?: T }
+    | { greaterThanOrEquals?: T }
+    | { lessThan?: T }
+    | { lessThanOrEquals?: T }
+    | { notEquals?: T }
+    | { notBetween?: [T, T] }
+    | { notIn?: T[] }
+    | { notLike?: string }
+    | { isNull?: null }
+    | { notNull?: null };
