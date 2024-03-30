@@ -1,6 +1,6 @@
 import {CanActivate, ExecutionContext, ForbiddenException, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {User} from '../../shared/models/entities/user';
+import {User} from '../../shared/models/entities/user/user';
 import {Repository} from 'typeorm';
 import {Request, Response} from 'express';
 import {HEADER_TOKEN, HEADER_USER, SECRET} from '../../modules/auth/auth.module';

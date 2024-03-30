@@ -1,7 +1,7 @@
 import {CanActivate, ExecutionContext, ForbiddenException, Injectable} from '@nestjs/common';
 import {HEADER_TOKEN, HEADER_USER, SECRET} from '../../modules/auth/auth.module';
 import {Repository} from 'typeorm';
-import {User} from '../../shared/models/entities/user';
+import {User} from '../../shared/models/entities/user/user';
 import {InjectRepository} from '@nestjs/typeorm';
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import {Request, Response} from 'express';

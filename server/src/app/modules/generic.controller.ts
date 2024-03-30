@@ -1,10 +1,24 @@
-import {Body, Delete, Get, Headers, HttpException, HttpStatus, Param, Post, Put, UseGuards} from '@nestjs/common';
+import {
+  Body,
+  Delete,
+  Get,
+  Headers,
+  HttpException,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {Page} from '../shared/models/classes/page';
 import {GenericService} from './generic.service';
 import {DeepPartial, FindOptionsOrder} from 'typeorm';
 import {WhereParam} from '../shared/models/types/where-param';
 import {CheckJwtGuard} from '../core/guards/check-jwt.guard';
+import {ApiOperation} from '@nestjs/swagger';
 
 export const HEADER_USER_ID: string = 'user-id';
 export const HEADER_FIELDS: string = 'fields';
@@ -25,8 +39,9 @@ export abstract class GenericController<
   }
   
   @Get(':id?')
+  @ApiOperation({summary: 'Retorna uma entidade via parâmetros'})
   public async findOne(
-      @Param('id') id?: string,
+      @Param('id', ParseUUIDPipe) id?: string,
       @Headers(HEADER_FIELDS) fields?: string[],
       @Headers(HEADER_RELATIONS) relations?: string[],
       @Headers(HEADER_PARAMS) params?: WhereParam<T>[],
@@ -48,9 +63,10 @@ export abstract class GenericController<
   }
   
   @Get(':page/:size')
+  @ApiOperation({summary: 'Lista as entidade via parâmetros'})
   public async list(
-      @Param(PAGE_NUMBER) page: number = 1,
-      @Param(PAGE_SIZE) size: number = 9,
+      @Param(PAGE_NUMBER, ParseIntPipe) page: number = 1,
+      @Param(PAGE_SIZE, ParseIntPipe) size: number = 9,
       @Headers(HEADER_FIELDS) fields?: string[],
       @Headers(HEADER_RELATIONS) relations?: string[],
       @Headers(HEADER_PARAMS) params?: WhereParam<T>[],
@@ -75,6 +91,7 @@ export abstract class GenericController<
   }
   
   @Post()
+  @ApiOperation({summary: 'Cria uma entidade'})
   public async create(
       @Body() entity: DeepPartial<T>,
       @Headers(HEADER_USER_ID) userId: string,
@@ -91,14 +108,16 @@ export abstract class GenericController<
     }
   }
   
-  @Put()
+  @Put(':id')
+  @ApiOperation({summary: 'Atualiza uma entidade via id'})
   public async update(
+      @Param('id', ParseUUIDPipe) id: string,
       @Body() entity: DeepPartial<T>,
       @Headers(HEADER_USER_ID) userId: string,
   ): Promise<T> {
     try {
-      await this.service.beforeUpdate(entity, userId);
-      return this.service.update(entity, userId);
+      await this.service.beforeUpdate(id, entity, userId);
+      return this.service.update(id, entity, userId);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
       throw new HttpException(
@@ -109,6 +128,7 @@ export abstract class GenericController<
   }
   
   @Put('bulk')
+  @ApiOperation({summary: 'Atualiza várias entidades via parâmetros'})
   public async bulkUpdate(
       @Body() entity: DeepPartial<T>,
       @Headers(HEADER_USER_ID) userId: string,
@@ -131,9 +151,10 @@ export abstract class GenericController<
   }
   
   @Delete(':id')
+  @ApiOperation({summary: 'Deleta uma entidade via id'})
   public async delete(
       @Headers(HEADER_USER_ID) userId: string,
-      @Param('id') id: string,
+      @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
     try {
       await this.service.beforeDelete(id, userId);
@@ -148,6 +169,7 @@ export abstract class GenericController<
   }
   
   @Delete('bulk')
+  @ApiOperation({summary: 'Deleta várias entidades via parâmetros'})
   public async bulkDelete(
       @Headers(HEADER_USER_ID) userId: string,
       @Headers(HEADER_PARAMS) params: WhereParam<T>[],
@@ -164,3 +186,4 @@ export abstract class GenericController<
     }
   }
 }
+

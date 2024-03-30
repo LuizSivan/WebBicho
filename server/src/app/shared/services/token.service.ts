@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {DeepPartial} from 'typeorm';
-import {EUserRole, User} from '../models/entities/user';
+import {EUserRole, User} from '../models/entities/user/user';
 import jwt, {JwtPayload, SignOptions} from 'jsonwebtoken';
 import {SECRET} from '../../modules/auth/auth.module';
 

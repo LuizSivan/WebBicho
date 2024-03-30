@@ -11,7 +11,7 @@ import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
 import {Page} from '../shared/models/classes/page';
 import {convertParam, convertParams} from '../shared/helpers/convert-helper';
 import {WhereParam} from '../shared/models/types/where-param';
-import {EUserRole, User} from '../shared/models/entities/user';
+import {EUserRole, User} from '../shared/models/entities/user/user';
 
 @Injectable()
 export abstract class GenericService<T extends GenericEntity> {
@@ -84,19 +84,20 @@ export abstract class GenericService<T extends GenericEntity> {
   }
   
   public async update(
+      entityId: string,
       entity: DeepPartial<T>,
       userId: string,
   ): Promise<T> {
-    const exists: boolean = await this.repository.existsBy({id: entity?.id} as FindOptionsWhere<T>);
+    const exists: boolean = await this.repository.existsBy({id: entityId} as FindOptionsWhere<T>);
     if (!exists) {
-      throw new NotFoundException(`${this.repository.metadata.name} ${entity?.id} não encontrado!`);
+      throw new NotFoundException(`${this.repository.metadata.name} ${entityId} não encontrado!`);
     }
     entity.updatedBy = userId;
     await this.repository.update(
         {id: entity.id} as FindOptionsWhere<T>,
         entity as QueryDeepPartialEntity<T>,
     );
-    return await this.repository.findOneByOrFail({id: entity.id} as FindOptionsWhere<T>);
+    return await this.repository.findOneByOrFail({id: entityId} as FindOptionsWhere<T>);
   }
   
   public async patch(
@@ -121,7 +122,7 @@ export abstract class GenericService<T extends GenericEntity> {
     if (!exists) {
       throw new NotFoundException(`${this.repository.metadata.name} ${entityId} não encontrado!`);
     }
-    await this.repository.delete({id: entityId} as FindOptionsWhere<T>);
+    await this.repository.softDelete({id: entityId} as FindOptionsWhere<T>);
   }
   
   public async bulkDelete(
@@ -133,7 +134,7 @@ export abstract class GenericService<T extends GenericEntity> {
       throw new NotFoundException(`Nenhum ${this.repository.metadata.name} encontrado(a)!`);
     }
     for (const where of convertedParams) {
-      await this.repository.delete(where);
+      await this.repository.softDelete(where);
     }
   }
   
@@ -141,6 +142,7 @@ export abstract class GenericService<T extends GenericEntity> {
   }
   
   async beforeUpdate(
+      entityId: string,
       _entity: DeepPartial<T>,
       userId: string,
   ): Promise<void> {
@@ -148,7 +150,11 @@ export abstract class GenericService<T extends GenericEntity> {
       select: ['id', 'role'],
       where: {id: userId},
     });
-    if (user.id != _entity.createdBy || user.role != EUserRole.ADMINISTRATOR) throw new ForbiddenException('Acesso negado');
+    const entity: T = await this.repository.findOne({
+      select: ['id', 'createdBy'],
+      where: {id: entityId} as FindOptionsWhere<T>,
+    });
+    if (user.id != entity.createdBy || user.role != EUserRole.ADMINISTRATOR) throw new ForbiddenException('Acesso negado');
   }
   
   async beforeBulkUpdate(

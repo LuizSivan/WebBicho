@@ -1,6 +1,6 @@
 import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {User} from '../../shared/models/entities/user';
+import {EUserVerification, User} from '../../shared/models/entities/user/user';
 import {DeepPartial, Repository} from 'typeorm';
 import bcrypt from 'bcrypt';
 import {MailService} from '../../shared/services/mail.service';
@@ -35,7 +35,7 @@ export class AuthService {
     if (!passwordMatch) throw new HttpException('Login e/ou senha inválidos!', HttpStatus.FORBIDDEN);
     
     const cutoffTime: Date = new Date(Date.now() - 15 * 60 * 1000);
-    if (!user.verified) {
+    if (user.verified == EUserVerification.NON_VERIFIED) {
       const deleteUser: boolean = user.createdAt < cutoffTime;
       if (deleteUser) {
         await this.userRepository.delete({id: user.id});
@@ -63,7 +63,7 @@ export class AuthService {
     }
     user.password = await bcrypt.hash(user.password as string, 10);
     await this.mailService.sendVerificationEmail(user);
-    await this.userRepository.insert({...user, verified: false});
+    await this.userRepository.insert(user);
     return await this.userRepository.findOneByOrFail({id: user.id});
   }
   
@@ -78,7 +78,7 @@ export class AuthService {
     });
     
     if (user && !user.verified) {
-      await this.userRepository.update({id: user.id}, {...user, verified: true});
+      await this.userRepository.update({id: user.id}, {verified: EUserVerification.VERIFIED});
       return await this.userRepository.findOneByOrFail({id: user.id});
     }
     throw new HttpException('Usuário já verificado ou não encontrado', HttpStatus.CONFLICT);

@@ -1,7 +1,7 @@
-import {GenericEntity} from './generic-entity';
+import {GenericEntity} from '../generic-entity';
 import {Column, Entity, ManyToOne, OneToMany} from 'typeorm';
-import {User} from './user';
-import {Comment} from './comment';
+import {User} from '../user/user';
+import {Comment} from '../comment/comment';
 
 @Entity()
 export class Post extends GenericEntity {
@@ -23,7 +23,6 @@ export class Post extends GenericEntity {
       {
         nullable: true,
         cascade: true,
-      },
-  )
+      })
   comments: Comment[];
 }

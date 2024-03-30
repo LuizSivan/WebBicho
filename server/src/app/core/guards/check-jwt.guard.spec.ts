@@ -1,6 +1,6 @@
 import {CheckJwtGuard} from './check-jwt.guard';
 import {Repository} from 'typeorm';
-import {User} from '../../shared/models/entities/user';
+import {User} from '../../shared/models/entities/user/user';
 import {Test, TestingModule} from '@nestjs/testing';
 
 describe('CheckJwtGuard', (): void => {

@@ -1,9 +1,9 @@
 import {Injectable} from '@nestjs/common';
 import {GenericService} from '../generic.service';
-import {Post} from '../../shared/models/entities/post';
+import {Post} from '../../shared/models/entities/post/post';
 import {Repository} from 'typeorm';
 import {InjectRepository} from '@nestjs/typeorm';
-import {User} from '../../shared/models/entities/user';
+import {User} from '../../shared/models/entities/user/user';
 
 @Injectable()
 export class PostService extends GenericService<Post> {

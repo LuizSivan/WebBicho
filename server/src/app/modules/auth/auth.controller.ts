@@ -2,7 +2,7 @@ import {Body, Controller, Get, Headers, HttpException, HttpStatus, Param, Patch,
 import {AuthService} from './auth.service';
 import {TokenService} from '../../shared/services/token.service';
 import {DeepPartial} from 'typeorm';
-import {User} from 'src/app/shared/models/entities/user';
+import {User} from 'src/app/shared/models/entities/user/user';
 import {HEADER_TOKEN} from './auth.module';
 import {AuthGuard} from '../../core/guards/auth.guard';
 
