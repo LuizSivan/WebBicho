@@ -1,16 +1,29 @@
 import {GenericEntity} from './generic-entity';
-import {Column, Entity, JoinColumn, ManyToOne} from 'typeorm';
+import {Column, Entity, ManyToOne, OneToMany} from 'typeorm';
 import {User} from './user';
+import {Comment} from './comment';
 
 @Entity()
 export class Post extends GenericEntity {
-	@Column({type: 'text'})
-	content: string;
-	
-	@Column({type: 'text', nullable: true})
-	file: string;
-	
-	@ManyToOne(() => User)
-	@JoinColumn({name: 'user'})
-	user: User;
+  @Column({type: 'text'})
+  content: string;
+  
+  @Column({type: 'text', nullable: true})
+  file: string;
+  
+  @ManyToOne(
+      () => User,
+      user => user.posts,
+  )
+  user: User;
+  
+  @OneToMany(
+      () => Comment,
+      comment => comment.post,
+      {
+        nullable: true,
+        cascade: true,
+      },
+  )
+  comments: Comment[];
 }

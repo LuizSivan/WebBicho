@@ -1,10 +1,17 @@
-import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {DeepPartial, FindManyOptions, FindOneOptions, FindOptionsOrder, FindOptionsWhere, Repository} from 'typeorm';
 import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
 import {Page} from '../shared/models/classes/page';
 import {convertParam, convertParams} from '../shared/helpers/convert-helper';
 import {WhereParam} from '../shared/models/types/where-param';
+import {EUserRole, User} from '../shared/models/entities/user';
 
 @Injectable()
 export abstract class GenericService<T extends GenericEntity> {
@@ -12,6 +19,7 @@ export abstract class GenericService<T extends GenericEntity> {
   
   protected constructor(
       public readonly repository: Repository<T>,
+      public readonly userRepository: Repository<User>,
   ) {
     this.entityName = this.repository.metadata.name;
   }
@@ -23,7 +31,7 @@ export abstract class GenericService<T extends GenericEntity> {
       params?: WhereParam<T>[],
   ): Promise<T> {
     if (!params && !entityId) {
-      throw new HttpException('Nenhum parâmetro informado', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('Nenhum parâmetro informado');
     }
     const where: FindOptionsWhere<T>[] = params ?
         convertParams(params).map(p => ({...p, id: entityId})) :
@@ -67,7 +75,7 @@ export abstract class GenericService<T extends GenericEntity> {
   ): Promise<T> {
     const exists: boolean = await this.repository.existsBy({id: entity?.id} as FindOptionsWhere<T>);
     if (exists) {
-      throw new HttpException(`${this.repository.metadata.name} ${entity?.id} já existe!`, HttpStatus.CONFLICT);
+      throw new ConflictException(`${this.repository.metadata.name} ${entity?.id} já existe!`);
     }
     entity.createdBy = userId;
     entity.updatedBy = userId;
@@ -81,7 +89,7 @@ export abstract class GenericService<T extends GenericEntity> {
   ): Promise<T> {
     const exists: boolean = await this.repository.existsBy({id: entity?.id} as FindOptionsWhere<T>);
     if (!exists) {
-      throw new HttpException(`${this.repository.metadata.name} ${entity?.id} não encontrado!`, HttpStatus.NOT_FOUND);
+      throw new NotFoundException(`${this.repository.metadata.name} ${entity?.id} não encontrado!`);
     }
     entity.updatedBy = userId;
     await this.repository.update(
@@ -89,24 +97,6 @@ export abstract class GenericService<T extends GenericEntity> {
         entity as QueryDeepPartialEntity<T>,
     );
     return await this.repository.findOneByOrFail({id: entity.id} as FindOptionsWhere<T>);
-  }
-  
-  public async delete(
-      params: WhereParam<T>[],
-      entityId: string,
-  ): Promise<void> {
-    if (entityId) {
-      if (!params) params = [{id: entityId}];
-      params = params.map(p => ({...p, id: entityId}));
-    }
-    const convertedParams: FindOptionsWhere<T>[] = params ? convertParams(params) : undefined;
-    const exists: boolean = await this.repository.existsBy(convertedParams);
-    if (!exists) {
-      throw new HttpException(`${this.repository.metadata.name} ${entityId} não encontrado!`, HttpStatus.NOT_FOUND);
-    }
-    for (const where of convertedParams) {
-      await this.repository.delete(where);
-    }
   }
   
   public async patch(
@@ -121,6 +111,85 @@ export abstract class GenericService<T extends GenericEntity> {
           where,
           entity as QueryDeepPartialEntity<T>,
       );
+    }
+  }
+  
+  public async delete(
+      entityId: string,
+  ): Promise<void> {
+    const exists: boolean = await this.repository.existsBy({id: entityId} as FindOptionsWhere<T>);
+    if (!exists) {
+      throw new NotFoundException(`${this.repository.metadata.name} ${entityId} não encontrado!`);
+    }
+    await this.repository.delete({id: entityId} as FindOptionsWhere<T>);
+  }
+  
+  public async bulkDelete(
+      params: WhereParam<T>[],
+  ): Promise<void> {
+    const convertedParams: FindOptionsWhere<T>[] = convertParams(params);
+    const exists: boolean = await this.repository.existsBy(convertedParams);
+    if (!exists) {
+      throw new NotFoundException(`Nenhum ${this.repository.metadata.name} encontrado(a)!`);
+    }
+    for (const where of convertedParams) {
+      await this.repository.delete(where);
+    }
+  }
+  
+  async beforeCreate(_entity: DeepPartial<T>): Promise<void> {
+  }
+  
+  async beforeUpdate(
+      _entity: DeepPartial<T>,
+      userId: string,
+  ): Promise<void> {
+    const user: User = await this.userRepository.findOneOrFail({
+      select: ['id', 'role'],
+      where: {id: userId},
+    });
+    if (user.id != _entity.createdBy || user.role != EUserRole.ADMINISTRATOR) throw new ForbiddenException('Acesso negado');
+  }
+  
+  async beforeBulkUpdate(
+      _entity: DeepPartial<T>,
+      userId: string,
+  ): Promise<void> {
+    const user: User = await this.userRepository.findOneOrFail({
+      select: ['id'],
+      where: {id: userId},
+    });
+    if (user.id != _entity.createdBy) throw new ForbiddenException('Acesso negado');
+  }
+  
+  async beforeDelete(
+      entityId: string,
+      userId: string,
+  ): Promise<void> {
+    const user: User = await this.userRepository.findOneOrFail({
+      select: ['id'],
+      where: {id: userId},
+    });
+    const entity: T = await this.repository.findOneOrFail({
+      select: ['id', 'createdBy'],
+      where: [{id: entityId}] as FindOptionsWhere<T>[],
+    });
+    if (user.id != entity.createdBy) throw new ForbiddenException('Acesso negado');
+  }
+  
+  async beforeBulkDelete(
+      params: WhereParam<T>[],
+      userId: string,
+  ): Promise<void> {
+    if (!params?.length) throw new BadRequestException('Nenhum parâmetro fornecido');
+    const user: User = await this.userRepository.findOneOrFail({
+      select: ['id', 'role'],
+      where: {id: userId},
+    });
+    if (user.role != EUserRole.ADMINISTRATOR) {
+      for (const param of params) {
+        param.createdBy = user.id;
+      }
     }
   }
 }

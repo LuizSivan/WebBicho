@@ -3,8 +3,8 @@ import {AuthService} from './auth.service';
 import {TokenService} from '../../shared/services/token.service';
 import {DeepPartial} from 'typeorm';
 import {User} from 'src/app/shared/models/entities/user';
-import {CheckJwtGuardGuard} from './check-jwt-guard.guard';
 import {HEADER_TOKEN} from './auth.module';
+import {AuthGuard} from '../../core/guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -44,7 +44,7 @@ export class AuthController {
     }
   }
   
-  @UseGuards(CheckJwtGuardGuard)
+  @UseGuards(AuthGuard)
   @Get()
   public async authenticateToken(
       @Headers(HEADER_TOKEN) token: string,

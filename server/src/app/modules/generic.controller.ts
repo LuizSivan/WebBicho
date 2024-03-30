@@ -1,9 +1,10 @@
-import {Body, Delete, Get, Headers, HttpException, HttpStatus, Param, Patch, Post, Put} from '@nestjs/common';
+import {Body, Delete, Get, Headers, HttpException, HttpStatus, Param, Post, Put, UseGuards} from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {Page} from '../shared/models/classes/page';
 import {GenericService} from './generic.service';
 import {DeepPartial, FindOptionsOrder} from 'typeorm';
 import {WhereParam} from '../shared/models/types/where-param';
+import {CheckJwtGuard} from '../core/guards/check-jwt.guard';
 
 export const HEADER_USER_ID: string = 'user-id';
 export const HEADER_FIELDS: string = 'fields';
@@ -13,6 +14,7 @@ export const HEADER_ORDER: string = 'order';
 export const PAGE_NUMBER: string = 'page';
 export const PAGE_SIZE: string = 'size';
 
+@UseGuards(CheckJwtGuard)
 export abstract class GenericController<
     T extends GenericEntity,
     S extends GenericService<T>
@@ -78,6 +80,7 @@ export abstract class GenericController<
       @Headers(HEADER_USER_ID) userId: string,
   ): Promise<T> {
     try {
+      await this.service.beforeCreate(entity);
       return this.service.create(entity, userId);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
@@ -94,6 +97,7 @@ export abstract class GenericController<
       @Headers(HEADER_USER_ID) userId: string,
   ): Promise<T> {
     try {
+      await this.service.beforeUpdate(entity, userId);
       return this.service.update(entity, userId);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
@@ -104,13 +108,36 @@ export abstract class GenericController<
     }
   }
   
-  @Delete(':id?')
-  public async delete(
+  @Put('bulk')
+  public async bulkUpdate(
+      @Body() entity: DeepPartial<T>,
+      @Headers(HEADER_USER_ID) userId: string,
       @Headers(HEADER_PARAMS) params: WhereParam<T>[],
-      @Param('id?') id: string,
   ): Promise<void> {
     try {
-      await this.service.delete(params, id);
+      await this.service.beforeBulkUpdate(entity, userId);
+      await this.service.patch(
+          entity,
+          userId,
+          params,
+      );
+    } catch (e: any) {
+      if (e instanceof HttpException) throw e;
+      throw new HttpException(
+          `Erro ao atualizar ${this.service.entityName}: ${e.message}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  
+  @Delete(':id')
+  public async delete(
+      @Headers(HEADER_USER_ID) userId: string,
+      @Param('id') id: string,
+  ): Promise<void> {
+    try {
+      await this.service.beforeDelete(id, userId);
+      await this.service.delete(id);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
       throw new HttpException(
@@ -120,22 +147,18 @@ export abstract class GenericController<
     }
   }
   
-  @Patch()
-  public async patch(
-      @Body() entity: DeepPartial<T>,
+  @Delete('bulk')
+  public async bulkDelete(
       @Headers(HEADER_USER_ID) userId: string,
       @Headers(HEADER_PARAMS) params: WhereParam<T>[],
-  ) {
+  ): Promise<void> {
     try {
-      await this.service.patch(
-          entity,
-          userId,
-          params,
-      );
-    } catch (e) {
+      await this.service.beforeBulkDelete(params, userId);
+      await this.service.bulkDelete(params);
+    } catch (e: any) {
       if (e instanceof HttpException) throw e;
       throw new HttpException(
-          `Erro ao atualizar ${this.service.entityName}: ${e.message}`,
+          `Erro ao deletar ${this.service.entityName}: ${e.message}`,
           HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

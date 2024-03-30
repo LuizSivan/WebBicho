@@ -1,18 +1,22 @@
-import {Test, TestingModule} from '@nestjs/testing';
-import {GenericController} from './generic.controller';
+import {GenericEntity} from '../shared/models/entities/generic-entity';
+import {GenericService} from './generic.service';
+import {Repository} from 'typeorm';
 
-describe('GenericController', () => {
-	let controller: GenericController;
-	
-	beforeEach(async () => {
-		const module: TestingModule = await Test.createTestingModule({
-			controllers: [GenericController],
-		}).compile();
-		
-		controller = module.get<GenericController>(GenericController);
-	});
-	
-	it('should be defined', () => {
-		expect(controller).toBeDefined();
-	});
+describe('GenericService', () => {
+  let service: GenericService<GenericEntity>;
+  let repository: Repository<GenericEntity>; // Repository real para testes
+  
+  beforeEach(() => {
+    // Crie uma instância real do Repository para cada teste
+    repository = new Repository<GenericEntity>();
+    
+    // Inicialize o GenericService com o Repository real
+    service = new GenericService<GenericEntity>(repository);
+  });
+  
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+  
+  // Adicione mais casos de teste conforme necessário para testar outros comportamentos do GenericService
 });

@@ -1,20 +1,21 @@
-import {CanActivate, ExecutionContext, Injectable, UnauthorizedException} from '@nestjs/common';
-import {HEADER_TOKEN, HEADER_USER, SECRET} from './auth.module';
-import {Repository} from 'typeorm';
-import {User} from '../../shared/models/entities/user';
+import {CanActivate, ExecutionContext, ForbiddenException, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import jwt, {JwtPayload} from 'jsonwebtoken';
-import { Request, Response } from 'express';
+import {User} from '../../shared/models/entities/user';
+import {Repository} from 'typeorm';
+import {Request, Response} from 'express';
+import {HEADER_TOKEN, HEADER_USER, SECRET} from '../../modules/auth/auth.module';
+import jwt from 'jsonwebtoken';
 
 @Injectable()
-export class CheckJwtGuardGuard implements CanActivate {
-  
+export class AuthGuard implements CanActivate {
   constructor(
       @InjectRepository(User)
-      private readonly userRepository: Repository<User>
-  ) {}
+      private readonly userRepository: Repository<User>,
+  ) {
+  }
+  
   async canActivate(
-    context: ExecutionContext,
+      context: ExecutionContext,
   ): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
     const response: Response = context.switchToHttp().getResponse();
@@ -24,12 +25,12 @@ export class CheckJwtGuardGuard implements CanActivate {
       const userId: string = request.query?.id as string;
       const user: User = await this.userRepository.findOne({
         select: ['id'],
-        where: { id: userId },
+        where: {id: userId},
       });
       request.headers[HEADER_USER] = user.id;
       return true;
     } catch (error) {
-      throw new UnauthorizedException('Não foi possível autorizar a requisição.');
+      throw new ForbiddenException('Não foi possível autorizar a requisição.');
     }
   }
 }
