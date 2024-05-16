@@ -6,13 +6,10 @@ import {SECRET} from '../../modules/auth/auth.module';
 
 @Injectable()
 export class TokenService {
-  public async getToken(
-      user: DeepPartial<User>,
-      expiration: string = '12h',
-  ): Promise<string> {
+  public async getToken(user: DeepPartial<User>, expiration: string = '12h'): Promise<string> {
     const payload: object = {
       user: user.id,
-      admin: user.role == EUserRole.ADMINISTRATOR,
+      admin: user.role == EUserRole.STAFF,
     };
     const options: SignOptions = {
       issuer: 'WB-SERVER',
@@ -22,12 +19,10 @@ export class TokenService {
     };
     return jwt.sign(payload, SECRET, options);
   }
-  
-  public async authenticateToken(
-      token: string,
-  ): Promise<object> {
+
+  public async authenticateToken(token: string): Promise<object> {
     const decoded: JwtPayload = jwt.verify(token, SECRET) as JwtPayload;
-    const expirationDate: Date = new Date(decoded?.exp as number * 1000);
+    const expirationDate: Date = new Date((decoded?.exp as number) * 1000);
     const formattedExpirationDate: string = new Intl.DateTimeFormat('pt-BR', {
       day: '2-digit',
       month: '2-digit',
