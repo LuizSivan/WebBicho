@@ -30,11 +30,14 @@ export const PAGE_SIZE: string = 'size';
 
 @UseGuards(CheckJwtGuard)
 export abstract class GenericController<
-    T extends GenericEntity,
-    S extends GenericService<T>
+  T extends GenericEntity,
+  S extends GenericService<T>
 > {
-  protected constructor(private readonly service: S) {}
-
+  protected constructor(
+      private readonly service: S,
+  ) {
+  }
+  
   @Get(':id?')
   @ApiOperation({summary: 'Retorna uma entidade via parâmetros'})
   public async findOne(
@@ -53,7 +56,7 @@ export abstract class GenericController<
       );
     }
   }
-
+  
   @Get(':page/:size')
   @ApiOperation({summary: 'Lista as entidade via parâmetros'})
   public async list(
@@ -74,10 +77,13 @@ export abstract class GenericController<
       );
     }
   }
-
+  
   @Post()
   @ApiOperation({summary: 'Cria uma entidade'})
-  public async create(@Body() entity: DeepPartial<T>, @Headers(HEADER_USER_ID) userId: string): Promise<T> {
+  public async create(
+      @Body() entity: DeepPartial<T>,
+      @Headers(HEADER_USER_ID) userId: string
+  ): Promise<T> {
     try {
       await this.service.beforeCreate(entity);
       return this.service.create(entity, userId);
@@ -89,7 +95,7 @@ export abstract class GenericController<
       );
     }
   }
-
+  
   @Put(':id')
   @ApiOperation({summary: 'Atualiza uma entidade via id'})
   public async update(
@@ -108,7 +114,7 @@ export abstract class GenericController<
       );
     }
   }
-
+  
   @Put('bulk')
   @ApiOperation({summary: 'Atualiza várias entidades via parâmetros'})
   public async bulkUpdate(
@@ -127,10 +133,13 @@ export abstract class GenericController<
       );
     }
   }
-
+  
   @Delete(':id')
   @ApiOperation({summary: 'Deleta uma entidade via id'})
-  public async delete(@Headers(HEADER_USER_ID) userId: string, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
+  public async delete(
+      @Headers(HEADER_USER_ID) userId: string,
+      @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
     try {
       await this.service.beforeDelete(id, userId);
       await this.service.delete(id);
@@ -142,7 +151,7 @@ export abstract class GenericController<
       );
     }
   }
-
+  
   @Delete('bulk')
   @ApiOperation({summary: 'Deleta várias entidades via parâmetros'})
   public async bulkDelete(

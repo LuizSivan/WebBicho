@@ -64,7 +64,8 @@ export class User extends GenericEntity {
       {
         nullable: true,
         cascade: true,
-      })
+      }
+  )
   @ApiPropertyOptional()
   posts: Post[];
   
@@ -74,7 +75,8 @@ export class User extends GenericEntity {
       {
         nullable: true,
         cascade: true,
-      })
+      }
+  )
   @ApiPropertyOptional()
   comments: Comment[];
   

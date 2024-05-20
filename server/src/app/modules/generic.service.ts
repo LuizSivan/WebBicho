@@ -7,7 +7,13 @@ import {
 } from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {
-  DeepPartial, FindManyOptions, FindOneOptions, FindOptionsOrder, FindOptionsWhere, Repository,
+  DeepPartial,
+  EntityManager,
+  FindManyOptions,
+  FindOneOptions,
+  FindOptionsOrder,
+  FindOptionsWhere,
+  Repository,
 } from 'typeorm';
 import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
 import {Page} from '../shared/models/classes/page';
@@ -21,6 +27,7 @@ export abstract class GenericService<T extends GenericEntity> {
   public readonly entityName: string;
   
   protected constructor(
+      public readonly entityManager: EntityManager,
       public readonly repository: Repository<T>,
       public readonly userRepository: Repository<User>,
   ) {
@@ -48,9 +55,7 @@ export abstract class GenericService<T extends GenericEntity> {
       relations: relations,
       where: where,
     };
-    return await this.repository.findOne(
-        options
-    );
+    return await this.repository.findOne(options);
   }
   
   public async list(
@@ -69,8 +74,7 @@ export abstract class GenericService<T extends GenericEntity> {
       take: size,
       order: order,
     };
-    const [data, count]: [T[], number] =
-        await this.repository.findAndCount(options);
+    const [data, count]: [T[], number] = await this.repository.findAndCount(options);
     return new Page(
         data,
         page,
@@ -85,7 +89,7 @@ export abstract class GenericService<T extends GenericEntity> {
     );
     if (exists) {
       throw new ConflictException(
-          `${this.repository.metadata.name} ${entity?.id} já existe!`,
+          `${this.repository.metadata.name} ${entity?.id} já existe!`
       );
     }
     entity.createdBy = userId;
