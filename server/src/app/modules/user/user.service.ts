@@ -1,8 +1,10 @@
 import {Injectable} from '@nestjs/common';
 import {GenericService} from '../generic.service';
 import {User} from '../../shared/models/entities/user/user';
-import {InjectRepository} from '@nestjs/typeorm';
-import {DeepPartial, Repository} from 'typeorm';
+import {InjectEntityManager, InjectRepository} from '@nestjs/typeorm';
+import {
+  DeepPartial, EntityManager, Repository
+} from 'typeorm';
 
 @Injectable()
 export class UserService extends GenericService<User> {
@@ -11,8 +13,10 @@ export class UserService extends GenericService<User> {
       public readonly repository: Repository<User>,
       @InjectRepository(User)
       public readonly userRepository: Repository<User>,
+      @InjectEntityManager()
+      public readonly entityManager: EntityManager,
   ) {
-    super(repository, userRepository);
+    super(entityManager, repository, userRepository);
   }
   
   async beforeUpdate(entityId: string, _entity: DeepPartial<User>, userId: string): Promise<void> {
@@ -20,5 +24,9 @@ export class UserService extends GenericService<User> {
     delete _entity.verified;
     delete _entity.password;
     await super.beforeUpdate(entityId, _entity, userId);
+  }
+  
+  beforeCreate(_entity: DeepPartial<User>): Promise<void> {
+    return Promise.resolve();
   }
 }

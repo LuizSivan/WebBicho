@@ -88,7 +88,6 @@ export abstract class GenericController<
       await this.service.beforeCreate(entity);
       return this.service.create(entity, userId);
     } catch (e: any) {
-      if (e instanceof HttpException) throw e;
       throw new HttpException(
           `Erro ao criar ${this.service.entityName}: ${e.message}`,
           HttpStatus.INTERNAL_SERVER_ERROR,

@@ -1,9 +1,5 @@
 import {
-  BadRequestException,
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
+  BadRequestException, ForbiddenException, Injectable, NotFoundException,
 } from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {
@@ -83,15 +79,11 @@ export abstract class GenericService<T extends GenericEntity> {
     );
   }
   
-  public async create(entity: DeepPartial<T>, userId: string): Promise<T> {
-    const exists: boolean = await this.repository.existsBy(
-        {id: entity?.id,} as FindOptionsWhere<T>
-    );
-    if (exists) {
-      throw new ConflictException(
-          `${this.repository.metadata.name} ${entity?.id} já existe!`
-      );
-    }
+  public async create(
+      entity: DeepPartial<T>,
+      userId: string,
+  ): Promise<T> {
+    await this.entityManager.queryRunner.startTransaction();
     entity.createdBy = userId;
     entity.updatedBy = userId;
     await this.repository.insert(
@@ -121,15 +113,11 @@ export abstract class GenericService<T extends GenericEntity> {
     }
     entity.updatedBy = userId;
     await this.repository.update(
-        {
-          id: entity.id
-        } as FindOptionsWhere<T>,
+        {id: entity.id} as FindOptionsWhere<T>,
         entity as QueryDeepPartialEntity<T>,
     );
     return await this.repository.findOneByOrFail(
-        {
-          id: entityId
-        } as FindOptionsWhere<T>
+        {id: entityId} as FindOptionsWhere<T>
     );
   }
   
