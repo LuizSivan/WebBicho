@@ -4,11 +4,11 @@ import {
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {
   DeepPartial,
-  EntityManager,
   FindManyOptions,
   FindOneOptions,
   FindOptionsOrder,
   FindOptionsWhere,
+  QueryRunner,
   Repository,
 } from 'typeorm';
 import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
@@ -17,15 +17,13 @@ import {convertParam, convertParams} from '../shared/helpers/convert-helper';
 import {WhereParam} from '../shared/models/types/where-param';
 import {EUserRole, User} from '../shared/models/entities/user/user';
 
-@Injectable(
-)
+@Injectable()
 export abstract class GenericService<T extends GenericEntity> {
   public readonly entityName: string;
   
   protected constructor(
-      public readonly entityManager: EntityManager,
       public readonly repository: Repository<T>,
-      public readonly userRepository: Repository<User>,
+      public readonly userRepository: Repository<User>
   ) {
     this.entityName = this.repository.metadata.name;
   }
@@ -83,17 +81,24 @@ export abstract class GenericService<T extends GenericEntity> {
       entity: DeepPartial<T>,
       userId: string,
   ): Promise<T> {
-    await this.entityManager.queryRunner.startTransaction();
     entity.createdBy = userId;
     entity.updatedBy = userId;
-    await this.repository.insert(
-        entity as QueryDeepPartialEntity<T>
-    );
-    return await this.repository.findOneByOrFail(
-        {
-          id: entity.id,
-        } as FindOptionsWhere<T>
-    );
+    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
+    await queryRunner.startTransaction();
+    try {
+      await this.repository.insert(
+          entity as QueryDeepPartialEntity<T>
+      );
+      await queryRunner.commitTransaction();
+      return await this.repository.findOneByOrFail(
+          {id: entity.id} as FindOptionsWhere<T>
+      );
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
   
   public async update(
@@ -101,6 +106,7 @@ export abstract class GenericService<T extends GenericEntity> {
       entity: DeepPartial<T>,
       userId: string,
   ): Promise<T> {
+    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
     const exists: boolean = await this.repository.existsBy(
         {
           id: entityId,
@@ -111,14 +117,23 @@ export abstract class GenericService<T extends GenericEntity> {
           `${this.repository.metadata.name} ${entityId} não encontrado!`,
       );
     }
-    entity.updatedBy = userId;
-    await this.repository.update(
-        {id: entity.id} as FindOptionsWhere<T>,
-        entity as QueryDeepPartialEntity<T>,
-    );
-    return await this.repository.findOneByOrFail(
-        {id: entityId} as FindOptionsWhere<T>
-    );
+    await queryRunner.startTransaction();
+    try {
+      entity.updatedBy = userId;
+      await this.repository.update(
+          {id: entity.id} as FindOptionsWhere<T>,
+          entity as QueryDeepPartialEntity<T>,
+      );
+      await queryRunner.commitTransaction();
+      return await this.repository.findOneByOrFail(
+          {id: entityId} as FindOptionsWhere<T>
+      );
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
   
   public async patch(
@@ -130,10 +145,20 @@ export abstract class GenericService<T extends GenericEntity> {
         params
     );
     entity.updatedBy = userId;
-    for (const where of convertedParams) {
-      await this.repository.update(
-          where, entity as QueryDeepPartialEntity<T>
-      );
+    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
+    await queryRunner.startTransaction();
+    try {
+      for (const where of convertedParams) {
+        await this.repository.update(
+            where, entity as QueryDeepPartialEntity<T>
+        );
+      }
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
     }
   }
   
@@ -141,20 +166,28 @@ export abstract class GenericService<T extends GenericEntity> {
       entityId: string
   ): Promise<void> {
     const exists: boolean = await this.repository.existsBy(
-        {
-          id: entityId,
-        } as FindOptionsWhere<T>
+        {id: entityId} as FindOptionsWhere<T>
     );
     if (!exists) {
       throw new NotFoundException(
           `${this.repository.metadata.name} ${entityId} não encontrado!`,
       );
     }
-    await this.repository.softDelete(
-        {
-          id: entityId
-        } as FindOptionsWhere<T>
-    );
+    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
+    await queryRunner.startTransaction();
+    try {
+      await this.repository.softDelete(
+          {
+            id: entityId
+          } as FindOptionsWhere<T>
+      );
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
   
   public async bulkDelete(
@@ -171,10 +204,20 @@ export abstract class GenericService<T extends GenericEntity> {
           `Nenhum ${this.repository.metadata.name} encontrado(a)!`,
       );
     }
-    for (const where of convertedParams) {
-      await this.repository.softDelete(
-          where
-      );
+    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
+    await queryRunner.startTransaction();
+    try {
+      for (const where of convertedParams) {
+        await this.repository.softDelete(
+            where
+        );
+      }
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
     }
   }
   
@@ -196,15 +239,14 @@ export abstract class GenericService<T extends GenericEntity> {
     const entity: T = await this.repository.findOne(
         {
           select: ['id', 'createdBy'],
-          where: {
-            id: entityId
-          } as FindOptionsWhere<T>,
+          where: {id: entityId} as FindOptionsWhere<T>,
         }
     );
-    if (user.id != entity.createdBy || user.role != EUserRole.STAFF)
+    if (user.id != entity.createdBy || user.role != EUserRole.STAFF) {
       throw new ForbiddenException(
           'Acesso negado'
       );
+    }
   }
   
   async beforeBulkUpdate(

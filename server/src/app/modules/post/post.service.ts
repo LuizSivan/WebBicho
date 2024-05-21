@@ -1,10 +1,8 @@
 import {Injectable} from '@nestjs/common';
 import {GenericService} from '../generic.service';
 import {Post} from '../../shared/models/entities/post/post';
-import {
-  DeepPartial, EntityManager, Repository
-} from 'typeorm';
-import {InjectEntityManager, InjectRepository} from '@nestjs/typeorm';
+import {DeepPartial, Repository} from 'typeorm';
+import {InjectRepository} from '@nestjs/typeorm';
 import {User} from '../../shared/models/entities/user/user';
 
 @Injectable()
@@ -13,11 +11,9 @@ export class PostService extends GenericService<Post> {
       @InjectRepository(Post)
       public readonly repository: Repository<Post>,
       @InjectRepository(User)
-      public readonly userRepository: Repository<User>,
-      @InjectEntityManager()
-      public readonly entityManager: EntityManager,
+      public readonly userRepository: Repository<User>
   ) {
-    super(entityManager, repository, userRepository);
+    super(repository, userRepository);
   }
   
   beforeCreate(_entity: DeepPartial<Post>): Promise<void> {

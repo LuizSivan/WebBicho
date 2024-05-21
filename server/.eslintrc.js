@@ -21,13 +21,21 @@ module.exports = {
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 2,
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 2,
+    '@typescript-eslint/no-inferrable-types': 0,
+    '@typescript-eslint/typedef': [
+      'error',
+      {
+        'variableDeclaration': true
+      }
+    ],
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
     'no-trailing-spaces': ['error', {skipBlankLines: true}],
     '@stylistic/newline-per-chained-call': ['error', {ignoreChainWithDepth: 2}],
     'no-multi-spaces': ['error', {ignoreEOLComments: true}],
     'brace-style': ['error', '1tbs', {allowSingleLine: true}],
+    '@stylistic/semi': ['error', 'always'],
     'function-paren-newline': ['error', 'consistent'],
     '@stylistic/quotes': ['error', 'single', {allowTemplateLiterals: true}],
     '@stylistic/ts/type-annotation-spacing': 'error',

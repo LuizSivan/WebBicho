@@ -1,4 +1,6 @@
-import {Column, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
+import {
+  Column, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn
+} from 'typeorm';
 import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
 
 export class GenericEntity {

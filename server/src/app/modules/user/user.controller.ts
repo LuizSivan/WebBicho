@@ -5,12 +5,14 @@ import {UserService} from './user.service';
 
 @Controller('user')
 export class UserController
-    extends GenericController<
-        User,
-        UserService
-    > {
+  extends GenericController<
+    User,
+    UserService
+  > {
   
   constructor(service: UserService) {
     super(service);
   }
+  
+  
 }
