@@ -1,8 +1,12 @@
 import {GenericEntity} from '../generic-entity';
-import {Column, Entity, OneToMany} from 'typeorm';
+import {
+  Column, Entity, OneToMany
+} from 'typeorm';
 import {Post} from '../post/post';
 import {Comment} from '../comment/comment';
-import {ApiHideProperty, ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
+import {
+  ApiHideProperty, ApiProperty, ApiPropertyOptional
+} from '@nestjs/swagger';
 
 export enum EUserRole {
   STAFF = 'STAFF',
@@ -55,7 +59,7 @@ export class User extends GenericEntity {
     enum: EUserVerification,
     default: EUserVerification.NON_VERIFIED,
   })
-  @ApiPropertyOptional()
+  @ApiProperty()
   verified?: EUserVerification;
   
   @OneToMany(

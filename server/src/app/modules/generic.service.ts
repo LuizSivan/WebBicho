@@ -23,11 +23,20 @@ export abstract class GenericService<T extends GenericEntity> {
   
   protected constructor(
       public readonly repository: Repository<T>,
-      public readonly userRepository: Repository<User>
+      public readonly userRepository: Repository<User>,
   ) {
     this.entityName = this.repository.metadata.name;
   }
   
+  /**
+   * Busca uma única entidade do tipo T no repositório.
+   * @param {number} entityId (opcional) uuid da entidade.
+   * @param {string[]} fields (opcional) campos a serem buscados na consulta.
+   * @param {string[]} relations (opcional) relações a serem carregadas na consulta.
+   * @param {WhereParam[]} params (opcional) parâmetros de busca da consulta.
+   * @returns {Promise} - a entidade encontrada.
+   * @throws BadRequestException se nenhum parâmetro for informado.
+   * */
   public async findOne(
       entityId?: string,
       fields?: string[],
@@ -52,6 +61,16 @@ export abstract class GenericService<T extends GenericEntity> {
     return await this.repository.findOne(options);
   }
   
+  /**
+   * Busca uma lista de entidades do tipo T no repositório.
+   * @param {number} page número da página.
+   * @param {number} size número de itens a serem carregados
+   * @param {string[]} fields (opcional) campos a serem buscados na consulta
+   * @param {string[]} relations (opcional) relações a serem carregadas na consulta
+   * @param {WhereParam} params (opcional) parâmetros de busca da consulta
+   * @param {string[]} order (opcional) ordem de resultado da consulta
+   * @returns {Page} a página de entidades encontradas
+   * */
   public async list(
       page: number,
       size: number,
@@ -83,7 +102,7 @@ export abstract class GenericService<T extends GenericEntity> {
   ): Promise<T> {
     entity.createdBy = userId;
     entity.updatedBy = userId;
-    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
+    const queryRunner: QueryRunner = this.repository.manager.connection.createQueryRunner();
     await queryRunner.startTransaction();
     try {
       await this.repository.insert(
@@ -106,7 +125,7 @@ export abstract class GenericService<T extends GenericEntity> {
       entity: DeepPartial<T>,
       userId: string,
   ): Promise<T> {
-    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
+    const queryRunner: QueryRunner = this.repository.manager.connection.createQueryRunner();
     const exists: boolean = await this.repository.existsBy(
         {
           id: entityId,
@@ -145,7 +164,7 @@ export abstract class GenericService<T extends GenericEntity> {
         params
     );
     entity.updatedBy = userId;
-    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
+    const queryRunner: QueryRunner = this.repository.manager.connection.createQueryRunner();
     await queryRunner.startTransaction();
     try {
       for (const where of convertedParams) {
@@ -173,7 +192,7 @@ export abstract class GenericService<T extends GenericEntity> {
           `${this.repository.metadata.name} ${entityId} não encontrado!`,
       );
     }
-    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
+    const queryRunner: QueryRunner = this.repository.manager.connection.createQueryRunner();
     await queryRunner.startTransaction();
     try {
       await this.repository.softDelete(
@@ -204,7 +223,7 @@ export abstract class GenericService<T extends GenericEntity> {
           `Nenhum ${this.repository.metadata.name} encontrado(a)!`,
       );
     }
-    const queryRunner: QueryRunner = this.repository.manager.queryRunner;
+    const queryRunner: QueryRunner = this.repository.manager.connection.createQueryRunner();
     await queryRunner.startTransaction();
     try {
       for (const where of convertedParams) {
