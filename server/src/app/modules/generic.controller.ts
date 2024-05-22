@@ -85,7 +85,6 @@ export abstract class GenericController<
       @Headers(HEADER_USER_ID) userId: string
   ): Promise<T> {
     try {
-      await this.service.beforeCreate(entity);
       return this.service.create(entity, userId);
     } catch (e: any) {
       throw new HttpException(
@@ -103,7 +102,6 @@ export abstract class GenericController<
       @Headers(HEADER_USER_ID) userId: string,
   ): Promise<T> {
     try {
-      await this.service.beforeUpdate(id, entity, userId);
       return this.service.update(id, entity, userId);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
@@ -122,8 +120,7 @@ export abstract class GenericController<
       @Headers(HEADER_PARAMS) params: WhereParam<T>[],
   ): Promise<void> {
     try {
-      await this.service.beforeBulkUpdate(entity, userId);
-      await this.service.patch(entity, userId, params);
+      await this.service.bulkUpdate(entity, userId, params);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
       throw new HttpException(
@@ -140,7 +137,6 @@ export abstract class GenericController<
       @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
     try {
-      await this.service.beforeDelete(id, userId);
       await this.service.delete(id);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
@@ -158,8 +154,7 @@ export abstract class GenericController<
       @Headers(HEADER_PARAMS) params: WhereParam<T>[],
   ): Promise<void> {
     try {
-      await this.service.beforeBulkDelete(params, userId);
-      await this.service.bulkDelete(params);
+      await this.service.bulkDelete(params, userId);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
       throw new HttpException(
