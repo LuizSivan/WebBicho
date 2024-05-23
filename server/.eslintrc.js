@@ -57,7 +57,7 @@ module.exports = {
                 offsetTernaryExpressions: true,
                 FunctionDeclaration: {
                     parameters: 2,
-                    body: 2
+                    body: 1
                 },
                 FunctionExpression: {
                     parameters: 2,

@@ -8,6 +8,7 @@ import {User} from '../../shared/models/entities/user/user';
   imports: [
     TypeOrmModule.forFeature([User]),
   ],
+  exports: [TypeOrmModule],
   providers: [UserService],
   controllers: [UserController],
 })

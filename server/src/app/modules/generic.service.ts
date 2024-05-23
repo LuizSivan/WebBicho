@@ -266,7 +266,7 @@ export abstract class GenericService<T extends GenericEntity> {
   /**
    * @description Método chamado antes de criar uma entidade.
    * @param {DeepPartial} _entity - entidade parcial a ser criada.*/
-  public async beforeCreate(_entity: DeepPartial<T>): Promise<void> {
+  protected async beforeCreate(_entity: DeepPartial<T>): Promise<void> {
     return;
   }
   
@@ -275,7 +275,7 @@ export abstract class GenericService<T extends GenericEntity> {
    * @param {string} entityId - uuid da entidade a ser atualizada.
    * @param {DeepPartial} _entity - entidade parcial com novas alterações.
    * @param {string} userId - uuid do usuário que está atualizando a entidade.*/
-  public async beforeUpdate(
+  protected async beforeUpdate(
       entityId: string,
       _entity: DeepPartial<T>,
       userId: string,
@@ -305,7 +305,7 @@ export abstract class GenericService<T extends GenericEntity> {
    * @description Método chamado antes de atualizar várias entidades.
    * @param {DeepPartial} _entity - entidade parcial com novas alterações.
    * @param {string} userId - uuid do usuário que está atualizando a entidade.*/
-  async beforeBulkUpdate(
+  protected async beforeBulkUpdate(
       _entity: DeepPartial<T>,
       userId: string,
   ): Promise<void> {
@@ -327,7 +327,7 @@ export abstract class GenericService<T extends GenericEntity> {
    * @description Método chamado antes de deletar uma entidade.
    * @param {string} entityId - uuid da entidade a ser deletada.
    * @param {string} userId - uuid do usuário que está deletando a entidade.*/
-  public async beforeDelete(
+  protected async beforeDelete(
       entityId: string,
       userId: string
   ): Promise<void> {
@@ -357,7 +357,7 @@ export abstract class GenericService<T extends GenericEntity> {
    * @description Método chamado antes de deletar várias entidades.
    * @param {WhereParam[]} params - parâmetros de busca das entidades a serem deletadas.
    * @param {string} userId - uuid do usuário que está deletando as entidades.*/
-  public async beforeBulkDelete(
+  protected async beforeBulkDelete(
       params: WhereParam<T>[],
       userId: string,
   ): Promise<void> {
