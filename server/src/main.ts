@@ -1,7 +1,7 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {INestApplication} from '@nestjs/common';
-import {createDatabaseIfNotExist} from './app/core/database/maintenance';
+import {createDatabaseIfNotExist} from './core/database/maintenance';
 import dotenv from 'dotenv';
 import * as process from 'process';
 

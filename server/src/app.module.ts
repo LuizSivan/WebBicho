@@ -1,11 +1,11 @@
 import {Module} from '@nestjs/common';
-import {DatabaseModule} from './app/core/database/database.module';
-import {AuthModule} from './app/modules/auth/auth.module';
+import {DatabaseModule} from './core/database/database.module';
+import {AuthModule} from './modules/auth/auth.module';
 import {TypeOrmModule} from '@nestjs/typeorm';
-import {User} from './app/shared/models/entities/user/user';
-import {PostModule} from './app/modules/post/post.module';
-import {CommentModule} from './app/modules/comment/comment.module';
-import {UserModule} from './app/modules/user/user.module';
+import {User} from './shared/models/entities/user/user';
+import {PostModule} from './modules/post/post.module';
+import {CommentModule} from './modules/comment/comment.module';
+import {UserModule} from './modules/user/user.module';
 
 @Module({
   imports: [
