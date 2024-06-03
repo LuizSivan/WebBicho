@@ -5,6 +5,7 @@ import {
   Headers,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
   Param,
   ParseIntPipe,
   ParseUUIDPipe,
@@ -105,9 +106,8 @@ export abstract class GenericController<
       return this.service.update(id, entity, userId);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
-      throw new HttpException(
-          `Erro ao atualizar ${this.service.entityName}: ${e.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+      throw new InternalServerErrorException(
+          `Erro ao atualizar ${this.service.entityName}: ${e.message}`
       );
     }
   }

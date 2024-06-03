@@ -1,5 +1,5 @@
 import {
-  HttpException, HttpStatus, Injectable
+  ConflictException, ForbiddenException, Injectable, NotFoundException
 } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {EUserVerification, User} from '../../shared/models/entities/user/user';
@@ -20,6 +20,14 @@ export class AuthService {
   ) {
   }
   
+  /**
+   * @description Realiza o login do usuário
+   * @param {string} username - Nome ou email do usuário
+   * @param {string} password - Senha do usuário
+   * @return {Promise<User>} - A entidade do usuário com um token de acesso incluso
+   * @throws {NotFoundException} - Usuário não encontrado
+   * @throws {ForbiddenException} - Login e/ou senha inválidos ou usuário não verificado
+   * */
   public async login(
       username: string,
       password: string,
@@ -31,28 +39,31 @@ export class AuthService {
         {email: username},
       ],
     });
-    if (!user) throw new HttpException(`Usuário ${username} não encontrado!`, HttpStatus.NOT_FOUND);
-    
+    if (!user) throw new NotFoundException(`Usuário ${username} não encontrado!`);
     const passwordMatch: boolean = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) throw new HttpException('Login e/ou senha inválidos!', HttpStatus.FORBIDDEN);
-    
+    if (!passwordMatch)
+      throw new ForbiddenException('Login e/ou senha inválidos!');
     const cutoffTime: Date = new Date(Date.now() - 15 * 60 * 1000);
     if (user.verified == EUserVerification.NON_VERIFIED) {
       const deleteUser: boolean = user.createdAt < cutoffTime;
       if (deleteUser) {
         await this.userRepository.delete({id: user.id});
-        throw new HttpException(`Usuário ${username} não encontrado!`, HttpStatus.NOT_FOUND);
+        throw new NotFoundException(`Usuário ${username} não encontrado!`);
       }
-      throw new HttpException('Usuário não verificado!', HttpStatus.FORBIDDEN);
+      throw new ForbiddenException('Usuário não verificado!');
     }
     const login: User = await this.userRepository.findOneByOrFail({id: user.id});
     login.token = await this.tokenService.getToken(login);
     return login;
   }
   
-  public async register(
-      user: DeepPartial<User>,
-  ): Promise<User> {
+  /**
+   * @description Realiza o registro do usuário
+   * @param {DeepPartial<User>} user - Dados do usuário a serem registrados
+   * @return {Promise<User>} - A entidade do usuário registrada
+   * @throws {ConflictException} - Usuário e/ou e-mail já está em uso
+   * */
+  public async register(user: DeepPartial<User>): Promise<User> {
     const found: User | null = await this.userRepository.findOne({
       select: ['id', 'username', 'email'],
       where: [
@@ -61,7 +72,7 @@ export class AuthService {
       ],
     });
     if (found) {
-      throw new HttpException('Usuário e/ou e-mail já está em uso', HttpStatus.CONFLICT);
+      throw new ConflictException('Usuário e/ou e-mail já está em uso');
     }
     user.password = await bcrypt.hash(user.password as string, 10);
     await this.mailService.sendVerificationEmail(user);
@@ -69,9 +80,13 @@ export class AuthService {
     return await this.userRepository.findOneByOrFail({id: user.id});
   }
   
-  public async verifyAccount(
-      token: string,
-  ): Promise<User> {
+  /**
+   * @description Realiza a verificação da conta do usuário
+   * @param {string} token - Token de verificação gerado e enviado por e-mail
+   * @return {Promise<User>} - A entidade do usuário verificada
+   * @throws {ConflictException} - Usuário já verificado ou não encontrado
+   * */
+  public async verifyAccount(token: string): Promise<User> {
     const payload: string | JwtPayload = jwt.verify(token, SECRET);
     const userEmail: string = payload.sub as string;
     const user: User = await this.userRepository.findOne({
@@ -83,6 +98,6 @@ export class AuthService {
       await this.userRepository.update({id: user.id}, {verified: EUserVerification.VERIFIED});
       return await this.userRepository.findOneByOrFail({id: user.id});
     }
-    throw new HttpException('Usuário já verificado ou não encontrado', HttpStatus.CONFLICT);
+    throw new ConflictException('Usuário já verificado ou não encontrado');
   }
 }
