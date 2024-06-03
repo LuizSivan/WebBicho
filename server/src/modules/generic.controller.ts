@@ -137,7 +137,7 @@ export abstract class GenericController<
       @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
     try {
-      await this.service.delete(id);
+      await this.service.delete(id, userId);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
       throw new HttpException(

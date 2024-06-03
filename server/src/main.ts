@@ -4,6 +4,9 @@ import {INestApplication} from '@nestjs/common';
 import {createDatabaseIfNotExist} from './core/database/maintenance';
 import dotenv from 'dotenv';
 import * as process from 'process';
+import {
+  DocumentBuilder, OpenAPIObject, SwaggerModule
+} from '@nestjs/swagger';
 
 dotenv.config();
 const PORT: string | number = process.env.PORT || 8070;
@@ -16,6 +19,14 @@ async function bootstrap(): Promise<void> {
     origin: '*',
     optionsSuccessStatus: 204
   });
+  
+  const config: Omit<OpenAPIObject, 'paths'> = new DocumentBuilder()
+      .setTitle('API WebBicho')
+      .setDescription('Lista de todas as rotas disponíveis para a API WebBicho.')
+      .setVersion('1.0')
+      .build();
+  const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
   await app.listen(PORT);
 }
 
@@ -36,5 +47,5 @@ bootstrap().then((): void => {
       '⡝⡵⡈⢟⢕⢕⢕⢕⣵⣿⣿⣿⣿⣿⣿⣿⣿⣿⣶⣶⣿⣿⣿⣿⣿⠿⠋⣀⣈⠙\n' +
       '⡝⡵⡕⡀⠑⠳⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⢉⡠⡲⡫⡪⡪⡣\n\n'
   );
-  console.log(`>>> Servidor NestJS rodando na porta ${PORT} <<<`);
+  console.log(`>>> Servidor NestJS rodando em ${HOST} na porta ${PORT} <<<`);
 });

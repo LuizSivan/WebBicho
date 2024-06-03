@@ -6,7 +6,7 @@ import {CheckJwtGuard} from '../../core/guards/check-jwt.guard';
 import {ApiTags} from '@nestjs/swagger';
 
 @Controller('comment')
-@ApiTags('Comment', 'Comentário')
+@ApiTags('Comentários')
 @UseGuards(CheckJwtGuard)
 export class CommentController
   extends GenericController<

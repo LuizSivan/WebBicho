@@ -6,7 +6,7 @@ import {CheckJwtGuard} from '../../core/guards/check-jwt.guard';
 import {ApiTags} from '@nestjs/swagger';
 
 @Controller('post')
-@ApiTags('Posts', 'Postagens')
+@ApiTags('Postagens')
 @UseGuards(CheckJwtGuard)
 export class PostController
   extends GenericController<

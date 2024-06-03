@@ -200,9 +200,13 @@ export abstract class GenericService<T extends GenericEntity> {
   /**
    * @description Deleta uma entidade do repositório pelo uuid.
    * @param {string} entityId - uuid da entidade a ser deletada.
+   * @param {string} userId - uuid do usuário que está deletando a entidade.
    * @throws NotFoundException se a entidade não for encontrada.*/
-  public async delete(entityId: string): Promise<void> {
-    await this.beforeDelete(entityId, entityId);
+  public async delete(
+      entityId: string,
+      userId: string,
+  ): Promise<void> {
+    await this.beforeDelete(entityId, userId);
     const exists: boolean = await this.repository.existsBy(
         {id: entityId} as FindOptionsWhere<T>
     );
@@ -235,12 +239,8 @@ export abstract class GenericService<T extends GenericEntity> {
       userId: string,
   ): Promise<void> {
     await this.beforeBulkDelete(params, userId);
-    const convertedParams: FindOptionsWhere<T>[] = convertParams(
-        params
-    );
-    const exists: boolean = await this.repository.existsBy(
-        convertedParams
-    );
+    const convertedParams: FindOptionsWhere<T>[] = convertParams(params);
+    const exists: boolean = await this.repository.existsBy(convertedParams);
     if (!exists) {
       throw new NotFoundException(
           `Nenhum ${this.repository.metadata.name} encontrado(a)!`,
