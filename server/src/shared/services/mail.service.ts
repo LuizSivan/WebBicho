@@ -7,7 +7,6 @@ import {HOST} from '../../main';
 import {MailOptions} from 'nodemailer/lib/smtp-pool';
 import {DeepPartial} from 'typeorm';
 import {TokenService} from './token.service';
-import {InjectRepository} from '@nestjs/typeorm';
 
 @Injectable()
 export class MailService {
@@ -15,7 +14,6 @@ export class MailService {
   transporter: Transporter;
   
   constructor(
-      @InjectRepository(User)
       private readonly tokenService: TokenService,
   ) {
     this.transporter = nodemailer.createTransport({
@@ -34,7 +32,7 @@ export class MailService {
       const token: string = await this.tokenService.getToken(user, '15m');
       const port: string = HOST.includes('127.0.0.1') ? ':4400' : '';
       const verificationLink: string = `${HOST}${port}/auth/verify?token=${token}`;
-      const templatePath: string = path.join(__dirname, '../../assets/html/account-verification.html');
+      const templatePath: string = path.join(__dirname, '../../assets/html/verification-email.html');
       const htmlContent: string = fs.readFileSync(templatePath, 'utf-8')
           .replace('{{VERIFICATION_LINK}}', verificationLink)
           .replace('{{USER_NAME}}', user?.name ?? user.username);
@@ -46,7 +44,7 @@ export class MailService {
         attachments: [
           {
             filename: 'webbicho-logo.png',
-            path: 'src/app/assets/webbicho-logo.png',
+            path: 'src/assets/webbicho-logo.png',
             cid: 'webbicho@logo',
           },
         ],

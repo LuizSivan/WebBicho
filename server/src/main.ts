@@ -1,12 +1,10 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
-import {INestApplication} from '@nestjs/common';
+import {INestApplication, ValidationPipe} from '@nestjs/common';
 import {createDatabaseIfNotExist} from './core/database/maintenance';
 import dotenv from 'dotenv';
 import * as process from 'process';
-import {
-  DocumentBuilder, OpenAPIObject, SwaggerModule
-} from '@nestjs/swagger';
+import {DocumentBuilder, OpenAPIObject, SwaggerModule} from '@nestjs/swagger';
 
 dotenv.config();
 const PORT: string | number = process.env.PORT || 8070;
@@ -27,6 +25,8 @@ async function bootstrap(): Promise<void> {
       .build();
   const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+  
+  app.useGlobalPipes(new ValidationPipe({whitelist: true}));
   await app.listen(PORT);
 }
 

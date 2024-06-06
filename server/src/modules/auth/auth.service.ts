@@ -1,6 +1,4 @@
-import {
-  ConflictException, ForbiddenException, Injectable, NotFoundException
-} from '@nestjs/common';
+import {ConflictException, ForbiddenException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {EUserVerification, User} from '../../shared/models/entities/user/user';
 import {DeepPartial, Repository} from 'typeorm';
@@ -9,6 +7,7 @@ import {MailService} from '../../shared/services/mail.service';
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import {TokenService} from '../../shared/services/token.service';
 import {SECRET} from './auth.module';
+import {UserRegisterDto} from '../../shared/models/entities/user/dto/user-register-dto';
 
 @Injectable()
 export class AuthService {
@@ -59,25 +58,25 @@ export class AuthService {
   
   /**
    * @description Realiza o registro do usuário
-   * @param {DeepPartial<User>} user - Dados do usuário a serem registrados
+   * @param {DeepPartial<User>} userDto - Dados do usuário a serem registrados
    * @return {Promise<User>} - A entidade do usuário registrada
    * @throws {ConflictException} - Usuário e/ou e-mail já está em uso
    * */
-  public async register(user: DeepPartial<User>): Promise<User> {
+  public async register(userDto: UserRegisterDto): Promise<User> {
     const found: User | null = await this.userRepository.findOne({
       select: ['id', 'username', 'email'],
       where: [
-        {username: user.username},
-        {email: user.email},
+        {username: userDto.username},
+        {email: userDto.email},
       ],
     });
     if (found) {
       throw new ConflictException('Usuário e/ou e-mail já está em uso');
     }
-    user.password = await bcrypt.hash(user.password as string, 10);
-    await this.mailService.sendVerificationEmail(user);
-    await this.userRepository.insert(user);
-    return await this.userRepository.findOneByOrFail({id: user.id});
+    userDto.password = await bcrypt.hash(userDto.password as string, 10);
+    await this.mailService.sendVerificationEmail(userDto);
+    await this.userRepository.insert(userDto);
+    return await this.userRepository.findOneByOrFail({username: userDto.username});
   }
   
   /**

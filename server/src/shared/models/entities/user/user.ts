@@ -1,12 +1,8 @@
 import {GenericEntity} from '../generic-entity';
-import {
-  Column, Entity, OneToMany
-} from 'typeorm';
+import {Column, Entity, OneToMany} from 'typeorm';
 import {Post} from '../post/post';
 import {Comment} from '../comment/comment';
-import {
-  ApiHideProperty, ApiProperty, ApiPropertyOptional
-} from '@nestjs/swagger';
+import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
 
 export enum EUserRole {
   STAFF = 'STAFF',
@@ -35,7 +31,6 @@ export class User extends GenericEntity {
   email: string;
   
   @Column({select: false, length: 60})
-  @ApiHideProperty()
   password?: string;
   
   @Column({nullable: true, length: 400})
@@ -59,7 +54,7 @@ export class User extends GenericEntity {
     enum: EUserVerification,
     default: EUserVerification.NON_VERIFIED,
   })
-  @ApiProperty()
+  @ApiPropertyOptional()
   verified?: EUserVerification;
   
   @OneToMany(
@@ -67,7 +62,7 @@ export class User extends GenericEntity {
       post => post.user,
       {
         nullable: true,
-        cascade: true,
+        cascade: ['soft-remove', 'remove'],
       }
   )
   @ApiPropertyOptional()
@@ -78,7 +73,7 @@ export class User extends GenericEntity {
       comment => comment.user,
       {
         nullable: true,
-        cascade: true,
+        cascade: ['soft-remove', 'remove'],
       }
   )
   @ApiPropertyOptional()
