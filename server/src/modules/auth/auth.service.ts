@@ -2,17 +2,12 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
-  NotFoundException
+  NotFoundException,
+  UnauthorizedException
 } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {
-  EUserVerification,
-  User
-} from '../../shared/models/entities/user/user';
-import {
-  DeepPartial,
-  Repository
-} from 'typeorm';
+import {EUserVerification, User} from '../../shared/models/entities/user/user';
+import {DeepPartial, Repository} from 'typeorm';
 import bcrypt from 'bcrypt';
 import {MailService} from '../../shared/services/mail.service';
 import jwt, {JwtPayload} from 'jsonwebtoken';
@@ -52,7 +47,7 @@ export class AuthService {
     if (!user) throw new NotFoundException(`Usuário ${username} não encontrado!`);
     const passwordMatch: boolean = await bcrypt.compare(password, user.password);
     if (!passwordMatch)
-      throw new ForbiddenException('Login e/ou senha inválidos!');
+      throw new UnauthorizedException('Login e/ou senha inválidos!');
     const cutoffTime: Date = new Date(Date.now() - 15 * 60 * 1000);
     if (user.verified == EUserVerification.NON_VERIFIED) {
       const deleteUser: boolean = user.createdAt < cutoffTime;

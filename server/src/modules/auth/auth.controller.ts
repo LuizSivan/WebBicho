@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Headers,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -18,10 +19,15 @@ import {AuthGuard} from '../../core/guards/auth.guard';
 import {
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
-  ApiTags
+  ApiTags,
+  ApiUnauthorizedResponse
 } from '@nestjs/swagger';
 import {UserRegisterDto} from '../../shared/models/entities/user/dto/user-register-dto';
+import {UserLoginDto} from '../../shared/models/entities/user/dto/user-login-dto';
 
 @Controller('auth')
 @ApiTags('Autenticação')
@@ -33,13 +39,15 @@ export class AuthController {
   }
   
   @Post('login')
+  @HttpCode(200)
   @ApiOperation({summary: 'Realiza o login de um usuário existente'})
-  public async login(
-      @Body('username') username: string,
-      @Body('password') password: string,
-  ): Promise<User> {
+  @ApiOkResponse({description: 'Usuário logado com sucesso'})
+  @ApiUnauthorizedResponse({description: 'Login e/ou senha inválidos'})
+  @ApiForbiddenResponse({description: 'Usuário não verificado'})
+  @ApiNotFoundResponse({description: 'Usuário não encontrado'})
+  public async login(@Body() login: UserLoginDto): Promise<User> {
     try {
-      return this.authService.login(username, password);
+      return this.authService.login(login.username, login.password);
     } catch (e) {
       throw e;
     }
