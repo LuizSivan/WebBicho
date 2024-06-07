@@ -1,10 +1,26 @@
-import {Body, Controller, Get, Headers, HttpException, HttpStatus, Param, Patch, Post, UseGuards} from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  HttpException,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  UseGuards
+} from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {TokenService} from '../../shared/services/token.service';
 import {User} from 'src/shared/models/entities/user/user';
 import {HEADER_TOKEN} from './auth.module';
 import {AuthGuard} from '../../core/guards/auth.guard';
-import {ApiConflictResponse, ApiCreatedResponse, ApiOperation, ApiTags} from '@nestjs/swagger';
+import {
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiTags
+} from '@nestjs/swagger';
 import {UserRegisterDto} from '../../shared/models/entities/user/dto/user-register-dto';
 
 @Controller('auth')

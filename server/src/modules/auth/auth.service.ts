@@ -1,7 +1,18 @@
-import {ConflictException, ForbiddenException, Injectable, NotFoundException} from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {EUserVerification, User} from '../../shared/models/entities/user/user';
-import {DeepPartial, Repository} from 'typeorm';
+import {
+  EUserVerification,
+  User
+} from '../../shared/models/entities/user/user';
+import {
+  DeepPartial,
+  Repository
+} from 'typeorm';
 import bcrypt from 'bcrypt';
 import {MailService} from '../../shared/services/mail.service';
 import jwt, {JwtPayload} from 'jsonwebtoken';

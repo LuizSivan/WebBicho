@@ -1,8 +1,15 @@
 import {GenericEntity} from '../generic-entity';
-import {Column, Entity, OneToMany} from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany
+} from 'typeorm';
 import {Post} from '../post/post';
 import {Comment} from '../comment/comment';
-import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
+import {
+  ApiProperty,
+  ApiPropertyOptional
+} from '@nestjs/swagger';
 
 export enum EUserRole {
   STAFF = 'STAFF',

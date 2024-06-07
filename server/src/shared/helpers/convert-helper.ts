@@ -36,7 +36,7 @@ export function convertParam<T>(params: WhereParam<T>): FindOptionsWhere<T> {
   const newParams: FindOptionsWhere<any> = {};
   for (const key in params) {
     if (!params.hasOwnProperty(key)) continue;
-    const condition = params[key];
+    const condition: WhereParam<T>[Extract<keyof T, string>] = params[key];
     if (condition.hasOwnProperty('equals'))
       newParams[key] = condition['equals'];
     else if (condition.hasOwnProperty('between'))
