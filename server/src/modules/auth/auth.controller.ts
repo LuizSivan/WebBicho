@@ -4,11 +4,10 @@ import {
   Get,
   Headers,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
   Patch,
   Post,
+  UnauthorizedException,
   UseGuards
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
@@ -20,6 +19,7 @@ import {
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiHeader,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -45,9 +45,9 @@ export class AuthController {
   @ApiUnauthorizedResponse({description: 'Login e/ou senha inválidos'})
   @ApiForbiddenResponse({description: 'Usuário não verificado'})
   @ApiNotFoundResponse({description: 'Usuário não encontrado'})
-  public async login(@Body() login: UserLoginDto): Promise<User> {
+  public async login(@Body() userInput: UserLoginDto): Promise<User> {
     try {
-      return this.authService.login(login.username, login.password);
+      return this.authService.login(userInput.login, userInput.password);
     } catch (e) {
       throw e;
     }
@@ -67,7 +67,9 @@ export class AuthController {
   
   @Patch('verify')
   @ApiOperation({summary: 'Verifica a conta de um usuário'})
-  public async verify(@Param('token') token: string): Promise<User> {
+  @ApiOkResponse({description: 'Conta verificada com sucesso'})
+  @ApiConflictResponse({description: 'Usuário já verificado ou não encontrado'})
+  public async verifyAccount(@Param('token') token: string): Promise<User> {
     try {
       return this.authService.verifyAccount(token);
     } catch (e) {
@@ -75,9 +77,12 @@ export class AuthController {
     }
   }
   
-  @UseGuards(AuthGuard)
   @Get()
+  @UseGuards(AuthGuard)
   @ApiOperation({summary: 'Autentica o token de um usuário'})
+  @ApiHeader({name: 'token', description: 'Token de autenticação'})
+  @ApiOkResponse({description: 'Token autenticado com sucesso'})
+  @ApiUnauthorizedResponse({description: 'Acesso negado'})
   public async authenticateToken(
       @Headers(HEADER_TOKEN) token: string,
   ): Promise<object> {
@@ -85,10 +90,7 @@ export class AuthController {
       return this.tokenService.authenticateToken(token);
     } catch (e) {
       console.error(`Erro ao decodificar o token: ${e.message}`);
-      throw new HttpException(
-          `Acesso negado.`,
-          HttpStatus.FORBIDDEN,
-      );
+      throw new UnauthorizedException(`Acesso negado`);
     }
   }
 }

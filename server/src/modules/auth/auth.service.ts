@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {EUserVerification, User} from '../../shared/models/entities/user/user';
-import {DeepPartial, Repository} from 'typeorm';
+import {Repository} from 'typeorm';
 import bcrypt from 'bcrypt';
 import {MailService} from '../../shared/services/mail.service';
 import jwt, {JwtPayload} from 'jsonwebtoken';
@@ -64,7 +64,7 @@ export class AuthService {
   
   /**
    * @description Realiza o registro do usuário
-   * @param {DeepPartial<User>} userDto - Dados do usuário a serem registrados
+   * @param {UserRegisterDto} userDto - Dados do usuário a serem registrados
    * @return {Promise<User>} - A entidade do usuário registrada
    * @throws {ConflictException} - Usuário e/ou e-mail já está em uso
    * */

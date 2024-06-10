@@ -4,7 +4,6 @@ import {
   Get,
   Headers,
   HttpException,
-  HttpStatus,
   InternalServerErrorException,
   Param,
   ParseIntPipe,
@@ -51,9 +50,8 @@ export abstract class GenericController<
       return this.service.findOne(id, fields, relations, params);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
-      throw new HttpException(
-          `Erro ao buscar ${this.service.entityName} ${id}: ${e.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+      throw new InternalServerErrorException(
+          `Erro ao buscar ${this.service.entityName} ${id}: ${e.message}`
       );
     }
   }
@@ -72,9 +70,8 @@ export abstract class GenericController<
       return this.service.list(page, size, fields, relations, params, order);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
-      throw new HttpException(
+      throw new InternalServerErrorException(
           `Erro ao buscar lista de ${this.service.entityName}: ${e.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
@@ -88,9 +85,8 @@ export abstract class GenericController<
     try {
       return this.service.create(entity, userId);
     } catch (e: any) {
-      throw new HttpException(
-          `Erro ao criar ${this.service.entityName}: ${e.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+      throw new InternalServerErrorException(
+          `Erro ao criar ${this.service.entityName}: ${e.message}`
       );
     }
   }
@@ -123,9 +119,8 @@ export abstract class GenericController<
       await this.service.bulkUpdate(entity, userId, params);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
-      throw new HttpException(
-          `Erro ao atualizar ${this.service.entityName}: ${e.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+      throw new InternalServerErrorException(
+          `Erro ao atualizar ${this.service.entityName}: ${e.message}`
       );
     }
   }
@@ -140,9 +135,8 @@ export abstract class GenericController<
       await this.service.delete(id, userId);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
-      throw new HttpException(
-          `Erro ao deletar ${this.service.entityName}: ${e.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+      throw new InternalServerErrorException(
+          `Erro ao deletar ${this.service.entityName}: ${e.message}`
       );
     }
   }
@@ -157,9 +151,8 @@ export abstract class GenericController<
       await this.service.bulkDelete(params, userId);
     } catch (e: any) {
       if (e instanceof HttpException) throw e;
-      throw new HttpException(
-          `Erro ao deletar ${this.service.entityName}: ${e.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
+      throw new InternalServerErrorException(
+          `Erro ao deletar ${this.service.entityName}: ${e.message}`
       );
     }
   }

@@ -10,10 +10,10 @@ export class UserLoginDto {
     minLength: 6,
     maxLength: 255,
   })
-  @IsNotEmpty()
-  @MinLength(6)
-  @MaxLength(255)
-  username: string;
+  @IsNotEmpty({message: 'Login não pode ser vazio!'})
+  @MinLength(6, {message: 'Login deve ter no mínimo 6 caracteres!'})
+  @MaxLength(255, {message: 'Login deve ter no máximo 255 caracteres!'})
+  login: string;
   
   @ApiProperty({
     type: String,
@@ -21,8 +21,8 @@ export class UserLoginDto {
     maxLength: 40,
     minLength: 8,
   })
-  @IsNotEmpty()
-  @MinLength(8)
-  @MaxLength(40)
+  @IsNotEmpty({message: 'Senha não pode ser vazia!'})
+  @MinLength(8, {message: 'Senha deve ter no mínimo 8 caracteres!'})
+  @MaxLength(40, {message: 'Senha deve ter no máximo 40 caracteres!'})
   password: string;
 }
