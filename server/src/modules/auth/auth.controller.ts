@@ -23,6 +23,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
   ApiUnauthorizedResponse
 } from '@nestjs/swagger';
@@ -67,6 +68,7 @@ export class AuthController {
   
   @Patch('verify')
   @ApiOperation({summary: 'Verifica a conta de um usuário'})
+  @ApiParam({name: 'token', description: 'Token de verificação'})
   @ApiOkResponse({description: 'Conta verificada com sucesso'})
   @ApiConflictResponse({description: 'Usuário já verificado ou não encontrado'})
   public async verifyAccount(@Param('token') token: string): Promise<User> {
@@ -80,7 +82,7 @@ export class AuthController {
   @Get()
   @UseGuards(AuthGuard)
   @ApiOperation({summary: 'Autentica o token de um usuário'})
-  @ApiHeader({name: 'token', description: 'Token de autenticação'})
+  @ApiHeader({name: HEADER_TOKEN, description: 'Token de autenticação'})
   @ApiOkResponse({description: 'Token autenticado com sucesso'})
   @ApiUnauthorizedResponse({description: 'Acesso negado'})
   public async authenticateToken(
