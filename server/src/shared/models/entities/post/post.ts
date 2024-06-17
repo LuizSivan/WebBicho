@@ -1,6 +1,9 @@
 import {GenericEntity} from '../generic-entity';
 import {
-  Column, Entity, ManyToOne, OneToMany
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany
 } from 'typeorm';
 import {User} from '../user/user';
 import {Comment} from '../comment/comment';

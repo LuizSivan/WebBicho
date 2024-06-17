@@ -1,5 +1,8 @@
 import {
-  BadRequestException, ForbiddenException, Injectable, NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {
@@ -13,12 +16,22 @@ import {
 } from 'typeorm';
 import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
 import {Page} from '../shared/models/classes/page';
-import {convertParam, convertParams} from '../shared/helpers/convert-helper';
+import {
+  convertParam,
+  convertParams
+} from '../shared/helpers/convert-helper';
 import {WhereParam} from '../shared/models/types/where-param';
-import {EUserRole, User} from '../shared/models/entities/user/user';
+import {
+  EUserRole,
+  User
+} from '../shared/models/entities/user/user';
 
 @Injectable()
-export abstract class GenericService<T extends GenericEntity> {
+export abstract class GenericService<
+  T extends GenericEntity,
+  CT extends GenericEntity,
+  UT extends GenericEntity,
+> {
   public readonly entityName: string;
   
   protected constructor(
@@ -30,14 +43,14 @@ export abstract class GenericService<T extends GenericEntity> {
   
   /**
    * @description Busca uma única entidade do tipo T no repositório.
-   * @param {number} entityId (opcional) uuid da entidade.
+   * @param {number} entityId (opcional) id da entidade.
    * @param {string[]} fields (opcional) campos a serem buscados na consulta.
    * @param {string[]} relations (opcional) relações a serem carregadas na consulta.
    * @param {WhereParam[]} params (opcional) parâmetros de busca da consulta.
    * @returns {Promise} - a entidade encontrada.
    * @throws BadRequestException se nenhum parâmetro for informado.*/
   public async findOne(
-      entityId?: string,
+      entityId?: number,
       fields?: string[],
       relations?: string[],
       params?: WhereParam<T>[],
@@ -96,12 +109,12 @@ export abstract class GenericService<T extends GenericEntity> {
   
   /**
    * @description Cria uma nova entidade do tipo T no repositório.
-   * @param {DeepPartial} entity - entidade parcial a ser criada.
-   * @param {string} userId - uuid do usuário que está criando a entidade.
+   * @param {Object} entity - entidade parcial a ser criada.
+   * @param {number} userId - id do usuário que está criando a entidade.
    * @returns {Promise} a entidade criada.*/
   public async create(
-      entity: DeepPartial<T>,
-      userId: string,
+      entity: CT,
+      userId: number,
   ): Promise<T> {
     await this.beforeCreate(entity);
     entity.createdBy = userId;
@@ -126,15 +139,15 @@ export abstract class GenericService<T extends GenericEntity> {
   
   /**
    * @description Atualiza uma entidade no repositório pelo uuid.
-   * @param {string} entityId - uuid da entidade a ser atualizada.
-   * @param {DeepPartial} entity - entidade parcial com novas alterações.
-   * @param {string} userId - uuid do usuário que está atualizando a entidade.
+   * @param {number} entityId - id da entidade a ser atualizada.
+   * @param {Object} entity - entidade parcial com novas alterações.
+   * @param {number} userId - id do usuário que está atualizando a entidade.
    * @returns {Promise} a entidade atualizada.
    * @throws NotFoundException se a entidade não for encontrada.*/
   public async update(
-      entityId: string,
-      entity: DeepPartial<T>,
-      userId: string,
+      entityId: number,
+      entity: UT,
+      userId: number,
   ): Promise<T> {
     await this.beforeUpdate(entityId, entity, userId);
     const queryRunner: QueryRunner = this.repository.manager.connection.createQueryRunner();
@@ -168,11 +181,11 @@ export abstract class GenericService<T extends GenericEntity> {
   /**
    * @description Atualiza várias entidades por parâmetros.
    * @param {DeepPartial} entity - entidade parcial com novas alterações.
-   * @param {string} userId - uuid do usuário que está atualizando a entidade.
+   * @param {number} userId - id do usuário que está atualizando a entidade.
    * @param {WhereParam[]} params - parâmetros de busca das entidades a serem atualizadas.*/
   public async bulkUpdate(
       entity: DeepPartial<T>,
-      userId: string,
+      userId: number,
       params: WhereParam<T>[],
   ): Promise<void> {
     await this.beforeBulkUpdate(entity, userId);
@@ -199,12 +212,12 @@ export abstract class GenericService<T extends GenericEntity> {
   
   /**
    * @description Deleta uma entidade do repositório pelo uuid.
-   * @param {string} entityId - uuid da entidade a ser deletada.
-   * @param {string} userId - uuid do usuário que está deletando a entidade.
+   * @param {number} entityId - uuid da entidade a ser deletada.
+   * @param {number} userId - uuid do usuário que está deletando a entidade.
    * @throws NotFoundException se a entidade não for encontrada.*/
   public async delete(
-      entityId: string,
-      userId: string,
+      entityId: number,
+      userId: number,
   ): Promise<void> {
     await this.beforeDelete(entityId, userId);
     const exists: boolean = await this.repository.existsBy(
@@ -233,10 +246,10 @@ export abstract class GenericService<T extends GenericEntity> {
   /**
    * @description Deleta várias entidades por parâmetros.
    * @param {WhereParam[]} params - parâmetros de busca das entidades a serem deletadas.
-   * @param {string} userId - uuid do usuário que está deletando as entidades.*/
+   * @param {number} userId - id do usuário que está deletando as entidades.*/
   public async bulkDelete(
       params: WhereParam<T>[],
-      userId: string,
+      userId: number,
   ): Promise<void> {
     await this.beforeBulkDelete(params, userId);
     const convertedParams: FindOptionsWhere<T>[] = convertParams(params);
@@ -266,7 +279,7 @@ export abstract class GenericService<T extends GenericEntity> {
   /**
    * @description Método chamado antes de criar uma entidade.
    * @param {DeepPartial} _entity - entidade parcial a ser criada.*/
-  protected async beforeCreate(_entity: DeepPartial<T>): Promise<void> {
+  protected async beforeCreate(_entity: CT): Promise<void> {
     return;
   }
   
@@ -276,9 +289,9 @@ export abstract class GenericService<T extends GenericEntity> {
    * @param {DeepPartial} _entity - entidade parcial com novas alterações.
    * @param {string} userId - uuid do usuário que está atualizando a entidade.*/
   protected async beforeUpdate(
-      entityId: string,
-      _entity: DeepPartial<T>,
-      userId: string,
+      entityId: number,
+      _entity: UT,
+      userId: number,
   ): Promise<void> {
     const user: User = await this.userRepository.findOneOrFail(
         {
@@ -304,10 +317,10 @@ export abstract class GenericService<T extends GenericEntity> {
   /**
    * @description Método chamado antes de atualizar várias entidades.
    * @param {DeepPartial} _entity - entidade parcial com novas alterações.
-   * @param {string} userId - uuid do usuário que está atualizando a entidade.*/
+   * @param {number} userId - id do usuário que está atualizando a entidade.*/
   protected async beforeBulkUpdate(
       _entity: DeepPartial<T>,
-      userId: string,
+      userId: number,
   ): Promise<void> {
     const user: User = await this.userRepository.findOneOrFail(
         {
@@ -325,11 +338,11 @@ export abstract class GenericService<T extends GenericEntity> {
   
   /**
    * @description Método chamado antes de deletar uma entidade.
-   * @param {string} entityId - uuid da entidade a ser deletada.
-   * @param {string} userId - uuid do usuário que está deletando a entidade.*/
+   * @param {number} entityId - id da entidade a ser deletada.
+   * @param {number} userId - id do usuário que está deletando a entidade.*/
   protected async beforeDelete(
-      entityId: string,
-      userId: string
+      entityId: number,
+      userId: number
   ): Promise<void> {
     const user: User = await this.userRepository.findOneOrFail(
         {
@@ -356,10 +369,10 @@ export abstract class GenericService<T extends GenericEntity> {
   /**
    * @description Método chamado antes de deletar várias entidades.
    * @param {WhereParam[]} params - parâmetros de busca das entidades a serem deletadas.
-   * @param {string} userId - uuid do usuário que está deletando as entidades.*/
+   * @param {number} userId - id do usuário que está deletando as entidades.*/
   protected async beforeBulkDelete(
       params: WhereParam<T>[],
-      userId: string,
+      userId: number,
   ): Promise<void> {
     if (!params?.length)
       throw new BadRequestException(

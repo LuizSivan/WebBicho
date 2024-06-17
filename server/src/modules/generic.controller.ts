@@ -7,7 +7,6 @@ import {
   InternalServerErrorException,
   Param,
   ParseIntPipe,
-  ParseUUIDPipe,
   Post,
   Put,
   UseGuards,
@@ -15,11 +14,17 @@ import {
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {Page} from '../shared/models/classes/page';
 import {GenericService} from './generic.service';
-import {DeepPartial, FindOptionsOrder} from 'typeorm';
+import {
+  DeepPartial,
+  FindOptionsOrder
+} from 'typeorm';
 import {WhereParam} from '../shared/models/types/where-param';
 import {CheckJwtGuard} from '../core/guards/check-jwt.guard';
 import {
-  ApiHeader, ApiInternalServerErrorResponse, ApiOperation, ApiParam
+  ApiHeader,
+  ApiInternalServerErrorResponse,
+  ApiOperation,
+  ApiParam
 } from '@nestjs/swagger';
 
 export const HEADER_USER_ID: string = 'user-id';
@@ -33,7 +38,9 @@ export const PAGE_SIZE: string = 'size';
 @UseGuards(CheckJwtGuard)
 export abstract class GenericController<
   T extends GenericEntity,
-  S extends GenericService<T>
+  S extends GenericService<T, CT, UT>,
+  CT extends GenericEntity,
+  UT extends GenericEntity,
 > {
   protected constructor(
       private readonly service: S,
@@ -48,7 +55,7 @@ export abstract class GenericController<
   @ApiHeader({name: HEADER_PARAMS, required: false, description: 'Parâmetros da busca'})
   @ApiInternalServerErrorResponse({description: 'Erro ao buscar entidade'})
   public async findOne(
-      @Param('id', ParseUUIDPipe) id?: string,
+      @Param('id', ParseIntPipe) id?: number,
       @Headers(HEADER_FIELDS) fields?: string[],
       @Headers(HEADER_RELATIONS) relations?: string[],
       @Headers(HEADER_PARAMS) params?: WhereParam<T>[],
@@ -95,8 +102,8 @@ export abstract class GenericController<
   @ApiHeader({name: HEADER_USER_ID, description: 'Id do usuário'})
   @ApiInternalServerErrorResponse({description: 'Erro ao criar entidade'})
   public async create(
-      @Body() entity: DeepPartial<T>,
-      @Headers(HEADER_USER_ID) userId: string
+      @Body() entity: CT,
+      @Headers(HEADER_USER_ID) userId: number
   ): Promise<T> {
     try {
       return this.service.create(entity, userId);
@@ -112,9 +119,9 @@ export abstract class GenericController<
   @ApiParam({name: 'id', description: 'Id da entidade'})
   @ApiHeader({name: HEADER_USER_ID, description: 'Id do usuário'})
   public async update(
-      @Param('id', ParseUUIDPipe) id: string,
-      @Headers(HEADER_USER_ID) userId: string,
-      @Body() entity: DeepPartial<T>,
+      @Param('id', ParseIntPipe) id: number,
+      @Headers(HEADER_USER_ID) userId: number,
+      @Body() entity: UT,
   ): Promise<T> {
     try {
       return this.service.update(id, entity, userId);
@@ -132,7 +139,7 @@ export abstract class GenericController<
   @ApiHeader({name: HEADER_PARAMS, description: 'Parâmetros da busca'})
   public async bulkUpdate(
       @Body() entity: DeepPartial<T>,
-      @Headers(HEADER_USER_ID) userId: string,
+      @Headers(HEADER_USER_ID) userId: number,
       @Headers(HEADER_PARAMS) params: WhereParam<T>[],
   ): Promise<void> {
     try {
@@ -150,8 +157,8 @@ export abstract class GenericController<
   @ApiParam({name: 'id', description: 'Id da entidade'})
   @ApiHeader({name: HEADER_USER_ID, description: 'Id do usuário'})
   public async delete(
-      @Param('id', ParseUUIDPipe) id: string,
-      @Headers(HEADER_USER_ID) userId: string,
+      @Param('id', ParseIntPipe) id: number,
+      @Headers(HEADER_USER_ID) userId: number,
   ): Promise<void> {
     try {
       await this.service.delete(id, userId);
@@ -168,7 +175,7 @@ export abstract class GenericController<
   @ApiHeader({name: HEADER_USER_ID, description: 'Id do usuário'})
   @ApiHeader({name: HEADER_PARAMS, description: 'Parâmetros da busca'})
   public async bulkDelete(
-      @Headers(HEADER_USER_ID) userId: string,
+      @Headers(HEADER_USER_ID) userId: number,
       @Headers(HEADER_PARAMS) params: WhereParam<T>[],
   ): Promise<void> {
     try {

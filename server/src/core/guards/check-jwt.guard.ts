@@ -1,14 +1,22 @@
 import {
-  CanActivate, ExecutionContext, ForbiddenException, Injectable
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable
 } from '@nestjs/common';
 import {
-  HEADER_TOKEN, HEADER_USER, SECRET
+  HEADER_TOKEN,
+  HEADER_USER,
+  SECRET
 } from '../../modules/auth/auth.module';
 import {Repository} from 'typeorm';
 import {User} from '../../shared/models/entities/user/user';
 import {InjectRepository} from '@nestjs/typeorm';
 import jwt, {JwtPayload} from 'jsonwebtoken';
-import {Request, Response} from 'express';
+import {
+  Request,
+  Response
+} from 'express';
 
 @Injectable()
 export class CheckJwtGuard implements CanActivate {
@@ -32,7 +40,7 @@ export class CheckJwtGuard implements CanActivate {
         select: ['id'],
         where: {email: decoded.sub as string},
       });
-      request.headers[HEADER_USER] = user.id;
+      request.headers[HEADER_USER] = user.id.toString();
       return true;
     } catch (error) {
       throw new ForbiddenException('Não foi possível autorizar a requisição.');

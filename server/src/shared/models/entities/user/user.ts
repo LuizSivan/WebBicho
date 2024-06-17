@@ -6,10 +6,7 @@ import {
 } from 'typeorm';
 import {Post} from '../post/post';
 import {Comment} from '../comment/comment';
-import {
-  ApiProperty,
-  ApiPropertyOptional
-} from '@nestjs/swagger';
+import {ApiPropertyOptional} from '@nestjs/swagger';
 
 export enum EUserRole {
   STAFF = 'STAFF',
@@ -26,18 +23,19 @@ export enum EUserVerification {
 @Entity()
 export class User extends GenericEntity {
   @Column({unique: true, length: 50})
-  @ApiProperty()
-  username: string;
+  @ApiPropertyOptional({readOnly: true})
+  username?: string;
   
   @Column({nullable: true, length: 255})
   @ApiPropertyOptional()
   name: string;
   
   @Column({unique: true, length: 255})
-  @ApiProperty()
-  email: string;
+  @ApiPropertyOptional({readOnly: true})
+  email?: string;
   
   @Column({select: false, length: 60})
+  @ApiPropertyOptional({readOnly: true})
   password?: string;
   
   @Column({nullable: true, length: 400})
@@ -49,7 +47,7 @@ export class User extends GenericEntity {
     enum: EUserRole,
     default: EUserRole.USER,
   })
-  @ApiProperty()
+  @ApiPropertyOptional({readOnly: true})
   role?: EUserRole;
   
   @Column({type: 'text', nullable: true})
@@ -61,7 +59,7 @@ export class User extends GenericEntity {
     enum: EUserVerification,
     default: EUserVerification.NON_VERIFIED,
   })
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({readOnly: true})
   verified?: EUserVerification;
   
   @OneToMany(
@@ -72,8 +70,8 @@ export class User extends GenericEntity {
         cascade: ['soft-remove', 'remove'],
       }
   )
-  @ApiPropertyOptional()
-  posts: Post[];
+  @ApiPropertyOptional({readOnly: true})
+  posts?: Post[];
   
   @OneToMany(
       () => Comment,
@@ -83,9 +81,9 @@ export class User extends GenericEntity {
         cascade: ['soft-remove', 'remove'],
       }
   )
-  @ApiPropertyOptional()
-  comments: Comment[];
+  @ApiPropertyOptional({readOnly: true})
+  comments?: Comment[];
   
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({readOnly: true})
   token?: string;
 }

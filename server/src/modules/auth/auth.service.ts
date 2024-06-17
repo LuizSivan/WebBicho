@@ -6,7 +6,10 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {EUserVerification, User} from '../../shared/models/entities/user/user';
+import {
+  EUserVerification,
+  User
+} from '../../shared/models/entities/user/user';
 import {Repository} from 'typeorm';
 import bcrypt from 'bcrypt';
 import {MailService} from '../../shared/services/mail.service';
@@ -99,7 +102,7 @@ export class AuthService {
       where: {email: userEmail},
     });
     
-    if (user && !user.verified) {
+    if (user && user.verified == EUserVerification.NON_VERIFIED) {
       await this.userRepository.update({id: user.id}, {verified: EUserVerification.VERIFIED});
       return await this.userRepository.findOneByOrFail({id: user.id});
     }

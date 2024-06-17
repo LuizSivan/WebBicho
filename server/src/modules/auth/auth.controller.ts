@@ -4,9 +4,9 @@ import {
   Get,
   Headers,
   HttpCode,
-  Param,
   Patch,
   Post,
+  Query,
   UnauthorizedException,
   UseGuards
 } from '@nestjs/common';
@@ -71,7 +71,7 @@ export class AuthController {
   @ApiParam({name: 'token', description: 'Token de verificação'})
   @ApiOkResponse({description: 'Conta verificada com sucesso'})
   @ApiConflictResponse({description: 'Usuário já verificado ou não encontrado'})
-  public async verifyAccount(@Param('token') token: string): Promise<User> {
+  public async verifyAccount(@Query('token') token: string): Promise<User> {
     try {
       return this.authService.verifyAccount(token);
     } catch (e) {
