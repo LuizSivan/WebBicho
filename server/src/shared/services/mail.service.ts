@@ -10,9 +10,9 @@ import {TokenService} from './token.service';
 
 @Injectable()
 export class MailService {
-	
+  
 	transporter: Transporter;
-	
+  
 	constructor(
 			private readonly tokenService: TokenService,
 	) {
@@ -26,7 +26,7 @@ export class MailService {
 			},
 		});
 	}
-	
+  
 	public sendVerificationEmail(user: DeepPartial<User>): Promise<void> {
 		return new Promise(async (resolve, reject): Promise<void> => {
 			const token: string = await this.tokenService.getToken(user, '15m');
@@ -43,8 +43,8 @@ export class MailService {
 				html: htmlContent,
 				attachments: [
 					{
-						filename: 'webbicho-verde.svg',
-						path: 'src/assets/webbicho-verde.svg',
+						filename: 'webbicho-verde.png',
+						path: 'src/assets/webbicho-verde.png',
 						cid: 'webbicho@logo',
 					},
 				],
