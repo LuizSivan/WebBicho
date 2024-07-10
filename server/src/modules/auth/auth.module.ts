@@ -8,19 +8,17 @@ import {MailService} from '../../shared/services/mail.service';
 import {TokenService} from '../../shared/services/token.service';
 
 export const SECRET: string = process.env.JWT_SECRET as string;
-export const HEADER_USER: string = 'user';
-export const HEADER_TOKEN: string = 'auth';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-  ],
-  controllers: [AuthController],
-  providers: [
-    AuthService,
-    MailService,
-    TokenService,
-  ],
+	imports: [
+		TypeOrmModule.forFeature([User]),
+	],
+	controllers: [AuthController],
+	providers: [
+		AuthService,
+		MailService,
+		TokenService,
+	],
 })
 export class AuthModule {
 }

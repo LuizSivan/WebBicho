@@ -6,12 +6,12 @@ import {Post} from '../../shared/models/entities/post/post';
 import {UserModule} from '../user/user.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Post]),
-    UserModule,
-  ],
-  providers: [PostService],
-  controllers: [PostController],
+	imports: [
+		TypeOrmModule.forFeature([Post]),
+		UserModule,
+	],
+	providers: [PostService],
+	controllers: [PostController],
 })
 export class PostModule {
 }

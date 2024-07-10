@@ -1,5 +1,5 @@
 export type WhereParam<T> = {
-  [P in keyof T]?:
+	[P in keyof T]?:
     | WhereKey<T[P]>
     | WhereParam<T[P]>
 };

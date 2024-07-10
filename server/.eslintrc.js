@@ -47,7 +47,7 @@ module.exports = {
         }],
         '@stylistic/indent': [
             'error',
-            2,
+            'tab',
             {
                 SwitchCase: 1,
                 MemberExpression: 2,

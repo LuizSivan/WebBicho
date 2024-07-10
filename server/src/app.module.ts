@@ -8,14 +8,14 @@ import {CommentModule} from './modules/comment/comment.module';
 import {UserModule} from './modules/user/user.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-    DatabaseModule,
-    AuthModule,
-    PostModule,
-    CommentModule,
-    UserModule,
-  ],
+	imports: [
+		TypeOrmModule.forFeature([User]),
+		DatabaseModule,
+		AuthModule,
+		PostModule,
+		CommentModule,
+		UserModule,
+	],
 })
 export class AppModule {
 }

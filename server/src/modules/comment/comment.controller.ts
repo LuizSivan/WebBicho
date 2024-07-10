@@ -1,6 +1,6 @@
 import {
-  Controller,
-  UseGuards
+	Controller,
+	UseGuards
 } from '@nestjs/common';
 import {GenericController} from '../generic.controller';
 import {Comment} from '../../shared/models/entities/comment/comment';
@@ -14,13 +14,13 @@ import {UpdateCommentDto} from '../../shared/models/entities/comment/dto/update-
 @ApiTags('Comentários')
 @UseGuards(CheckJwtGuard)
 export class CommentController
-  extends GenericController<
-    Comment,
-    CommentService,
-    CreateCommentDto,
-    UpdateCommentDto
-  > {
-  constructor(service: CommentService) {
-    super(service);
-  }
+	extends GenericController<
+		Comment,
+		CommentService,
+		CreateCommentDto,
+		UpdateCommentDto
+	> {
+	constructor(service: CommentService) {
+		super(service);
+	}
 }

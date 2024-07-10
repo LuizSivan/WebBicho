@@ -1,6 +1,6 @@
 import {
-  Controller,
-  UseGuards
+	Controller,
+	UseGuards
 } from '@nestjs/common';
 import {GenericController} from '../generic.controller';
 import {Post} from '../../shared/models/entities/post/post';
@@ -14,14 +14,14 @@ import {UpdatePostDto} from '../../shared/models/entities/post/dto/update-post-d
 @ApiTags('Postagens')
 @UseGuards(CheckJwtGuard)
 export class PostController
-  extends GenericController<
-    Post,
-    PostService,
-    CreatePostDto,
-    UpdatePostDto
-  > {
-  
-  constructor(service: PostService) {
-    super(service);
-  }
+	extends GenericController<
+		Post,
+		PostService,
+		CreatePostDto,
+		UpdatePostDto
+	> {
+	
+	constructor(service: PostService) {
+		super(service);
+	}
 }

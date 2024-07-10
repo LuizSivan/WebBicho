@@ -6,12 +6,12 @@ import {Comment} from '../../shared/models/entities/comment/comment';
 import {UserModule} from '../user/user.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Comment]),
-    UserModule
-  ],
-  providers: [CommentService],
-  controllers: [CommentController],
+	imports: [
+		TypeOrmModule.forFeature([Comment]),
+		UserModule
+	],
+	providers: [CommentService],
+	controllers: [CommentController],
 })
 export class CommentModule {
 }

@@ -2,16 +2,16 @@ import {GenericEntity} from '../../generic-entity';
 import {ApiPropertyOptional} from '@nestjs/swagger';
 
 export class UpdateUserDto extends GenericEntity {
-  @ApiPropertyOptional()
+	@ApiPropertyOptional()
   name: string;
   
-  @ApiPropertyOptional()
+	@ApiPropertyOptional()
   about: string;
   
-  @ApiPropertyOptional()
+	@ApiPropertyOptional()
   avatar: string;
   
-  @ApiPropertyOptional({readOnly: true})
+	@ApiPropertyOptional({readOnly: true})
   token?: string;
 }
 
