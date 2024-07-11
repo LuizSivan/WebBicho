@@ -1,14 +1,8 @@
 import {
 	Body,
-	Delete,
-	Get,
 	Headers,
 	HttpException,
 	InternalServerErrorException,
-	Param,
-	ParseIntPipe,
-	Post,
-	Put,
 	UseGuards,
 } from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
@@ -20,18 +14,7 @@ import {
 } from 'typeorm';
 import {WhereParam} from '../shared/models/types/where-param';
 import {CheckJwtGuard} from '../core/guards/check-jwt.guard';
-import {
-	ApiHeader,
-	ApiInternalServerErrorResponse,
-	ApiOperation,
-	ApiParam
-} from '@nestjs/swagger';
 import {HEADER} from '../core/cors/headers';
-import {PATH} from '../core/cors/paths';
-import {
-	ApiFindOneDecorators,
-	ApiListDecorators
-} from '../shared/helpers/api-swagger-helper';
 
 
 @UseGuards(CheckJwtGuard)
@@ -46,13 +29,11 @@ export abstract class GenericController<
 	) {
 	}
 	
-	@Get(':id?')
-	@ApiFindOneDecorators()
 	public async findOne(
-			@Param('id', ParseIntPipe) id?: number,
-			@Headers(HEADER.FIELDS) fields?: string[],
-			@Headers(HEADER.RELATIONS) relations?: string[],
-			@Headers(HEADER.PARAMS) params?: WhereParam<T>[],
+			id?: number,
+			fields?: string[],
+			relations?: string[],
+			params?: WhereParam<T>[],
 	): Promise<T> {
 		try {
 			return this.service.findOne(id, fields, relations, params);
@@ -64,15 +45,13 @@ export abstract class GenericController<
 		}
 	}
 	
-	@Get('page/:page/size/:size')
-	@ApiListDecorators()
 	public async list(
-			@Param(PATH.PAGE, ParseIntPipe) page: number = 1,
-			@Param(PATH.SIZE, ParseIntPipe) size: number = 9,
-			@Headers(HEADER.FIELDS) fields?: string[],
-			@Headers(HEADER.RELATIONS) relations?: string[],
-			@Headers(HEADER.PARAMS) params?: WhereParam<T>[],
-			@Headers(HEADER.ORDER) order?: FindOptionsOrder<T>,
+			page: number = 1,
+			size: number = 9,
+			fields?: string[],
+			relations?: string[],
+			params?: WhereParam<T>[],
+			order?: FindOptionsOrder<T>,
 	): Promise<Page<T>> {
 		try {
 			return this.service.list(page, size, fields, relations, params, order);
@@ -84,13 +63,9 @@ export abstract class GenericController<
 		}
 	}
 	
-	@Post()
-	@ApiOperation({summary: 'Cria uma entidade'})
-	@ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'})
-	@ApiInternalServerErrorResponse({description: 'Erro ao criar entidade'})
 	public async create(
-			@Body() entity: CT,
-			@Headers(HEADER.USER_ID) userId: number
+			entity: CT,
+			userId: number
 	): Promise<T> {
 		try {
 			return this.service.create(entity, userId);
@@ -101,14 +76,10 @@ export abstract class GenericController<
 		}
 	}
 	
-	@Put(':id')
-	@ApiOperation({summary: 'Atualiza uma entidade via id'})
-	@ApiParam({name: 'id', description: 'Id da entidade'})
-	@ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'})
 	public async update(
-			@Param('id', ParseIntPipe) id: number,
-			@Headers(HEADER.USER_ID) userId: number,
-			@Body() entity: UT,
+			id: number,
+			userId: number,
+			entity: UT,
 	): Promise<T> {
 		try {
 			return this.service.update(id, entity, userId);
@@ -120,10 +91,7 @@ export abstract class GenericController<
 		}
 	}
 	
-	@Put('bulk')
-	@ApiOperation({summary: 'Atualiza várias entidades via parâmetros'})
-	@ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'})
-	@ApiHeader({name: HEADER.PARAMS, description: 'Parâmetros da busca'})
+	
 	public async bulkUpdate(
 			@Body() entity: DeepPartial<T>,
 			@Headers(HEADER.USER_ID) userId: number,
@@ -139,13 +107,10 @@ export abstract class GenericController<
 		}
 	}
 	
-	@Delete(':id')
-	@ApiOperation({summary: 'Deleta uma entidade via id'})
-	@ApiParam({name: 'id', description: 'Id da entidade'})
-	@ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'})
+	
 	public async delete(
-			@Param('id', ParseIntPipe) id: number,
-			@Headers(HEADER.USER_ID) userId: number,
+			id: number,
+			userId: number,
 	): Promise<void> {
 		try {
 			await this.service.delete(id, userId);
@@ -157,10 +122,7 @@ export abstract class GenericController<
 		}
 	}
 	
-	@Delete('bulk')
-	@ApiOperation({summary: 'Deleta várias entidades via parâmetros'})
-	@ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'})
-	@ApiHeader({name: HEADER.PARAMS, description: 'Parâmetros da busca'})
+	
 	public async bulkDelete(
 			@Headers(HEADER.USER_ID) userId: number,
 			@Headers(HEADER.PARAMS) params: WhereParam<T>[],

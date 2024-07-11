@@ -1,6 +1,12 @@
-import {ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
 import {
-	IsEmail, IsNotEmpty, MaxLength, MinLength
+	ApiProperty,
+	ApiPropertyOptional
+} from '@nestjs/swagger';
+import {
+	IsEmail,
+	IsNotEmpty,
+	MaxLength,
+	MinLength
 } from 'class-validator';
 
 export class UserRegisterDto {
@@ -13,28 +19,32 @@ export class UserRegisterDto {
 	@IsNotEmpty({message: 'Nome de usuário não pode ser vazio!'})
 	@MinLength(6, {message: 'Nome de usuário deve ter no mínimo 6 caracteres!'})
 	@MaxLength(50, {message: 'Nome de usuário deve ter no máximo 50 caracteres!'})
-  username: string;
-  
+	username: string;
+	
 	@ApiPropertyOptional({
 		type: String,
 		description: 'Nome de exibição',
 		maxLength: 255,
 	})
 	@MaxLength(255, {message: 'Nome de exibição deve ter no máximo 255 caracteres!'})
-  name?: string;
-  
+	name?: string;
+	
 	@ApiProperty({
 		type: String,
 		description: 'Endereço de e-mail',
 	})
-	@IsEmail({
-		domain_specific_validation: true,
-		require_tld: true,
-	},
-	{message: 'E-mail inválido!'})
+	@IsEmail(
+			{
+				domain_specific_validation: true,
+				require_tld: true,
+			},
+			{
+				message: 'E-mail inválido!'
+			}
+	)
 	@MaxLength(255, {message: 'E-mail deve ter no máximo 255 caracteres!'})
-  email: string;
-  
+	email: string;
+	
 	@ApiProperty({
 		type: String,
 		description: 'Senha do usuário',
@@ -44,5 +54,5 @@ export class UserRegisterDto {
 	@IsNotEmpty({message: 'Senha não pode ser vazia!'})
 	@MinLength(8, {message: 'Senha deve ter no mínimo 8 caracteres!'})
 	@MaxLength(40, {message: 'Senha deve ter no máximo 40 caracteres!'})
-  password: string;
+	password: string;
 }

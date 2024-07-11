@@ -10,15 +10,11 @@ import {UpdateCommentDto} from '../../shared/models/entities/comment/dto/update-
 @Injectable()
 export class CommentService extends GenericService<Comment, CreateCommentDto, UpdateCommentDto> {
 	constructor(
-      @InjectRepository(Comment)
-      public readonly repository: Repository<Comment>,
-      @InjectRepository(User)
-      public readonly userRepository: Repository<User>
+			@InjectRepository(Comment)
+			public readonly repository: Repository<Comment>,
+			@InjectRepository(User)
+			public readonly userRepository: Repository<User>
 	) {
 		super(repository, userRepository);
-	}
-  
-	beforeCreate(_entity: Comment): Promise<void> {
-		return Promise.resolve();
 	}
 }

@@ -5,41 +5,25 @@ import {
 	PrimaryGeneratedColumn,
 	UpdateDateColumn
 } from 'typeorm';
-import {
-	ApiHideProperty,
-	ApiPropertyOptional
-} from '@nestjs/swagger';
-import {IsInt} from 'class-validator';
+import {ApiHideProperty} from '@nestjs/swagger';
 
 export class GenericEntity {
 	@PrimaryGeneratedColumn('increment')
-	@ApiPropertyOptional({
-		type: 'integer',
-		description: 'ID do registro',
-		readOnly: true
-	})
-	@IsInt({message: 'ID do usuário deve ser um número inteiro!'})
-  id: number;
-  
+	id: number;
+	
+	@Column({nullable: true})
+	createdBy?: number;
+	
 	@Column({nullable: true})
 	@ApiHideProperty()
-	@IsInt({message: 'ID do usuário deve ser um número inteiro!'})
-  createdBy?: number;
-  
-	@Column({nullable: true})
-	@ApiHideProperty()
-	@IsInt({message: 'ID do usuário deve ser um número inteiro!'})
-  updatedBy?: number;
-  
+	updatedBy?: number;
+	
 	@CreateDateColumn()
-	@ApiHideProperty()
-  createdAt: Date;
-  
+	createdAt: Date;
+	
 	@UpdateDateColumn()
-	@ApiHideProperty()
-  updatedAt: Date;
-  
+	updatedAt: Date;
+	
 	@DeleteDateColumn()
-	@ApiHideProperty()
-  deletedAt: Date;
+	deletedAt: Date;
 }

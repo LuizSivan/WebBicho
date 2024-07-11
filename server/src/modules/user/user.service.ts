@@ -9,10 +9,10 @@ import {CreateUserDto} from '../../shared/models/entities/user/dto/create-user-d
 @Injectable()
 export class UserService extends GenericService<User, CreateUserDto, UpdateUserDto> {
 	constructor(
-      @InjectRepository(User)
-      public readonly repository: Repository<User>,
-      @InjectRepository(User)
-      public readonly userRepository: Repository<User>
+			@InjectRepository(User)
+			public readonly repository: Repository<User>,
+			@InjectRepository(User)
+			public readonly userRepository: Repository<User>
 	) {
 		super(repository, userRepository);
 	}
