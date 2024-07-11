@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Swagger UI" type="JavascriptDebugType" uri="http://localhost:8070/api">
+  <configuration default="false" name="Swagger UI" type="JavascriptDebugType" uri="http://localhost:8070/swagger">
     <method v="2" />
   </configuration>
 </component>

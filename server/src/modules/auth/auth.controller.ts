@@ -4,6 +4,7 @@ import {
 	Get,
 	Headers,
 	HttpCode,
+	InternalServerErrorException,
 	Patch,
 	Post,
 	Query,
@@ -22,7 +23,7 @@ import {
 	ApiNotFoundResponse,
 	ApiOkResponse,
 	ApiOperation,
-	ApiParam,
+	ApiQuery,
 	ApiTags,
 	ApiUnauthorizedResponse
 } from '@nestjs/swagger';
@@ -38,7 +39,7 @@ export class AuthController {
 			private readonly tokenService: TokenService,
 	) {
 	}
-	
+  
 	@Post('login')
 	@HttpCode(200)
 	@ApiOperation({summary: 'Realiza o login de um usuário existente'})
@@ -53,7 +54,7 @@ export class AuthController {
 			throw e;
 		}
 	}
-	
+  
 	@Post('register')
 	@ApiOperation({summary: 'Realiza o registro de um novo usuário'})
 	@ApiCreatedResponse({description: 'Usuário registrado com sucesso'})
@@ -65,20 +66,20 @@ export class AuthController {
 			throw e;
 		}
 	}
-	
+  
 	@Patch('verify')
 	@ApiOperation({summary: 'Verifica a conta de um usuário'})
-	@ApiParam({name: 'token', description: 'Token de verificação'})
+	@ApiQuery({name: 'token', description: 'Token de verificação'})
 	@ApiOkResponse({description: 'Conta verificada com sucesso'})
 	@ApiConflictResponse({description: 'Usuário já verificado ou não encontrado'})
 	public async verifyAccount(@Query('token') token: string): Promise<User> {
 		try {
 			return this.authService.verifyAccount(token);
 		} catch (e) {
-			throw e;
+			throw new InternalServerErrorException('Não foi possível verificar a conta');
 		}
 	}
-	
+  
 	@Get()
 	@UseGuards(AuthGuard)
 	@ApiOperation({summary: 'Autentica o token de um usuário'})
@@ -86,7 +87,7 @@ export class AuthController {
 	@ApiOkResponse({description: 'Token autenticado com sucesso'})
 	@ApiUnauthorizedResponse({description: 'Acesso negado'})
 	public async authenticateToken(
-			@Headers(HEADER.AUTH) token: string,
+      @Headers(HEADER.AUTH) token: string,
 	): Promise<object> {
 		try {
 			return this.tokenService.authenticateToken(token);

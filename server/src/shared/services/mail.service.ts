@@ -3,7 +3,7 @@ import {User} from '../models/entities/user/user';
 import path from 'node:path';
 import fs from 'fs';
 import nodemailer, {Transporter} from 'nodemailer';
-import {HOST} from '../../main';
+import {HOST, PORT} from '../../main';
 import {MailOptions} from 'nodemailer/lib/smtp-pool';
 import {DeepPartial} from 'typeorm';
 import {TokenService} from './token.service';
@@ -30,7 +30,7 @@ export class MailService {
 	public sendVerificationEmail(user: DeepPartial<User>): Promise<void> {
 		return new Promise(async (resolve, reject): Promise<void> => {
 			const token: string = await this.tokenService.getToken(user, '15m');
-			const port: string = HOST.includes('127.0.0.1') ? ':4400' : '';
+			const port: string = HOST.includes('127.0.0.1') ? `:${PORT}` : '';
 			const verificationLink: string = `${HOST}${port}/auth/verify?token=${token}`;
 			const templatePath: string = path.join(__dirname, '../../assets/html/account-verification.html');
 			const htmlContent: string = fs.readFileSync(templatePath, 'utf-8')

@@ -1,18 +1,12 @@
 import {
-	applyDecorators,
-	Delete,
-	Get,
-	Post,
-	Put
+	applyDecorators, Delete, Get, Post, Put
 } from '@nestjs/common';
 import {
-	ApiHeader,
-	ApiInternalServerErrorResponse,
-	ApiOperation,
-	ApiParam
+	ApiHeader, ApiInternalServerErrorResponse, ApiOperation, ApiParam, ApiProperty
 } from '@nestjs/swagger';
 import {PATH} from '../../core/cors/paths';
 import {HEADER} from '../../core/cors/headers';
+import {WhereParam} from '../models/types/where-param';
 
 export function ApiFindOneOperation(): MethodDecorator {
 	return applyDecorators(
@@ -64,7 +58,15 @@ export function ApiBulkUpdateOperation(): MethodDecorator {
 			Put('bulk'),
 			ApiOperation({summary: 'Atualiza várias entidades via parâmetros'}),
 			ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'}),
-			ApiHeader({name: HEADER.PARAMS, description: 'Parâmetros da busca'}),
+			ApiHeader({
+				name: HEADER.PARAMS, description: 'Parâmetros da busca',
+				schema: {
+					type: 'object',
+					properties: {
+						teste: {type: 'string'}
+					}
+				}
+			}),
 	);
 }
 
@@ -86,5 +88,18 @@ export function ApiBulkDeleteOperation(): MethodDecorator {
 	);
 }
 
+export class ParamsHeaderDto<T> {
+	@ApiProperty({
+		description: 'Parâmetros da busca',
+		type: 'array',
+		items: {
+			type: 'object',
+			properties: {
+				fieldName: {type: 'string'}
+			},
+		},
+	})
+  params: WhereParam<T>[];
+}
 
 
