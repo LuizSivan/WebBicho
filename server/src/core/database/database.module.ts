@@ -1,7 +1,8 @@
 import {Module} from '@nestjs/common';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {DEFAULT_DB} from './maintenance';
-import {CustomLogger} from './custom-logger';
+import {SnakeNamingStrategy} from 'typeorm-naming-strategies';
+import {TypeORMLogger} from './typeorm-logger';
 
 @Module({
 	imports: [TypeOrmModule.forRoot({
@@ -15,7 +16,8 @@ import {CustomLogger} from './custom-logger';
 		migrations: [`${__dirname}/../../shared/models/migrations/**/*.ts`],
 		synchronize: process.env.NODE_ENV !== 'production',
 		logging: process.env.NODE_ENV !== 'production' ? true : ['error'],
-		logger: new CustomLogger(),
+		logger: new TypeORMLogger(),
+		namingStrategy: new SnakeNamingStrategy(),
 	})],
 	providers: []
 })

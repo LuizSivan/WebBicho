@@ -1,8 +1,17 @@
+import {ApiProperty} from '@nestjs/swagger';
+
 export class Page<T> {
-	content!: T[];
-	currentPage!: number;
-	totalPages!: number;
-	totalItems!: number;
+	@ApiProperty()
+  content!: T[];
+  
+	@ApiProperty()
+  currentPage!: number;
+  
+	@ApiProperty()
+  totalPages!: number;
+  
+	@ApiProperty()
+  totalItems!: number;
   
 	constructor(
 			content: T[],
