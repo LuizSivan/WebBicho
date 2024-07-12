@@ -14,7 +14,7 @@ import {CustomLogger} from './custom-logger';
 		entities: [`${__dirname}/../../shared/models/entities/**/*.{js,ts}`],
 		migrations: [`${__dirname}/../../shared/models/migrations/**/*.ts`],
 		synchronize: process.env.NODE_ENV !== 'production',
-		logging: true,
+		logging: process.env.NODE_ENV !== 'production' ? true : ['error'],
 		logger: new CustomLogger(),
 	})],
 	providers: []
