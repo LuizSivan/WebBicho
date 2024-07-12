@@ -20,9 +20,9 @@ import {WhereParam} from '../../shared/models/types/where-param';
 import {PATH} from '../../core/cors/paths';
 import {DeepPartial, FindOptionsOrder} from 'typeorm';
 import {Page} from '../../shared/models/classes/page';
-import {CreateCommentDto} from '../../shared/models/entities/Comment/dto/create-Comment-dto';
-import {UpdateCommentDto} from '../../shared/models/entities/Comment/dto/update-Comment-dto';
 import {EntityController} from '../../shared/models/interfaces/entity-controller.interface';
+import {UpdateCommentDto} from '../../shared/models/entities/comment/dto/update-comment-dto';
+import {CreateCommentDto} from '../../shared/models/entities/comment/dto/create-comment-dto';
 
 @Controller('comment')
 @UseGuards(CheckJwtGuard)
