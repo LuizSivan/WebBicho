@@ -1,11 +1,14 @@
 import chalk from 'chalk';
 import {format} from 'date-fns';
-import {Logger, QueryRunner} from 'typeorm';
+import {
+	Logger,
+	QueryRunner
+} from 'typeorm';
 import process from 'process';
 
 
 export class TypeORMLogger implements Logger {
-  
+	
 	getPrefix(level: LogLevel): string {
 		const pid: number = process.pid;
 		let levelColor: string;
@@ -23,34 +26,35 @@ export class TypeORMLogger implements Logger {
 			default:
 				levelColor = chalk.blue(level);
 		}
-		return `${chalk.blue(`[TypeORM] ${pid} -`)} ${format(new Date(), 'MM/dd/yyyy, hh:mm:ss a')} | ${levelColor} |`;
+		return `${chalk.blue(`[TypeORM] ${pid} -`)} ${format(new Date(), 'dd/MM/yyyy, HH:mm:ss')} | ${levelColor} |`;
 	}
-  
+	
 	logQuery(query: string, parameters?: any[], _queryRunner?: QueryRunner): void {
 		const formattedQuery: string = this.prepareMessage(query, parameters);
 		console.log(`${this.getPrefix('INFO')} ${formattedQuery}`);
 	}
-  
+	
 	logQueryError(error: string, query: string, parameters?: any[], _queryRunner?: QueryRunner): void {
 		const formattedQuery: string = this.prepareMessage(query, parameters);
 		console.error(`${this.getPrefix('ERROR')} Error: ${error} \n${formattedQuery}`);
 	}
-  
+	
 	logQuerySlow(time: number, query: string, parameters?: any[], _queryRunner?: QueryRunner): void {
 		const formattedQuery: string = this.prepareMessage(query, parameters);
 		console.warn(`${this.getPrefix('WARN')} Query is slow: ${chalk.yellow(`${time}ms`)} - ${formattedQuery}`);
 	}
-  
+	
 	logSchemaBuild(message: string, _queryRunner?: QueryRunner): void {
 		console.log(`${this.getPrefix('SCHEMA')} ${message}`);
 	}
-  
+	
 	logMigration(message: string, _queryRunner?: QueryRunner): void {
 		console.log(`${this.getPrefix('MIGRATION')} ${message}`);
 	}
-  
-	log(_level: 'log' | 'info' | 'warn', _message: any, _queryRunner?: QueryRunner): void {}
-  
+	
+	log(_level: 'log' | 'info' | 'warn', _message: any, _queryRunner?: QueryRunner): void {
+	}
+	
 	private prepareMessage(query: string, parameters?: any[]): string {
 		query = query.replace(combinedPattern, (match) => {
 			if (reservedWords.includes(match.toUpperCase())) {
@@ -60,9 +64,9 @@ export class TypeORMLogger implements Logger {
 			}
 			return match;
 		});
-    
+		
 		query = query.replace(/'(.*?)'/g, (_match, p1) => chalk.dim(`'${p1}'`));
-    
+		
 		if (!parameters || parameters.length === 0) {
 			return query;
 		}

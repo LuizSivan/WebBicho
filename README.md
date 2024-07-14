@@ -71,11 +71,16 @@ Antes de prosseguir,
 
 1. Crie um .env na pasta raiz do backend com estas variáveis.
    ```env
+   # Server
+   HOST=
+   PORT=
+   
    # Database
    DB_HOST=
    DB_PORT=
    DB_USER=
    DB_PASSWORD=
+   DB_DEFAULT=
    
    # Email
    SMTP=
