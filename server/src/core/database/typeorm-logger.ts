@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import {format} from 'date-fns';
 import {
 	Logger,
 	QueryRunner
@@ -26,7 +25,17 @@ export class TypeORMLogger implements Logger {
 			default:
 				levelColor = chalk.blue(level);
 		}
-		return `${chalk.blue(`[TypeORM] ${pid} -`)} ${format(new Date(), 'dd/MM/yyyy, HH:mm:ss')} | ${levelColor} |`;
+		const locale: string = Intl.DateTimeFormat().resolvedOptions().locale || 'default';
+		const formattedDate: string = new Intl.DateTimeFormat(locale, {
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit',
+			second: '2-digit',
+		}).format(new Date());
+		
+		return `${chalk.blue(`[TypeORM] ${pid} -`)} ${formattedDate} | ${levelColor} |`;
 	}
 	
 	logQuery(query: string, parameters?: any[], _queryRunner?: QueryRunner): void {

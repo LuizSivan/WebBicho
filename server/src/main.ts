@@ -2,6 +2,7 @@ import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {
 	INestApplication,
+	Logger,
 	ValidationPipe
 } from '@nestjs/common';
 import {
@@ -46,7 +47,6 @@ async function bootstrap(): Promise<ConfigService> {
 bootstrap().then((env: ConfigService): void => {
 	const PORT: number = env.get<number>('PORT');
 	const HOST: string = env.get<string>('HOST');
-	const locale: string = Intl.DateTimeFormat().resolvedOptions().locale || 'default';
-	console.log(locale);
-	console.log(`>>> Servidor NestJS rodando em ${HOST} na porta ${PORT} <<<`);
+	new Logger('NestApplication')
+			.log(`Servidor NestJS rodando em ${HOST} na porta ${PORT}`);
 });
