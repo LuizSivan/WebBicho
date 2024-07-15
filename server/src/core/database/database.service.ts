@@ -1,17 +1,9 @@
+import {Injectable, Logger} from '@nestjs/common';
 import {
-	Injectable,
-	Logger
-} from '@nestjs/common';
-import {
-	Client,
-	ClientConfig,
-	QueryResult
+	Client, ClientConfig, QueryResult
 } from 'pg';
 import {ConfigService} from '@nestjs/config';
-import {
-	TypeOrmModuleOptions,
-	TypeOrmOptionsFactory
-} from '@nestjs/typeorm';
+import {TypeOrmModuleOptions, TypeOrmOptionsFactory} from '@nestjs/typeorm';
 import {TypeORMLogger} from './typeorm-logger';
 import {SnakeNamingStrategy} from 'typeorm-naming-strategies';
 
@@ -21,8 +13,8 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 	private readonly client: Client;
 	private readonly defaultDb: string;
 	private readonly logger: Logger = new Logger(DatabaseService.name);
-	
-	
+  
+  
 	constructor(
 			private readonly env: ConfigService,
 	) {
@@ -38,7 +30,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 		});
 		this.defaultDb = this.env.get<string>('DEFAULT_DB', 'webbicho');
 	}
-	
+  
 	async createTypeOrmOptions(): Promise<TypeOrmModuleOptions> {
 		try {
 			await this.client.connect();
@@ -53,7 +45,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 				port: this.env.get<number>('DB_PORT'),
 				username: this.env.get<string>('DB_USER'),
 				password: this.env.get<string>('DB_PASSWORD'),
-				database: this.env.get<string>('DB_DEFAULT'),
+				database: this.env.get<string>('DB_DEFAULT', 'webbicho'),
 				entities: [`${__dirname}/../../shared/models/entities/**/*.{js,ts}`],
 				migrations: [`${__dirname}/../../shared/models/migrations/**/*.ts`],
 				synchronize: this.env.get<string>('NODE_ENV') !== 'production',
@@ -67,14 +59,14 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 			await this.client.end();
 		}
 	}
-	
+  
 	private async checkDatabaseExists(): Promise<boolean> {
 		const res: QueryResult = await this.client.query(
 				`SELECT datname FROM pg_catalog.pg_database WHERE lower(datname) = lower('${this.defaultDb}')`
 		);
 		return res.rows.length > 0;
 	}
-	
+  
 	private async createDatabase(): Promise<void> {
 		try {
 			await this.client.query(`CREATE DATABASE ${this.defaultDb}`);
@@ -82,7 +74,7 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 			this.logger.error(`Erro ao criar banco de dados '${this.defaultDb}': ${e.message}`);
 		}
 	}
-	
+  
 	private async createUnaccentExtension(): Promise<void> {
 		const newClient: Client = new Client({
 			...this.clientConfig,

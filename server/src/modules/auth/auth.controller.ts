@@ -8,6 +8,7 @@ import {
 	Patch,
 	Post,
 	Query,
+	Res,
 	UnauthorizedException,
 	UseGuards
 } from '@nestjs/common';
@@ -30,6 +31,7 @@ import {
 import {UserRegisterDto} from '../../shared/models/entities/user/dto/user-register-dto';
 import {UserLoginDto} from '../../shared/models/entities/user/dto/user-login-dto';
 import {HEADER} from '../../core/cors/headers';
+import {Response} from 'express';
 
 @Controller('auth')
 @ApiTags('Autenticação')
@@ -72,7 +74,10 @@ export class AuthController {
 	@ApiQuery({name: 'token', description: 'Token de verificação'})
 	@ApiOkResponse({description: 'Conta verificada com sucesso'})
 	@ApiConflictResponse({description: 'Usuário já verificado ou não encontrado'})
-	public async verifyAccount(@Query('token') token: string): Promise<User> {
+	public async verifyAccount(
+      @Query('token') token: string,
+      @Res() response: Response
+	): Promise<User> {
 		try {
 			return this.authService.verifyAccount(token);
 		} catch (e) {

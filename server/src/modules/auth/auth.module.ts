@@ -3,11 +3,9 @@ import {AuthController} from './auth.controller';
 import {AuthService} from './auth.service';
 import {TypeOrmModule} from '@nestjs/typeorm';
 import {User} from '../../shared/models/entities/user/user';
-import process from 'process';
 import {MailService} from '../../shared/services/mail.service';
 import {TokenService} from '../../shared/services/token.service';
 
-export const SECRET: string = process.env.JWT_SECRET as string;
 
 @Module({
 	imports: [

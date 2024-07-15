@@ -6,17 +6,14 @@ import {
 	UnauthorizedException
 } from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {
-	EUserVerification,
-	User
-} from '../../shared/models/entities/user/user';
+import {EUserVerification, User} from '../../shared/models/entities/user/user';
 import {Repository} from 'typeorm';
 import bcrypt from 'bcrypt';
 import {MailService} from '../../shared/services/mail.service';
 import jwt, {JwtPayload} from 'jsonwebtoken';
 import {TokenService} from '../../shared/services/token.service';
-import {SECRET} from './auth.module';
 import {UserRegisterDto} from '../../shared/models/entities/user/dto/user-register-dto';
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +22,7 @@ export class AuthService {
       private readonly userRepository: Repository<User>,
       private readonly mailService: MailService,
       private readonly tokenService: TokenService,
+      private readonly env: ConfigService,
 	) {
 	}
   
@@ -95,6 +93,7 @@ export class AuthService {
    * @throws {ConflictException} - Usuário já verificado ou não encontrado
    * */
 	public async verifyAccount(token: string): Promise<User> {
+		const SECRET: string = this.env.get('JWT_SECRET');
 		const payload: string | JwtPayload = jwt.verify(token, SECRET);
 		const userEmail: string = payload.sub as string;
 		const user: User = await this.userRepository.findOne({
