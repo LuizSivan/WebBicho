@@ -41,7 +41,7 @@ export class CommentController
   
 	@ApiFindOneOperation()
 	public async findOne(
-      @Param('id', ParseIntPipe) id?: number,
+      @Param('id', ParseIntPipe) id?: string,
       @Headers(HEADER.FIELDS) fields?: string[],
       @Headers(HEADER.RELATIONS) relations?: string[],
       @Headers(HEADER.PARAMS) params?: WhereParam<Comment>[]
@@ -64,15 +64,15 @@ export class CommentController
 	@ApiCreateOperation()
 	public async create(
       @Body() entity: CreateCommentDto,
-      @Headers(HEADER.USER_ID) userId: number
+      @Headers(HEADER.USER_ID) userId: string
 	): Promise<Comment> {
 		return super.create(entity, userId);
 	}
   
 	@ApiUpdateOperation()
 	public async update(
-      @Param('id', ParseIntPipe) id: number,
-      @Headers(HEADER.USER_ID) userId: number,
+      @Param('id', ParseIntPipe) id: string,
+      @Headers(HEADER.USER_ID) userId: string,
       @Body() entity: UpdateCommentDto
 	): Promise<Comment> {
 		return super.update(id, userId, entity);
@@ -81,7 +81,7 @@ export class CommentController
 	@ApiBulkUpdateOperation()
 	public async bulkUpdate(
 			entity: DeepPartial<Comment>,
-			userId: number,
+			userId: string,
 			params: WhereParam<Comment>[]
 	): Promise<void> {
 		return super.bulkUpdate(entity, userId, params);
@@ -89,15 +89,15 @@ export class CommentController
   
 	@ApiDeleteOperation()
 	public async delete(
-      @Param('id', ParseIntPipe) id: number,
-      @Headers(HEADER.USER_ID) userId: number,
+      @Param('id', ParseIntPipe) id: string,
+      @Headers(HEADER.USER_ID) userId: string,
 	): Promise<void> {
 		return super.delete(id, userId);
 	}
   
 	@ApiBulkDeleteOperation()
 	async bulkDelete(
-      @Headers(HEADER.USER_ID) userId: number,
+      @Headers(HEADER.USER_ID) userId: string,
       @Headers(HEADER.PARAMS) params: WhereParam<Comment>[],
 	): Promise<void> {
 		return super.bulkDelete(userId, params);

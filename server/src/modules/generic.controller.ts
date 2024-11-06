@@ -1,17 +1,10 @@
 import {
-	Body,
-	Headers,
-	HttpException,
-	InternalServerErrorException,
-	UseGuards,
+	Body, Headers, HttpException, InternalServerErrorException, UseGuards,
 } from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {Page} from '../shared/models/classes/page';
 import {GenericService} from './generic.service';
-import {
-	DeepPartial,
-	FindOptionsOrder
-} from 'typeorm';
+import {DeepPartial, FindOptionsOrder} from 'typeorm';
 import {WhereParam} from '../shared/models/types/where-param';
 import {CheckJwtGuard} from '../core/guards/check-jwt.guard';
 import {HEADER} from '../core/cors/headers';
@@ -28,9 +21,9 @@ export abstract class GenericController<
 			private readonly service: S,
 	) {
 	}
-	
+  
 	public async findOne(
-			id?: number,
+			id?: string,
 			fields?: string[],
 			relations?: string[],
 			params?: WhereParam<T>[],
@@ -44,14 +37,14 @@ export abstract class GenericController<
 			);
 		}
 	}
-	
+  
 	public async list(
-			page: number = 1,
-			size: number = 9,
-			fields?: string[],
-			relations?: string[],
-			params?: WhereParam<T>[],
-			order?: FindOptionsOrder<T>,
+      page: number = 1,
+      size: number = 9,
+      fields?: string[],
+      relations?: string[],
+      params?: WhereParam<T>[],
+      order?: FindOptionsOrder<T>,
 	): Promise<Page<T>> {
 		try {
 			return this.service.list(page, size, fields, relations, params, order);
@@ -62,10 +55,10 @@ export abstract class GenericController<
 			);
 		}
 	}
-	
+  
 	public async create(
 			entity: CT,
-			userId: number
+			userId: string
 	): Promise<T> {
 		try {
 			return this.service.create(entity, userId);
@@ -75,10 +68,10 @@ export abstract class GenericController<
 			);
 		}
 	}
-	
+  
 	public async update(
-			id: number,
-			userId: number,
+			id: string,
+			userId: string,
 			entity: UT,
 	): Promise<T> {
 		try {
@@ -90,12 +83,12 @@ export abstract class GenericController<
 			);
 		}
 	}
-	
-	
+  
+  
 	public async bulkUpdate(
-			@Body() entity: DeepPartial<T>,
-			@Headers(HEADER.USER_ID) userId: number,
-			@Headers(HEADER.PARAMS) params: WhereParam<T>[],
+      @Body() entity: DeepPartial<T>,
+      @Headers(HEADER.USER_ID) userId: string,
+      @Headers(HEADER.PARAMS) params: WhereParam<T>[],
 	): Promise<void> {
 		try {
 			await this.service.bulkUpdate(entity, userId, params);
@@ -106,11 +99,11 @@ export abstract class GenericController<
 			);
 		}
 	}
-	
-	
+  
+  
 	public async delete(
-			id: number,
-			userId: number,
+			id: string,
+			userId: string,
 	): Promise<void> {
 		try {
 			await this.service.delete(id, userId);
@@ -121,11 +114,11 @@ export abstract class GenericController<
 			);
 		}
 	}
-	
-	
+  
+  
 	public async bulkDelete(
-			@Headers(HEADER.USER_ID) userId: number,
-			@Headers(HEADER.PARAMS) params: WhereParam<T>[],
+      @Headers(HEADER.USER_ID) userId: string,
+      @Headers(HEADER.PARAMS) params: WhereParam<T>[],
 	): Promise<void> {
 		try {
 			await this.service.bulkDelete(params, userId);

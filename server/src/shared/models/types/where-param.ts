@@ -1,21 +1,22 @@
-export type WhereParam<T> = {
-	[P in keyof T]?:
-    | WhereKey<T[P]>
-    | WhereParam<T[P]>
-};
+type SqlPrefix =
+    | ''
+    | 'notEquals-'
+    | 'between-'
+    | 'notBetween-'
+    | 'in-'
+    | 'notIn-'
+    | 'like-'
+    | 'notLike-'
+    | 'greaterThan-'
+    | 'greaterThanOrEquals-'
+    | 'lessThan-'
+    | 'lessThanOrEquals-'
+    | 'isNull-'
+    | 'notNull-';
 
-export type WhereKey<T> =
-    | { equals?: T }
-    | { between?: [T, T] }
-    | { in?: T[] }
-    | { like?: string }
-    | { greaterThan?: T }
-    | { greaterThanOrEquals?: T }
-    | { lessThan?: T }
-    | { lessThanOrEquals?: T }
-    | { notEquals?: T }
-    | { notBetween?: [T, T] }
-    | { notIn?: T[] }
-    | { notLike?: string }
-    | { isNull?: null }
-    | { notNull?: null };
+export type WhereParam<T> = {
+	[P in keyof T as `${SqlPrefix}${string & P}`]?:
+    | T[P]
+    | T[P][]
+    | WhereParam<T[P]>;
+};

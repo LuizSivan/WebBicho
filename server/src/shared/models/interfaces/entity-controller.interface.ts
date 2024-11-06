@@ -1,19 +1,16 @@
 import {GenericEntity} from '../entities/generic-entity';
 import {WhereParam} from '../types/where-param';
-import {
-	DeepPartial,
-	FindOptionsOrder
-} from 'typeorm';
+import {DeepPartial, FindOptionsOrder} from 'typeorm';
 import {Page} from '../classes/page';
 
 export interface EntityController<T extends GenericEntity> {
 	findOne(
-		id?: number,
+		id?: string,
 		fields?: string[],
 		relations?: string[],
 		params?: WhereParam<T>[],
 	): Promise<T>;
-	
+  
 	list(
 		page: number,
 		size: number,
@@ -22,31 +19,31 @@ export interface EntityController<T extends GenericEntity> {
 		params?: WhereParam<T>[],
 		order?: FindOptionsOrder<T>,
 	): Promise<Page<T>>;
-	
+  
 	create(
 		entity: T,
-		userId: number,
+		userId: string,
 	): Promise<T>;
-	
+  
 	update(
-		id: number,
-		userId: number,
+		id: string,
+		userId: string,
 		entity: T,
 	): Promise<T>;
-	
+  
 	bulkUpdate(
 		entity: DeepPartial<T>,
-		userId: number,
+		userId: string,
 		params: WhereParam<T>[],
 	): Promise<void>;
-	
+  
 	delete(
-		id: number,
-		userId: number,
+		id: string,
+		userId: string,
 	): Promise<void>;
-	
+  
 	bulkDelete(
-		userId: number,
+		userId: string,
 		params: WhereParam<T>[],
 	): Promise<void>;
 }

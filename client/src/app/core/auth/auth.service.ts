@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {CookieService} from 'ngx-cookie-service';
 import {Observable} from 'rxjs';
-import {IAuthenticatedToken} from '../../shared/interfaces/i-authenticated-token';
-import {HttpRequest} from '../../shared/utils/http-request';
+import {AuthenticatedToken} from '../../shared/interfaces/authenticated-token';
+import {RequestBuilder} from '../../shared/utils/request-builder';
 import {HttpClient} from '@angular/common/http';
 import {User} from '../../shared/models/entities/user';
 
@@ -31,14 +31,14 @@ export class AuthService {
     this.cookieService.delete('jwtToken');
   }
 
-  checkAuthStatus(): Observable<IAuthenticatedToken> {
-    return new HttpRequest<IAuthenticatedToken>(this.http)
+  checkAuthStatus(): Observable<AuthenticatedToken> {
+    return new RequestBuilder<AuthenticatedToken>(this.http)
       .setEndpoint(this.endpoint)
       .doGet();
   }
 
   verifyAccount(token: string): Observable<User> {
-    return new HttpRequest<User>(this.http)
+    return new RequestBuilder<User>(this.http)
       .setEndpoint(this.endpoint)
       .setUri('verify-account')
       .addParam('token', token)
@@ -47,7 +47,7 @@ export class AuthService {
 
 
   register(user: User): Observable<User> {
-    return new HttpRequest<User>(this.http)
+    return new RequestBuilder<User>(this.http)
       .setEndpoint(this.endpoint)
       .setUri('register')
       .addBody(user)
@@ -55,7 +55,7 @@ export class AuthService {
   }
 
   login(user: User): Observable<User> {
-    return new HttpRequest<User>(this.http)
+    return new RequestBuilder<User>(this.http)
       .setEndpoint(this.endpoint)
       .setUri('login')
       .addBody(user)

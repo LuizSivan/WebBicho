@@ -10,10 +10,10 @@ import {UpdatePostDto} from '../../shared/models/entities/post/dto/update-post-d
 @Injectable()
 export class PostService extends GenericService<Post, CreatePostDto, UpdatePostDto> {
 	constructor(
-			@InjectRepository(Post)
-			public readonly repository: Repository<Post>,
-			@InjectRepository(User)
-			public readonly userRepository: Repository<User>
+      @InjectRepository(Post)
+      public readonly repository: Repository<Post>,
+      @InjectRepository(User)
+      public readonly userRepository: Repository<User>
 	) {
 		super(repository, userRepository);
 	}
