@@ -3,7 +3,7 @@
     <package-json value="$PROJECT_DIR$/server/package.json" />
     <command value="run" />
     <scripts>
-      <script value="start:debug" />
+      <script value="start:dev" />
     </scripts>
     <node-interpreter value="project" />
     <package-manager value="yarn" />

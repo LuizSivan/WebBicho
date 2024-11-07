@@ -1,31 +1,29 @@
-import {
-	Column, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn
-} from 'typeorm';
+import {Column, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn} from 'typeorm';
 import {ApiHideProperty} from '@nestjs/swagger';
 
 export abstract class GenericEntity {
-	@PrimaryGeneratedColumn('uuid')
-  id?: string = undefined;
+  @PrimaryGeneratedColumn('uuid')
+  uuid?: string;
   
-	@Column({
-		type: 'uuid',
-		nullable: true
-	})
+  @Column({
+    type: 'uuid',
+    nullable: true,
+  })
   createdBy?: string;
   
-	@Column({
-		type: 'uuid',
-		nullable: true
-	})
-	@ApiHideProperty()
+  @Column({
+    type: 'uuid',
+    nullable: true,
+  })
+  @ApiHideProperty()
   updatedBy?: string;
   
-	@CreateDateColumn()
+  @CreateDateColumn()
   createdAt?: Date;
   
-	@UpdateDateColumn()
+  @UpdateDateColumn()
   updatedAt?: Date;
   
-	@DeleteDateColumn()
+  @DeleteDateColumn()
   deletedAt?: Date;
 }
