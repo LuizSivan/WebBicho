@@ -108,14 +108,14 @@ export class TypeORMLogger implements Logger {
 	}
   
 	private replaceFormattedParam(query: string, param: any, index: number): string {
-		const placeholderIndex: RegExp = new RegExp(`\\$${index + 1}`, 'g');
+		const placeholder: RegExp = new RegExp(`\\$${index + 1}(?!\\d)`, 'g');
 		switch (typeof param) {
 			case 'object':
-				return query.replace(placeholderIndex, `'${param?.toString()}'`);
+				return query.replace(placeholder, `'${param?.toString()}'`);
 			case 'string':
-				return query.replace(placeholderIndex, `'${param}'`);
+				return query.replace(placeholder, `'${param}'`);
 			default:
-				return query.replace(placeholderIndex, param);
+				return query.replace(placeholder, param);
 		}
 	}
 }
