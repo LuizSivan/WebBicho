@@ -1,6 +1,8 @@
 import chalk, {Color} from 'chalk';
 import {
-	Logger, LogLevel as LogLevelTypeOrm, QueryRunner
+	Logger,
+	LogLevel as LogLevelTypeOrm,
+	QueryRunner
 } from 'typeorm';
 import process from 'process';
 import {PlatformTools} from 'typeorm/platform/PlatformTools';
@@ -11,7 +13,7 @@ export interface TypeORMLoggerOptions {
 
 
 export class TypeORMLogger implements Logger {
-  
+	
 	constructor(
 			private readonly options?: TypeORMLoggerOptions,
 	) {
@@ -19,11 +21,11 @@ export class TypeORMLogger implements Logger {
 			options.logging = true;
 		}
 	}
-  
+	
 	get logging(): boolean | LogLevelTypeOrm[] {
 		return this.options.logging;
 	}
-  
+	
 	getPrefix(level: LogLevel): string {
 		const locale: string = Intl.DateTimeFormat().resolvedOptions().locale || 'default';
 		const formattedDate: string = new Intl
@@ -52,46 +54,46 @@ export class TypeORMLogger implements Logger {
 		const pid: string = process.pid
 				.toString()
 				.padEnd(6, ' ');
-		const logLevel: string = chalk[color](level.padStart(7, ' '));
-		return `${chalk[color](`[TypeORM] ${pid} -`)} ${formattedDate} ${logLevel}`;
+		const logLevel: string = chalk[color](level.padStart(9, ' '));
+		return `${chalk.blue(`[TypeORM] ${pid} -`)} ${formattedDate} ${chalk.bold(logLevel)}:`;
 	}
-  
+	
 	logQuery(query: string, parameters?: never[], _queryRunner?: QueryRunner): void {
 		if (this.logging instanceof Boolean && !this.logging) return;
 		if (this.logging instanceof Array && !this.logging.includes('info')) return;
 		const formattedQuery: string = this.prepareMessage(query, parameters);
 		console.log(`${this.getPrefix('INFO')} ${formattedQuery}`);
 	}
-  
+	
 	logQueryError(error: string, query: string, parameters?: any[], _queryRunner?: QueryRunner): void {
 		if (this.logging instanceof Boolean && !this.logging) return;
 		if (this.logging instanceof Array && !this.logging.includes('error')) return;
 		const formattedQuery: string = this.prepareMessage(query, parameters);
 		console.error(`${this.getPrefix('ERROR')} Error: ${error} \n${formattedQuery}`);
 	}
-  
+	
 	logQuerySlow(time: number, query: string, parameters?: any[], _queryRunner?: QueryRunner): void {
 		if (this.logging instanceof Boolean && !this.logging) return;
 		if (this.logging instanceof Array && !this.logging.includes('warn')) return;
 		const formattedQuery: string = this.prepareMessage(query, parameters);
 		console.warn(`${this.getPrefix('WARN')} Query is slow: ${chalk.yellow(`${time}ms`)} - ${formattedQuery}`);
 	}
-  
+	
 	logSchemaBuild(message: string, _queryRunner?: QueryRunner): void {
 		if (this.logging instanceof Boolean && !this.logging) return;
 		if (this.logging instanceof Array && !this.logging.includes('schema')) return;
 		console.log(`${this.getPrefix('SCHEMA')} ${message}`);
 	}
-  
+	
 	logMigration(message: string, _queryRunner?: QueryRunner): void {
 		if (this.logging instanceof Boolean && !this.logging) return;
 		if (this.logging instanceof Array && !this.logging.includes('migration')) return;
 		console.log(`${this.getPrefix('MIGRATION')} ${message}`);
 	}
-  
+	
 	log(_level: 'log' | 'info' | 'warn', _message: any, _queryRunner?: QueryRunner): void {
 	}
-  
+	
 	private prepareMessage(query: string, parameters?: any[]): string {
 		if (!parameters || parameters.length === 0) {
 			return PlatformTools.highlightSql(query);
@@ -106,7 +108,7 @@ export class TypeORMLogger implements Logger {
 		});
 		return PlatformTools.highlightSql(query);
 	}
-  
+	
 	private replaceFormattedParam(query: string, param: any, index: number): string {
 		const placeholderIndex: RegExp = new RegExp(`\\$${index + 1}`, 'g');
 		switch (typeof param) {

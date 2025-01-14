@@ -1,4 +1,4 @@
 export enum PATH {
-  PAGE = 'page',
-  SIZE = 'size',
+	PAGE = 'page',
+	SIZE = 'size',
 }

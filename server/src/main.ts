@@ -1,8 +1,13 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
-import {Logger, ValidationPipe} from '@nestjs/common';
 import {
-	DocumentBuilder, OpenAPIObject, SwaggerModule
+	Logger,
+	ValidationPipe
+} from '@nestjs/common';
+import {
+	DocumentBuilder,
+	OpenAPIObject,
+	SwaggerModule
 } from '@nestjs/swagger';
 import {HEADER} from './core/cors/headers';
 import {ConfigService} from '@nestjs/config';
@@ -15,12 +20,13 @@ async function bootstrap(): Promise<ConfigService> {
 	app.enableCors({
 		origin: '*',
 		optionsSuccessStatus: 204,
-		allowedHeaders: Object.values(HEADER)
+		allowedHeaders: Object.values(HEADER),
 	});
-  
+	
 	app.setBaseViewsDir(join(__dirname, '..', 'views'));
 	app.setViewEngine('hbs');
-  
+	// app.set('view options', {layout: 'layouts/main'});
+	
 	const config: Omit<OpenAPIObject, 'paths'> = new DocumentBuilder()
 			.setTitle('API WebBicho')
 			.setDescription('Rotas disponíveis para a API WebBicho.')
@@ -34,9 +40,9 @@ async function bootstrap(): Promise<ConfigService> {
 			.build();
 	const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
 	SwaggerModule.setup('swagger', app, document, {
-		jsonDocumentUrl: 'swagger/json'
+		jsonDocumentUrl: 'swagger/json',
 	});
-  
+	
 	const env: ConfigService = app.get(ConfigService);
 	const PORT: number = env.get<number>('PORT');
 	await app.listen(PORT);
