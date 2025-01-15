@@ -1,4 +1,4 @@
-export class PATH {
-	static readonly PAGE: string = 'page';
-	static readonly SIZE: string = 'size';
+export enum PATH {
+	PAGE = 'page',
+	SIZE = 'size',
 }

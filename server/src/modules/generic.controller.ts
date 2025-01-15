@@ -3,7 +3,7 @@ import {
 	Headers,
 	HttpException,
 	InternalServerErrorException,
-	UseGuards,
+	UseGuards
 } from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {Page} from '../shared/models/classes/page';
@@ -30,7 +30,7 @@ export abstract class GenericController<
 	}
 	
 	public async findOne(
-			id?: number,
+			id?: string,
 			fields?: string[],
 			relations?: string[],
 			params?: WhereParam<T>[],
@@ -40,7 +40,7 @@ export abstract class GenericController<
 		} catch (e: any) {
 			if (e instanceof HttpException) throw e;
 			throw new InternalServerErrorException(
-					`Erro ao buscar ${this.service.entityName} ${id}: ${e.message}`
+					`Erro ao buscar ${this.service.entityName} ${id}: ${e.message}`,
 			);
 		}
 	}
@@ -65,28 +65,28 @@ export abstract class GenericController<
 	
 	public async create(
 			entity: CT,
-			userId: number
+			userUuid: string,
 	): Promise<T> {
 		try {
-			return this.service.create(entity, userId);
+			return this.service.create(entity, userUuid);
 		} catch (e: any) {
 			throw new InternalServerErrorException(
-					`Erro ao criar ${this.service.entityName}: ${e.message}`
+					`Erro ao criar ${this.service.entityName}: ${e.message}`,
 			);
 		}
 	}
 	
 	public async update(
-			id: number,
-			userId: number,
+			id: string,
+			userUuid: string,
 			entity: UT,
 	): Promise<T> {
 		try {
-			return this.service.update(id, entity, userId);
+			return this.service.update(id, entity, userUuid);
 		} catch (e: any) {
 			if (e instanceof HttpException) throw e;
 			throw new InternalServerErrorException(
-					`Erro ao atualizar ${this.service.entityName}: ${e.message}`
+					`Erro ao atualizar ${this.service.entityName}: ${e.message}`,
 			);
 		}
 	}
@@ -94,45 +94,45 @@ export abstract class GenericController<
 	
 	public async bulkUpdate(
 			@Body() entity: DeepPartial<T>,
-			@Headers(HEADER.USER_ID) userId: number,
+			@Headers(HEADER.USER_ID) userUuid: string,
 			@Headers(HEADER.PARAMS) params: WhereParam<T>[],
 	): Promise<void> {
 		try {
-			await this.service.bulkUpdate(entity, userId, params);
+			await this.service.bulkUpdate(entity, userUuid, params);
 		} catch (e: any) {
 			if (e instanceof HttpException) throw e;
 			throw new InternalServerErrorException(
-					`Erro ao atualizar ${this.service.entityName}: ${e.message}`
+					`Erro ao atualizar ${this.service.entityName}: ${e.message}`,
 			);
 		}
 	}
 	
 	
 	public async delete(
-			id: number,
-			userId: number,
+			id: string,
+			userUuid: string,
 	): Promise<void> {
 		try {
-			await this.service.delete(id, userId);
+			await this.service.delete(id, userUuid);
 		} catch (e: any) {
 			if (e instanceof HttpException) throw e;
 			throw new InternalServerErrorException(
-					`Erro ao deletar ${this.service.entityName}: ${e.message}`
+					`Erro ao deletar ${this.service.entityName}: ${e.message}`,
 			);
 		}
 	}
 	
 	
 	public async bulkDelete(
-			@Headers(HEADER.USER_ID) userId: number,
+			@Headers(HEADER.USER_ID) userUuid: string,
 			@Headers(HEADER.PARAMS) params: WhereParam<T>[],
 	): Promise<void> {
 		try {
-			await this.service.bulkDelete(params, userId);
+			await this.service.bulkDelete(params, userUuid);
 		} catch (e: any) {
 			if (e instanceof HttpException) throw e;
 			throw new InternalServerErrorException(
-					`Erro ao deletar ${this.service.entityName}: ${e.message}`
+					`Erro ao deletar ${this.service.entityName}: ${e.message}`,
 			);
 		}
 	}

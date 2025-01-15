@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{{title}}</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			margin: 0;
+			background-color: #121212;
+			color: #e0e0e0;
+		}
+
+		.container {
+			text-align: center;
+			padding: 20px;
+			background: #292929;
+			border-radius: 10px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+			max-width: 400px;
+			width: 100%;
+		}
+
+		.logo {
+			width: 100px;
+			margin-bottom: 20px;
+		}
+
+		.message {
+			font-size: 18px;
+			margin: 20px 0;
+		}
+
+		.button {
+			display: inline-block;
+			padding: 10px 20px;
+			font-size: 16px;
+			color: white;
+		background-color: {{#if isError}}#d32f2f{{else}}#007BFF{{/if}}; /* Cor do botão dinâmica */
+			border: none;
+			border-radius: 5px;
+			text-decoration: none;
+			cursor: pointer;
+		}
+
+		.button:hover {
+		background-color: {{#if isError}}#9a0007{{else}}#0056b3{{/if}}; /* Hover dinâmico */
+		}
+	</style>
+</head>
+<body>
+<div class="container">
+	<img src="/logos/webbicho-branco.png" alt="Logo do Projeto" class="logo">
+	<div class="message">
+		<p>{{message}}</p>
+	</div>
+	<a href="{{buttonUrl}}" class="button">{{buttonText}}</a>
+</div>
+</body>
+</html>

@@ -1,6 +1,5 @@
 import {
 	Between,
-	FindOperator,
 	FindOptionsWhere,
 	In,
 	IsNull,
@@ -9,54 +8,62 @@ import {
 	MoreThan,
 	MoreThanOrEqual,
 	Not,
+	Raw,
 } from 'typeorm';
 import {WhereParam} from '../models/types/where-param';
 
-export function convertParams<T>(
-		params: WhereParam<T>[],
-): FindOptionsWhere<T>[] {
-	const newParams: FindOptionsWhere<T>[] = [];
-	for (const param of params) {
-		newParams.push(convertParam(param));
-	}
-	return newParams;
-}
-
-export function convertParam<T>(params: WhereParam<T>): FindOptionsWhere<T> {
-	const newParams: FindOptionsWhere<any> = {};
-	for (const key in params) {
-		if (!params.hasOwnProperty(key)) continue;
-		const condition: WhereParam<T>[Extract<keyof T, string>] = params[key];
-		if (condition.hasOwnProperty('equals'))
-			newParams[key] = condition['equals'];
-		else if (condition.hasOwnProperty('between'))
-			newParams[key] = Between(condition['between'][0], condition['between'][1]);
-		else if (condition.hasOwnProperty('in'))
-			newParams[key] = In(condition['in']);
-		else if (condition.hasOwnProperty('like'))
-			newParams[key] = new FindOperator('ilike', `unaccent(${condition['like']})`);
-		else if (condition.hasOwnProperty('greaterThan'))
-			newParams[key] = MoreThan(condition['greaterThan']);
-		else if (condition.hasOwnProperty('greaterThanOrEquals'))
-			newParams[key] = MoreThanOrEqual(condition['greaterThanOrEquals']);
-		else if (condition.hasOwnProperty('lessThan'))
-			newParams[key] = LessThan(condition['lessThan']);
-		else if (condition.hasOwnProperty('lessThanOrEquals'))
-			newParams[key] = LessThanOrEqual(condition['lessThanOrEquals']);
-		else if (condition.hasOwnProperty('notEquals'))
-			newParams[key] = Not(condition['notEquals']);
-		else if (condition.hasOwnProperty('notBetween'))
-			newParams[key] = Not(Between(condition['notBetween'][0], condition['notBetween'][1]));
-		else if (condition.hasOwnProperty('notIn'))
-			newParams[key] = Not(In(condition['notIn']));
-		else if (condition.hasOwnProperty('notLike'))
-			newParams[key] = Not(new FindOperator('ilike', `unaccent(${condition['notLike']})`));
-		else if (condition.hasOwnProperty('isNull'))
-			newParams[key] = IsNull();
-		else if (condition.hasOwnProperty('notNull'))
-			newParams[key] = Not(IsNull());
-		else if (typeof condition === 'object')
-			newParams[key] = convertParam(condition);
-	}
-	return newParams;
+export function convertParams<T>(params: WhereParam<T>[]): FindOptionsWhere<T>[] {
+	return params?.map(param => {
+		const newParam: FindOptionsWhere<T> = {};
+		for (const field in param) {
+			switch (true) {
+				case field.startsWith('notEquals-'):
+					newParam[field.replace('notEquals-', '')] = Not(param[field]);
+					break;
+				case field.startsWith('between-'):
+					newParam[field.replace('between-', '')] = Between(param[field][0], param[field][1]);
+					break;
+				case field.startsWith('notBetween-'):
+					newParam[field.replace('notBetween-', '')] = Not(Between(param[field][0], param[field][1]));
+					break;
+				case field.startsWith('in-'):
+					newParam[field.replace('in-', '')] = In(param[field] as any[]);
+					break;
+				case field.startsWith('notIn-'):
+					newParam[field.replace('notIn-', '')] = Not(In(param[field] as any[]));
+					break;
+				case field.startsWith('like-'):
+					newParam[field.replace('like-', '')] = Raw(
+							alias => `lower(unaccent(${alias})) ILIKE lower(unaccent(:value))`,
+							{value: `%${param[field]}%`},
+					);
+					break;
+				case field.startsWith('notLike-'):
+					newParam[field.replace('notLike-', '')] = Not(Raw(
+							alias => `lower(unaccent(${alias})) ILIKE lower(unaccent(:value))`,
+							{value: `%${param[field]}%`},
+					));
+					break;
+				case field.startsWith('greaterThan-'):
+					newParam[field.replace('greaterThan-', '')] = MoreThan(param[field]);
+					break;
+				case field.startsWith('greaterThanOrEquals-'):
+					newParam[field.replace('greaterThanOrEquals-', '')] = MoreThanOrEqual(param[field]);
+					break;
+				case field.startsWith('lessThan-'):
+					newParam[field.replace('lessThan-', '')] = LessThan(param[field]);
+					break;
+				case field.startsWith('lessThanOrEquals-'):
+					newParam[field.replace('lessThanOrEquals-', '')] = LessThanOrEqual(param[field]);
+					break;
+				case field.startsWith('isNull-'):
+					newParam[field.replace('isNull-', '')] = IsNull();
+					break;
+				case field.startsWith('notNull-'):
+					newParam[field.replace('notNull-', '')] = Not(IsNull());
+					break;
+			}
+		}
+		return newParam;
+	});
 }

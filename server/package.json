@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "postbuild": "copyfiles package.json dist/",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -26,17 +27,20 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.3.1",
     "@nestjs/typeorm": "^10.0.1",
+    "aws-sdk": "^2.1659.0",
     "bcrypt": "^5.1.1",
     "chalk": "4.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cors": "^2.8.5",
     "date-fns": "^3.6.0",
+    "hbs": "^4.2.0",
     "jsonwebtoken": "^9.0.2",
+    "minio": "^8.0.2",
     "moment": "^2.30.1",
+    "multer-s3": "^3.0.1",
     "node-schedule": "^2.1.1",
     "nodemailer": "^6.9.8",
-    "oci-sdk": "^2.78.0",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
@@ -57,6 +61,7 @@
     "@types/jest": "^29.5.2",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/moment": "^2.13.0",
+    "@types/multer-s3": "^3.0.3",
     "@types/node": "^20.3.1",
     "@types/node-schedule": "^2.1.5",
     "@types/nodemailer": "^6.4.14",
@@ -64,6 +69,7 @@
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
+    "copyfiles": "^2.4.1",
     "eslint": "^8.42.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
@@ -74,7 +80,7 @@
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.3"
+    "typescript": "5.3.3"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -92,5 +98,6 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

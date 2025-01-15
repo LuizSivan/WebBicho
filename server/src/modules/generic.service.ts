@@ -2,7 +2,7 @@ import {
 	BadRequestException,
 	ForbiddenException,
 	Injectable,
-	NotFoundException,
+	NotFoundException
 } from '@nestjs/common';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 import {
@@ -16,15 +16,12 @@ import {
 } from 'typeorm';
 import {QueryDeepPartialEntity} from 'typeorm/query-builder/QueryPartialEntity';
 import {Page} from '../shared/models/classes/page';
-import {
-	convertParam,
-	convertParams
-} from '../shared/helpers/convert-helper';
 import {WhereParam} from '../shared/models/types/where-param';
 import {
 	EUserRole,
 	User
 } from '../shared/models/entities/user/user';
+import {convertParams} from '../shared/helpers/convert-helper';
 
 @Injectable()
 export abstract class GenericService<
@@ -50,19 +47,19 @@ export abstract class GenericService<
 	 * @returns {Promise} - a entidade encontrada.
 	 * @throws BadRequestException se nenhum parâmetro for informado.*/
 	public async findOne(
-			entityId?: number,
+			entityId?: string,
 			fields?: string[],
 			relations?: string[],
 			params?: WhereParam<T>[],
 	): Promise<T> {
 		if (!params && !entityId) {
 			throw new BadRequestException(
-					'Nenhum parâmetro informado'
+					'Nenhum parâmetro informado',
 			);
 		}
 		const where: FindOptionsWhere<T>[] = params
 			? convertParams(params).map(p => ({
-				...p, id: entityId
+				...p, uuid: entityId,
 			}))
 			: undefined;
 		const options: FindOneOptions = {
@@ -88,12 +85,12 @@ export abstract class GenericService<
 			fields?: string[],
 			relations?: string[],
 			params?: WhereParam<T>[],
-			order?: FindOptionsOrder<T>
+			order?: FindOptionsOrder<T>,
 	): Promise<Page<T>> {
 		const options: FindManyOptions = {
 			select: fields,
 			relations: relations,
-			where: params ? convertParam(params) : undefined,
+			where: params ? convertParams(params) : undefined,
 			skip: (page - 1) * size,
 			take: size,
 			order: order,
@@ -103,31 +100,31 @@ export abstract class GenericService<
 				data,
 				page,
 				Math.ceil(count / size),
-				count
+				count,
 		);
 	}
 	
 	/**
 	 * @description Cria uma nova entidade do tipo T no repositório.
 	 * @param {Object} entity - entidade parcial a ser criada.
-	 * @param {number} userId - id do usuário que está criando a entidade.
+	 * @param {number} userUuid - id do usuário que está criando a entidade.
 	 * @returns {Promise} a entidade criada.*/
 	public async create(
 			entity: CT,
-			userId: number,
+			userUuid: string,
 	): Promise<T> {
 		await this.beforeCreate(entity);
-		entity.createdBy = userId;
-		entity.updatedBy = userId;
+		entity.createdBy = userUuid;
+		entity.updatedBy = userUuid;
 		const queryRunner: QueryRunner = this.repository.manager.connection.createQueryRunner();
 		await queryRunner.startTransaction();
 		try {
 			await this.repository.insert(
-					entity as QueryDeepPartialEntity<T>
+					entity as QueryDeepPartialEntity<T>,
 			);
 			await queryRunner.commitTransaction();
 			return await this.repository.findOneByOrFail(
-					{id: entity.id} as FindOptionsWhere<T>
+					{uuid: entity.uuid} as FindOptionsWhere<T>,
 			);
 		} catch (e) {
 			await queryRunner.rollbackTransaction();
@@ -141,18 +138,18 @@ export abstract class GenericService<
 	 * @description Atualiza uma entidade no repositório pelo uuid.
 	 * @param {number} entityId - id da entidade a ser atualizada.
 	 * @param {Object} entity - entidade parcial com novas alterações.
-	 * @param {number} userId - id do usuário que está atualizando a entidade.
+	 * @param {number} userUuid - id do usuário que está atualizando a entidade.
 	 * @returns {Promise} a entidade atualizada.
 	 * @throws NotFoundException se a entidade não for encontrada.*/
 	public async update(
-			entityId: number,
+			entityId: string,
 			entity: UT,
-			userId: number,
+			userUuid: string,
 	): Promise<T> {
-		await this.beforeUpdate(entityId, entity, userId);
+		await this.beforeUpdate(entityId, entity, userUuid);
 		const queryRunner: QueryRunner = this.repository.manager.connection.createQueryRunner();
 		const exists: boolean = await this.repository.existsBy(
-				{id: entityId} as FindOptionsWhere<T>
+				{uuid: entityId} as FindOptionsWhere<T>,
 		);
 		if (!exists) {
 			throw new NotFoundException(
@@ -161,14 +158,14 @@ export abstract class GenericService<
 		}
 		await queryRunner.startTransaction();
 		try {
-			entity.updatedBy = userId;
+			entity.updatedBy = userUuid;
 			await this.repository.update(
-					{id: entity.id} as FindOptionsWhere<T>,
+					{uuid: entity.uuid} as FindOptionsWhere<T>,
 					entity as QueryDeepPartialEntity<T>,
 			);
 			await queryRunner.commitTransaction();
 			return await this.repository.findOneByOrFail(
-					{id: entityId} as FindOptionsWhere<T>
+					{uuid: entityId} as FindOptionsWhere<T>,
 			);
 		} catch (e) {
 			await queryRunner.rollbackTransaction();
@@ -181,24 +178,24 @@ export abstract class GenericService<
 	/**
 	 * @description Atualiza várias entidades por parâmetros.
 	 * @param {DeepPartial} entity - entidade parcial com novas alterações.
-	 * @param {number} userId - id do usuário que está atualizando a entidade.
+	 * @param {number} userUuid - id do usuário que está atualizando a entidade.
 	 * @param {WhereParam[]} params - parâmetros de busca das entidades a serem atualizadas.*/
 	public async bulkUpdate(
 			entity: DeepPartial<T>,
-			userId: number,
+			userUuid: string,
 			params: WhereParam<T>[],
 	): Promise<void> {
-		await this.beforeBulkUpdate(entity, userId);
+		await this.beforeBulkUpdate(entity, userUuid);
 		const convertedParams: FindOptionsWhere<T>[] = convertParams(
-				params
+				params,
 		);
-		entity.updatedBy = userId;
+		entity.updatedBy = userUuid;
 		const queryRunner: QueryRunner = this.repository.manager.connection.createQueryRunner();
 		await queryRunner.startTransaction();
 		try {
 			for (const where of convertedParams) {
 				await this.repository.update(
-						where, entity as QueryDeepPartialEntity<T>
+						where, entity as QueryDeepPartialEntity<T>,
 				);
 			}
 			await queryRunner.commitTransaction();
@@ -213,15 +210,15 @@ export abstract class GenericService<
 	/**
 	 * @description Deleta uma entidade do repositório pelo uuid.
 	 * @param {number} entityId - uuid da entidade a ser deletada.
-	 * @param {number} userId - uuid do usuário que está deletando a entidade.
+	 * @param {number} userUuid - uuid do usuário que está deletando a entidade.
 	 * @throws NotFoundException se a entidade não for encontrada.*/
 	public async delete(
-			entityId: number,
-			userId: number,
+			entityId: string,
+			userUuid: string,
 	): Promise<void> {
-		await this.beforeDelete(entityId, userId);
+		await this.beforeDelete(entityId, userUuid);
 		const exists: boolean = await this.repository.existsBy(
-				{id: entityId} as FindOptionsWhere<T>
+				{uuid: entityId} as FindOptionsWhere<T>,
 		);
 		if (!exists) {
 			throw new NotFoundException(
@@ -232,7 +229,7 @@ export abstract class GenericService<
 		await queryRunner.startTransaction();
 		try {
 			await this.repository.softDelete(
-					{id: entityId} as FindOptionsWhere<T>
+					{uuid: entityId} as FindOptionsWhere<T>,
 			);
 			await queryRunner.commitTransaction();
 		} catch (e) {
@@ -246,12 +243,12 @@ export abstract class GenericService<
 	/**
 	 * @description Deleta várias entidades por parâmetros.
 	 * @param {WhereParam[]} params - parâmetros de busca das entidades a serem deletadas.
-	 * @param {number} userId - id do usuário que está deletando as entidades.*/
+	 * @param {number} userUuid - id do usuário que está deletando as entidades.*/
 	public async bulkDelete(
 			params: WhereParam<T>[],
-			userId: number,
+			userUuid: string,
 	): Promise<void> {
-		await this.beforeBulkDelete(params, userId);
+		await this.beforeBulkDelete(params, userUuid);
 		const convertedParams: FindOptionsWhere<T>[] = convertParams(params);
 		const exists: boolean = await this.repository.existsBy(convertedParams);
 		if (!exists) {
@@ -264,7 +261,7 @@ export abstract class GenericService<
 		try {
 			for (const where of convertedParams) {
 				await this.repository.softDelete(
-						where
+						where,
 				);
 			}
 			await queryRunner.commitTransaction();
@@ -287,29 +284,29 @@ export abstract class GenericService<
 	 * @description Método chamado antes de atualizar uma entidade.
 	 * @param {string} entityId - uuid da entidade a ser atualizada.
 	 * @param {DeepPartial} _entity - entidade parcial com novas alterações.
-	 * @param {string} userId - uuid do usuário que está atualizando a entidade.*/
+	 * @param {string} userUuid - uuid do usuário que está atualizando a entidade.*/
 	protected async beforeUpdate(
-			entityId: number,
+			entityId: string,
 			_entity: UT,
-			userId: number,
+			userUuid: string,
 	): Promise<void> {
 		const user: User = await this.userRepository.findOneOrFail(
 				{
-					select: ['id', 'role'],
+					select: ['uuid', 'role'],
 					where: {
-						id: userId
+						uuid: userUuid,
 					},
-				}
+				},
 		);
 		const entity: T = await this.repository.findOne(
 				{
-					select: ['id', 'createdBy'],
-					where: {id: entityId} as FindOptionsWhere<T>,
-				}
+					select: ['uuid', 'createdBy'],
+					where: {uuid: entityId} as FindOptionsWhere<T>,
+				},
 		);
-		if (user.id != entity.createdBy || user.role != EUserRole.STAFF) {
+		if (user.uuid != entity.createdBy || user.role != EUserRole.STAFF) {
 			throw new ForbiddenException(
-					'Acesso negado'
+					'Acesso negado',
 			);
 		}
 	}
@@ -317,78 +314,78 @@ export abstract class GenericService<
 	/**
 	 * @description Método chamado antes de atualizar várias entidades.
 	 * @param {DeepPartial} _entity - entidade parcial com novas alterações.
-	 * @param {number} userId - id do usuário que está atualizando a entidade.*/
+	 * @param {number} userUuid - id do usuário que está atualizando a entidade.*/
 	protected async beforeBulkUpdate(
 			_entity: DeepPartial<T>,
-			userId: number,
+			userUuid: string,
 	): Promise<void> {
 		const user: User = await this.userRepository.findOneOrFail(
 				{
-					select: ['id'],
+					select: ['uuid'],
 					where: {
-						id: userId
+						uuid: userUuid,
 					},
-				}
+				},
 		);
-		if (user.id != _entity.createdBy)
+		if (user.uuid != _entity.createdBy)
 			throw new ForbiddenException(
-					'Acesso negado'
+					'Acesso negado',
 			);
 	}
 	
 	/**
 	 * @description Método chamado antes de deletar uma entidade.
 	 * @param {number} entityId - id da entidade a ser deletada.
-	 * @param {number} userId - id do usuário que está deletando a entidade.*/
+	 * @param {number} userUuid - id do usuário que está deletando a entidade.*/
 	protected async beforeDelete(
-			entityId: number,
-			userId: number
+			entityId: string,
+			userUuid: string,
 	): Promise<void> {
 		const user: User = await this.userRepository.findOneOrFail(
 				{
-					select: ['id'],
+					select: ['uuid'],
 					where: {
-						id: userId
+						uuid: userUuid,
 					},
-				}
+				},
 		);
 		const entity: T = await this.repository.findOneOrFail(
 				{
-					select: ['id', 'createdBy'],
+					select: ['uuid', 'createdBy'],
 					where: [{
-						id: entityId
+						uuid: entityId,
 					}] as FindOptionsWhere<T>[],
-				}
+				},
 		);
-		if (user.id != entity.createdBy)
+		if (user.uuid != entity.createdBy)
 			throw new ForbiddenException(
-					'Acesso negado'
+					'Acesso negado',
 			);
 	}
 	
 	/**
 	 * @description Método chamado antes de deletar várias entidades.
 	 * @param {WhereParam[]} params - parâmetros de busca das entidades a serem deletadas.
-	 * @param {number} userId - id do usuário que está deletando as entidades.*/
+	 * @param {number} userUuid - id do usuário que está deletando as entidades.*/
 	protected async beforeBulkDelete(
 			params: WhereParam<T>[],
-			userId: number,
+			userUuid: string,
 	): Promise<void> {
 		if (!params?.length)
 			throw new BadRequestException(
-					'Nenhum parâmetro fornecido'
+					'Nenhum parâmetro fornecido',
 			);
 		const user: User = await this.userRepository.findOneOrFail(
 				{
-					select: ['id', 'role'],
+					select: ['uuid', 'role'],
 					where: {
-						id: userId
+						uuid: userUuid,
 					},
-				}
+				},
 		);
 		if (user.role != EUserRole.STAFF) {
 			for (const param of params) {
-				param.createdBy = user.id;
+				param.createdBy = user.uuid;
 			}
 		}
 	}

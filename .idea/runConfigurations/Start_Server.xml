@@ -3,16 +3,16 @@
     <package-json value="$PROJECT_DIR$/server/package.json" />
     <command value="run" />
     <scripts>
-      <script value="start:debug" />
+      <script value="start:dev" />
     </scripts>
-    <node-interpreter value="project" />
+    <node-interpreter value="$USER_HOME$/.nvm/versions/node/v20.11.0/bin/node" />
     <package-manager value="yarn" />
     <envs />
     <method v="2">
       <option name="NpmBeforeRunTask" enabled="true">
         <package-json value="$PROJECT_DIR$/server/package.json" />
         <command value="install" />
-        <node-interpreter value="project" />
+        <node-interpreter value="$USER_HOME$/.nvm/versions/node/v20.11.0/bin/node" />
         <package-manager value="yarn" />
         <envs />
       </option>

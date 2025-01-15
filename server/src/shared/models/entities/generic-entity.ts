@@ -7,23 +7,29 @@ import {
 } from 'typeorm';
 import {ApiHideProperty} from '@nestjs/swagger';
 
-export class GenericEntity {
-	@PrimaryGeneratedColumn('increment')
-	id: number;
+export abstract class GenericEntity {
+	@PrimaryGeneratedColumn('uuid')
+	uuid?: string;
 	
-	@Column({nullable: true})
-	createdBy?: number;
+	@Column({
+		type: 'uuid',
+		nullable: true,
+	})
+	createdBy?: string;
 	
-	@Column({nullable: true})
+	@Column({
+		type: 'uuid',
+		nullable: true,
+	})
 	@ApiHideProperty()
-	updatedBy?: number;
+	updatedBy?: string;
 	
 	@CreateDateColumn()
-	createdAt: Date;
+	createdAt?: Date;
 	
 	@UpdateDateColumn()
-	updatedAt: Date;
+	updatedAt?: Date;
 	
 	@DeleteDateColumn()
-	deletedAt: Date;
+	deletedAt?: Date;
 }

@@ -4,12 +4,11 @@ import {
 	Get,
 	Headers,
 	HttpCode,
-	InternalServerErrorException,
-	Patch,
 	Post,
 	Query,
+	Render,
 	UnauthorizedException,
-	UseGuards
+	UseGuards,
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {TokenService} from '../../shared/services/token.service';
@@ -25,21 +24,24 @@ import {
 	ApiOperation,
 	ApiQuery,
 	ApiTags,
-	ApiUnauthorizedResponse
+	ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import {UserRegisterDto} from '../../shared/models/entities/user/dto/user-register-dto';
 import {UserLoginDto} from '../../shared/models/entities/user/dto/user-login-dto';
 import {HEADER} from '../../core/cors/headers';
+import {ConfigService} from '@nestjs/config';
+import {EnvKey} from '../../core/env-key.enum';
 
 @Controller('auth')
-@ApiTags('Autenticação')
+@ApiTags('Autenticação', 'Authentication')
 export class AuthController {
 	constructor(
 			private readonly authService: AuthService,
 			private readonly tokenService: TokenService,
+			private readonly env: ConfigService,
 	) {
 	}
-  
+	
 	@Post('login')
 	@HttpCode(200)
 	@ApiOperation({summary: 'Realiza o login de um usuário existente'})
@@ -54,7 +56,7 @@ export class AuthController {
 			throw e;
 		}
 	}
-  
+	
 	@Post('register')
 	@ApiOperation({summary: 'Realiza o registro de um novo usuário'})
 	@ApiCreatedResponse({description: 'Usuário registrado com sucesso'})
@@ -66,34 +68,51 @@ export class AuthController {
 			throw e;
 		}
 	}
-  
-	@Patch('verify')
+	
+	@Get('verify')
+	@Render('verification')
 	@ApiOperation({summary: 'Verifica a conta de um usuário'})
 	@ApiQuery({name: 'token', description: 'Token de verificação'})
 	@ApiOkResponse({description: 'Conta verificada com sucesso'})
 	@ApiConflictResponse({description: 'Usuário já verificado ou não encontrado'})
-	public async verifyAccount(@Query('token') token: string): Promise<User> {
+	public async verifyAccount(
+			@Query('token') token: string,
+	): Promise<object> {
+		const frontendURL: string = this.env.get<string>(EnvKey.APP_FRONTEND_URL);
 		try {
-			return this.authService.verifyAccount(token);
+			const newToken: string = await this.authService.verifyAccount(token);
+			return {
+				title: 'Conta Verificada',
+				message: 'Conta verificada com sucesso!',
+				buttonText: 'Ir para o site',
+				buttonUrl: `frontendURL?token=${newToken}`,
+				isError: false,
+			};
 		} catch (e) {
-			throw new InternalServerErrorException('Não foi possível verificar a conta');
+			return {
+				title: 'Erro na Verificação',
+				message: 'Não foi possível verificar a conta!',
+				buttonText: 'Ir para o site',
+				buttonUrl: frontendURL,
+				isError: true, // Indica erro para o estilo dinâmico
+			};
 		}
 	}
-  
+	
 	@Get()
 	@UseGuards(AuthGuard)
 	@ApiOperation({summary: 'Autentica o token de um usuário'})
 	@ApiHeader({name: HEADER.AUTH, description: 'Token de autenticação'})
 	@ApiOkResponse({description: 'Token autenticado com sucesso'})
-	@ApiUnauthorizedResponse({description: 'Acesso negado'})
+	@ApiUnauthorizedResponse({description: 'Access denied'})
 	public async authenticateToken(
-      @Headers(HEADER.AUTH) token: string,
+			@Headers(HEADER.AUTH) token: string,
 	): Promise<object> {
 		try {
 			return this.tokenService.authenticateToken(token);
 		} catch (e) {
 			console.error(`Erro ao decodificar o token: ${e.message}`);
-			throw new UnauthorizedException(`Acesso negado`);
+			throw new UnauthorizedException(`Access denied`);
 		}
 	}
 }

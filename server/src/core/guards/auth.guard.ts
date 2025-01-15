@@ -11,32 +11,34 @@ import {
 	Request,
 	Response
 } from 'express';
-import {SECRET} from '../../modules/auth/auth.module';
 import jwt from 'jsonwebtoken';
 import {HEADER} from '../cors/headers';
+import {ConfigService} from '@nestjs/config';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
 	constructor(
 			@InjectRepository(User)
 			private readonly userRepository: Repository<User>,
+			private readonly env: ConfigService,
 	) {
 	}
 	
 	async canActivate(
 			context: ExecutionContext,
 	): Promise<boolean> {
-		const request: Request = context.switchToHttp().getRequest();
-		const response: Response = context.switchToHttp().getResponse();
+		const request: Request = context.switchToHttp().getRequest<Request>();
+		const response: Response = context.switchToHttp().getResponse<Response>();
 		const token: string = request.headers[HEADER.AUTH] as string;
 		try {
+			const SECRET: string = this.env.get('JWT_SECRET');
 			response.locals.jwtPayload = jwt.verify(token, SECRET);
-			const userId: number = Number(request.query?.id);
+			const userUuid: string = request.params?.id;
 			const user: User = await this.userRepository.findOne({
-				select: ['id'],
-				where: {id: userId},
+				select: ['uuid'],
+				where: {uuid: userUuid},
 			});
-			request.headers[HEADER.USER_ID] = user.id.toString();
+			request.headers[HEADER.USER_ID] = user.uuid;
 			return true;
 		} catch (error) {
 			throw new ForbiddenException('Não foi possível autorizar a requisição.');

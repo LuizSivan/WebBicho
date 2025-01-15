@@ -10,7 +10,7 @@ import {WhereParam} from '../models/types/where-param';
 
 export function ApiFindOneOperation(): MethodDecorator {
 	return applyDecorators(
-			Get(':id?'),
+			Get('find/:id?'),
 			ApiOperation({summary: 'Retorna apenas uma entidade'}),
 			ApiParam({name: 'id', required: false, description: 'Id da entidade'}),
 			ApiHeader({name: HEADER.FIELDS, required: false, description: 'Campos da entidade a serem buscados'}),
@@ -37,7 +37,7 @@ export function ApiListOperation(): MethodDecorator {
 
 export function ApiCreateOperation(): MethodDecorator {
 	return applyDecorators(
-			Post(),
+			Post('create'),
 			ApiOperation({summary: 'Cria uma entidade'}),
 			ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'}),
 			ApiInternalServerErrorResponse({description: 'Erro ao criar entidade'}),
@@ -46,7 +46,7 @@ export function ApiCreateOperation(): MethodDecorator {
 
 export function ApiUpdateOperation(): MethodDecorator {
 	return applyDecorators(
-			Put(':id'),
+			Put('update/:id'),
 			ApiOperation({summary: 'Atualiza uma entidade via id'}),
 			ApiParam({name: 'id', description: 'Id da entidade'}),
 			ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'}),
@@ -55,7 +55,7 @@ export function ApiUpdateOperation(): MethodDecorator {
 
 export function ApiBulkUpdateOperation(): MethodDecorator {
 	return applyDecorators(
-			Put('bulk'),
+			Put('bulk/update'),
 			ApiOperation({summary: 'Atualiza várias entidades via parâmetros'}),
 			ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'}),
 			ApiHeader({
@@ -72,7 +72,7 @@ export function ApiBulkUpdateOperation(): MethodDecorator {
 
 export function ApiDeleteOperation(): MethodDecorator {
 	return applyDecorators(
-			Delete(':id'),
+			Delete('delete/:id'),
 			ApiOperation({summary: 'Deleta uma entidade via id'}),
 			ApiParam({name: 'id', description: 'Id da entidade'}),
 			ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'}),
@@ -81,7 +81,7 @@ export function ApiDeleteOperation(): MethodDecorator {
 
 export function ApiBulkDeleteOperation(): MethodDecorator {
 	return applyDecorators(
-			Delete('bulk'),
+			Delete('bulk/delete'),
 			ApiOperation({summary: 'Deleta várias entidades via parâmetros'}),
 			ApiHeader({name: HEADER.USER_ID, description: 'Id do usuário'}),
 			ApiHeader({name: HEADER.PARAMS, description: 'Parâmetros da busca'}),

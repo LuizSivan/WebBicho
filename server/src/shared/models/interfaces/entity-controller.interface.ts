@@ -8,7 +8,7 @@ import {Page} from '../classes/page';
 
 export interface EntityController<T extends GenericEntity> {
 	findOne(
-		id?: number,
+		id?: string,
 		fields?: string[],
 		relations?: string[],
 		params?: WhereParam<T>[],
@@ -25,28 +25,28 @@ export interface EntityController<T extends GenericEntity> {
 	
 	create(
 		entity: T,
-		userId: number,
+		userUuid: string,
 	): Promise<T>;
 	
 	update(
-		id: number,
-		userId: number,
+		id: string,
+		userUuid: string,
 		entity: T,
 	): Promise<T>;
 	
 	bulkUpdate(
 		entity: DeepPartial<T>,
-		userId: number,
+		userUuid: string,
 		params: WhereParam<T>[],
 	): Promise<void>;
 	
 	delete(
-		id: number,
-		userId: number,
+		id: string,
+		userUuid: string,
 	): Promise<void>;
 	
 	bulkDelete(
-		userId: number,
+		userUuid: string,
 		params: WhereParam<T>[],
 	): Promise<void>;
 }

@@ -6,12 +6,14 @@ import {MailOptions} from 'nodemailer/lib/smtp-pool';
 import {TokenService} from './token.service';
 import {ConfigService} from '@nestjs/config';
 import {UserRegisterDto} from '../models/entities/user/dto/user-register-dto';
+import {pathAssets} from '../../assets/path-assets';
+import {EnvKey} from '../../core/env-key.enum';
 
 @Injectable()
 export class MailService {
-	
+  
 	transporter: Transporter;
-	
+  
 	constructor(
 			private readonly tokenService: TokenService,
 			private readonly env: ConfigService,
@@ -26,15 +28,13 @@ export class MailService {
 			},
 		});
 	}
-	
+  
 	public sendVerificationEmail(user: UserRegisterDto): Promise<void> {
 		return new Promise(async (resolve, reject): Promise<void> => {
 			const token: string = await this.tokenService.getToken(user, '15m');
-			const PORT: number = this.env.get<number>('PORT');
-			const HOST: string = this.env.get<string>('HOST');
-			const URL: string = HOST.includes('localhost') ? `http://${HOST}:${PORT}` : `https://${HOST}`;
+			const URL: string = this.env.get<string>(EnvKey.APP_HOST);
 			const verificationLink: string = `${URL}/auth/verify?token=${token}`;
-			const templatePath: string = path.join(__dirname, '../../assets/html/account-verification.html');
+			const templatePath: string = path.join(pathAssets.html, 'account-verification.html');
 			const htmlContent: string = fs.readFileSync(templatePath, 'utf-8')
 					.replace('{{VERIFICATION_LINK}}', verificationLink)
 					.replace('{{USER_NAME}}', user?.name ?? user.username);
@@ -50,7 +50,7 @@ export class MailService {
 			});
 		});
 	}
-	
+  
 	private getMailOptions(user: UserRegisterDto, htmlContent: string): MailOptions {
 		return {
 			from: `WebBicho Automático <${this.env.get<string>('EMAIL')}>`,
@@ -60,7 +60,7 @@ export class MailService {
 			attachments: [
 				{
 					filename: 'webbicho-verde.png',
-					path: 'src/assets/webbicho-verde.png',
+					path: path.join(pathAssets.logos, 'webbicho-verde.png'),
 					cid: 'webbicho@logo',
 				},
 			],

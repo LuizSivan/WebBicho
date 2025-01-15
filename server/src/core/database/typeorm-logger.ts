@@ -1,63 +1,93 @@
-import chalk from 'chalk';
+import chalk, {Color} from 'chalk';
 import {
 	Logger,
+	LogLevel as LogLevelTypeOrm,
 	QueryRunner
 } from 'typeorm';
 import process from 'process';
+import {PlatformTools} from 'typeorm/platform/PlatformTools';
+
+export interface TypeORMLoggerOptions {
+	logging: boolean | LogLevelTypeOrm[];
+}
 
 
 export class TypeORMLogger implements Logger {
 	
+	constructor(
+			private readonly options?: TypeORMLoggerOptions,
+	) {
+		if (options && options.logging == undefined) {
+			options.logging = true;
+		}
+	}
+	
+	get logging(): boolean | LogLevelTypeOrm[] {
+		return this.options.logging;
+	}
+	
 	getPrefix(level: LogLevel): string {
-		const pid: number = process.pid;
-		let levelColor: string;
+		const locale: string = Intl.DateTimeFormat().resolvedOptions().locale || 'default';
+		const formattedDate: string = new Intl
+				.DateTimeFormat(locale, {
+					year: 'numeric',
+					month: '2-digit',
+					day: '2-digit',
+					hour: '2-digit',
+					minute: '2-digit',
+					second: '2-digit',
+				})
+				.format(new Date());
+		let color: typeof Color = 'blue';
 		switch (level) {
 			case 'ERROR':
-				levelColor = chalk.red(level);
+				color = 'red';
 				break;
 			case 'WARN':
-				levelColor = chalk.yellow(level);
+				color = 'yellow';
 				break;
 			case 'MIGRATION':
 			case 'SCHEMA':
-				levelColor = chalk.green(level);
+				color = 'green';
 				break;
-			default:
-				levelColor = chalk.blue(level);
 		}
-		const locale: string = Intl.DateTimeFormat().resolvedOptions().locale || 'default';
-		const formattedDate: string = new Intl.DateTimeFormat(locale, {
-			year: 'numeric',
-			month: '2-digit',
-			day: '2-digit',
-			hour: '2-digit',
-			minute: '2-digit',
-			second: '2-digit',
-		}).format(new Date());
-		
-		return `${chalk.blue(`[TypeORM] ${pid} -`)} ${formattedDate} | ${levelColor} |`;
+		const pid: string = process.pid
+				.toString()
+				.padEnd(6, ' ');
+		const logLevel: string = chalk[color](level.padStart(9, ' '));
+		return `${chalk.blue(`[TypeORM] ${pid} -`)} ${formattedDate} ${chalk.bold(logLevel)}:`;
 	}
 	
-	logQuery(query: string, parameters?: any[], _queryRunner?: QueryRunner): void {
+	logQuery(query: string, parameters?: never[], _queryRunner?: QueryRunner): void {
+		if (this.logging instanceof Boolean && !this.logging) return;
+		if (this.logging instanceof Array && !this.logging.includes('info')) return;
 		const formattedQuery: string = this.prepareMessage(query, parameters);
 		console.log(`${this.getPrefix('INFO')} ${formattedQuery}`);
 	}
 	
 	logQueryError(error: string, query: string, parameters?: any[], _queryRunner?: QueryRunner): void {
+		if (this.logging instanceof Boolean && !this.logging) return;
+		if (this.logging instanceof Array && !this.logging.includes('error')) return;
 		const formattedQuery: string = this.prepareMessage(query, parameters);
 		console.error(`${this.getPrefix('ERROR')} Error: ${error} \n${formattedQuery}`);
 	}
 	
 	logQuerySlow(time: number, query: string, parameters?: any[], _queryRunner?: QueryRunner): void {
+		if (this.logging instanceof Boolean && !this.logging) return;
+		if (this.logging instanceof Array && !this.logging.includes('warn')) return;
 		const formattedQuery: string = this.prepareMessage(query, parameters);
 		console.warn(`${this.getPrefix('WARN')} Query is slow: ${chalk.yellow(`${time}ms`)} - ${formattedQuery}`);
 	}
 	
 	logSchemaBuild(message: string, _queryRunner?: QueryRunner): void {
+		if (this.logging instanceof Boolean && !this.logging) return;
+		if (this.logging instanceof Array && !this.logging.includes('schema')) return;
 		console.log(`${this.getPrefix('SCHEMA')} ${message}`);
 	}
 	
 	logMigration(message: string, _queryRunner?: QueryRunner): void {
+		if (this.logging instanceof Boolean && !this.logging) return;
+		if (this.logging instanceof Array && !this.logging.includes('migration')) return;
 		console.log(`${this.getPrefix('MIGRATION')} ${message}`);
 	}
 	
@@ -65,51 +95,31 @@ export class TypeORMLogger implements Logger {
 	}
 	
 	private prepareMessage(query: string, parameters?: any[]): string {
-		query = query.replace(combinedPattern, (match) => {
-			if (reservedWords.includes(match.toUpperCase())) {
-				return chalk.blue(match);
-			} else if (functions.includes(match.toLowerCase())) {
-				return chalk.magentaBright(match);
-			}
-			return match;
-		});
-		
-		query = query.replace(/'(.*?)'/g, (_match, p1) => chalk.dim(`'${p1}'`));
-		
 		if (!parameters || parameters.length === 0) {
-			return query;
+			return PlatformTools.highlightSql(query);
 		}
 		let formattedQuery: string = query;
-		parameters.forEach((param, index) => {
-			const paramPlaceholder: RegExp = new RegExp(`\\$${index + 1}`, 'g');
-			formattedQuery = formattedQuery.replace(
-					paramPlaceholder,
-					param instanceof Date
-						? chalk.green(`'${param.toISOString()}'`)
-						: chalk.green(`'${param}'`)
+		parameters.forEach((param: any, index: number) => {
+			formattedQuery = this.replaceFormattedParam(
+					formattedQuery,
+					param,
+					index,
 			);
 		});
-		return formattedQuery;
+		return PlatformTools.highlightSql(query);
+	}
+	
+	private replaceFormattedParam(query: string, param: any, index: number): string {
+		const placeholder: RegExp = new RegExp(`\\$${index + 1}(?!\\d)`, 'g');
+		switch (typeof param) {
+			case 'object':
+				return query.replace(placeholder, `'${param?.toString()}'`);
+			case 'string':
+				return query.replace(placeholder, `'${param}'`);
+			default:
+				return query.replace(placeholder, param);
+		}
 	}
 }
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR' | 'SCHEMA' | 'MIGRATION';
-
-const reservedWords: string[] = [
-	'INSERT', 'INTO', 'RETURNING', 'WITH',
-	'SELECT', 'UPDATE', 'DELETE', 'FROM', 'JOIN', 'WHERE',
-	'ORDER', 'GROUP', 'BY', 'HAVING', 'LIMIT', 'OFFSET', 'AND', 'OR',
-	'NOT', 'IN', 'LIKE', 'BETWEEN', 'IS NULL', 'IS NOT NULL', 'AS',
-	'INNER', 'LEFT', 'RIGHT', 'OUTER', 'ON', 'DESC', 'ASC',
-	'CASE', 'WHEN', 'THEN', 'ELSE', 'END',
-	'START', 'TRANSACTION', 'COMMIT', 'ROLLBACK',
-];
-
-const functions: string[] = [
-	'unnest', 'unaccent', 'current_schema', 'current_database', 'version', 'current_date',
-	'current_time', 'current_timestamp', 'now', 'age'
-];
-
-const combinedKeywords: string = [...reservedWords, ...functions].join('|');
-const combinedPattern: RegExp = new RegExp(`\\b(${combinedKeywords})\\b`, 'gi');
-

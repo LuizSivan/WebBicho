@@ -81,6 +81,7 @@ Antes de prosseguir,
    DB_USER=
    DB_PASSWORD=
    DB_DEFAULT=
+   DB_LOGGING=
    
    # Email
    SMTP=
