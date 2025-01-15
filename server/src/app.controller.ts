@@ -6,8 +6,8 @@ import {
 @Controller()
 export class AppController {
 	
-	@Get('miau')
+	@Get('meow')
 	public async miau(): Promise<string> {
-		return 'Woof!';
+		return '<h1>Woof!</h1>';
 	}
 }

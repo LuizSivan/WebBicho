@@ -17,6 +17,7 @@ import jwt, {JwtPayload} from 'jsonwebtoken';
 import {TokenService} from '../../shared/services/token.service';
 import {UserRegisterDto} from '../../shared/models/entities/user/dto/user-register-dto';
 import {ConfigService} from '@nestjs/config';
+import {EnvKey} from '../../core/env-key.enum';
 
 @Injectable()
 export class AuthService {
@@ -96,7 +97,7 @@ export class AuthService {
 	 * @throws {ConflictException} - Usuário já verificado ou não encontrado
 	 * */
 	public async verifyAccount(token: string): Promise<string> {
-		const SECRET: string = this.env.get('JWT_SECRET');
+		const SECRET: string = this.env.get(EnvKey.JWT_SECRET);
 		const payload: string | JwtPayload = jwt.verify(token, SECRET);
 		const userEmail: string = payload.sub as string;
 		const user: User = await this.userRepository.findOne({

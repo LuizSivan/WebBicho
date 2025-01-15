@@ -7,6 +7,7 @@ import {TokenService} from './token.service';
 import {ConfigService} from '@nestjs/config';
 import {UserRegisterDto} from '../models/entities/user/dto/user-register-dto';
 import {pathAssets} from '../../assets/path-assets';
+import {EnvKey} from '../../core/env-key.enum';
 
 @Injectable()
 export class MailService {
@@ -31,9 +32,7 @@ export class MailService {
 	public sendVerificationEmail(user: UserRegisterDto): Promise<void> {
 		return new Promise(async (resolve, reject): Promise<void> => {
 			const token: string = await this.tokenService.getToken(user, '15m');
-			const PORT: number = this.env.get<number>('PORT');
-			const HOST: string = this.env.get<string>('HOST');
-			const URL: string = HOST.includes('localhost') ? `http://${HOST}:${PORT}` : `https://${HOST}`;
+			const URL: string = this.env.get<string>(EnvKey.APP_HOST);
 			const verificationLink: string = `${URL}/auth/verify?token=${token}`;
 			const templatePath: string = path.join(pathAssets.html, 'account-verification.html');
 			const htmlContent: string = fs.readFileSync(templatePath, 'utf-8')

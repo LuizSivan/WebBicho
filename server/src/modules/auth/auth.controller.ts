@@ -6,7 +6,7 @@ import {
 	HttpCode,
 	Post,
 	Query,
-	Res,
+	Render,
 	UnauthorizedException,
 	UseGuards,
 } from '@nestjs/common';
@@ -29,7 +29,8 @@ import {
 import {UserRegisterDto} from '../../shared/models/entities/user/dto/user-register-dto';
 import {UserLoginDto} from '../../shared/models/entities/user/dto/user-login-dto';
 import {HEADER} from '../../core/cors/headers';
-import {Response} from 'express';
+import {ConfigService} from '@nestjs/config';
+import {EnvKey} from '../../core/env-key.enum';
 
 @Controller('auth')
 @ApiTags('Autenticação', 'Authentication')
@@ -37,6 +38,7 @@ export class AuthController {
 	constructor(
 			private readonly authService: AuthService,
 			private readonly tokenService: TokenService,
+			private readonly env: ConfigService,
 	) {
 	}
 	
@@ -68,29 +70,32 @@ export class AuthController {
 	}
 	
 	@Get('verify')
+	@Render('verification')
 	@ApiOperation({summary: 'Verifica a conta de um usuário'})
 	@ApiQuery({name: 'token', description: 'Token de verificação'})
 	@ApiOkResponse({description: 'Conta verificada com sucesso'})
 	@ApiConflictResponse({description: 'Usuário já verificado ou não encontrado'})
 	public async verifyAccount(
-			@Query() token: string,
-			@Res({passthrough: true}) response: Response,
-	): Promise<void> {
+			@Query('token') token: string,
+	): Promise<object> {
+		const frontendURL: string = this.env.get<string>(EnvKey.APP_FRONTEND_URL);
 		try {
 			const newToken: string = await this.authService.verifyAccount(token);
-			response.render(
-					'verification-success',
-					{
-						message: 'Conta verificada com sucesso!',
-					},
-			);
+			return {
+				title: 'Conta Verificada',
+				message: 'Conta verificada com sucesso!',
+				buttonText: 'Ir para o site',
+				buttonUrl: `frontendURL?token=${newToken}`,
+				isError: false,
+			};
 		} catch (e) {
-			response.render(
-					'verification-fail',
-					{
-						message: 'Não foi possível verificar a conta!',
-					},
-			);
+			return {
+				title: 'Erro na Verificação',
+				message: 'Não foi possível verificar a conta!',
+				buttonText: 'Ir para o site',
+				buttonUrl: frontendURL,
+				isError: true, // Indica erro para o estilo dinâmico
+			};
 		}
 	}
 	

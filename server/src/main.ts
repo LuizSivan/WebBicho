@@ -12,7 +12,8 @@ import {
 import {HEADER} from './core/cors/headers';
 import {ConfigService} from '@nestjs/config';
 import {NestExpressApplication} from '@nestjs/platform-express';
-import {join} from 'path';
+import {EnvKey} from './core/env-key.enum';
+import {pathAssets} from './assets/path-assets';
 
 async function bootstrap(): Promise<ConfigService> {
 	const app: NestExpressApplication = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -23,9 +24,9 @@ async function bootstrap(): Promise<ConfigService> {
 		allowedHeaders: Object.values(HEADER),
 	});
 	
-	app.setBaseViewsDir(join(__dirname, '..', 'views'));
+	app.setBaseViewsDir(pathAssets.views);
 	app.setViewEngine('hbs');
-	// app.set('view options', {layout: 'layouts/main'});
+	app.useStaticAssets(pathAssets.logos, {prefix: '/logos/'});
 	
 	const config: Omit<OpenAPIObject, 'paths'> = new DocumentBuilder()
 			.setTitle('API WebBicho')
@@ -44,14 +45,14 @@ async function bootstrap(): Promise<ConfigService> {
 	});
 	
 	const env: ConfigService = app.get(ConfigService);
-	const PORT: number = env.get<number>('PORT');
+	const PORT: number = env.get<number>(EnvKey.APP_PORT);
 	await app.listen(PORT);
 	return env;
 }
 
 bootstrap().then((env: ConfigService): void => {
-	const PORT: number = env.get<number>('PORT');
-	const HOST: string = env.get<string>('HOST');
+	const PORT: number = env.get<number>(EnvKey.APP_PORT);
+	const HOST: string = env.get<string>(EnvKey.APP_HOST);
 	new Logger('NestApplication')
-			.log(`Servidor NestJS rodando em ${HOST} na porta ${PORT}`);
+			.log(`NestJS server running at ${HOST}`);
 });

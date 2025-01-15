@@ -14,6 +14,8 @@ import {
 } from '@nestjs/typeorm';
 import {TypeORMLogger} from './typeorm-logger';
 import {SnakeNamingStrategy} from 'typeorm-naming-strategies';
+import {EnvKey} from '../env-key.enum';
+import {LogLevel} from 'typeorm';
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
@@ -28,16 +30,16 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 	) {
 		this.logger = new Logger(this.constructor.name);
 		this.clientConfig = {
-			host: this.env.get<string>('DB_HOST'),
-			port: this.env.get<number>('DB_PORT'),
-			user: this.env.get<string>('DB_USER'),
-			password: this.env.get<string>('DB_PASSWORD'),
+			host: this.env.get<string>(EnvKey.DB_HOST),
+			port: this.env.get<number>(EnvKey.DB_PORT),
+			user: this.env.get<string>(EnvKey.DB_USER),
+			password: this.env.get<string>(EnvKey.DB_PASSWORD),
 		};
 		this.client = new Client({
 			...this.clientConfig,
 			database: 'postgres',
 		});
-		this.defaultDb = this.env.get<string>('DEFAULT_DB', 'webbicho');
+		this.defaultDb = this.env.get<string>(EnvKey.DB_DEFAULT, 'webbicho');
 	}
 	
 	async createTypeOrmOptions(): Promise<TypeOrmModuleOptions> {
@@ -48,23 +50,36 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 				await this.createDatabase();
 				await this.createUnaccentExtension();
 			}
-			const logging: boolean = this.env.get<string>('DB_LOGGING') === 'true';
 			return {
 				type: 'postgres',
-				host: this.env.get<string>('DB_HOST'),
-				port: this.env.get<number>('DB_PORT'),
-				username: this.env.get<string>('DB_USER'),
-				password: this.env.get<string>('DB_PASSWORD'),
+				host: this.env.get<string>(EnvKey.DB_HOST),
+				port: this.env.get<number>(EnvKey.DB_PORT),
+				username: this.env.get<string>(EnvKey.DB_USER),
+				password: this.env.get<string>(EnvKey.DB_PASSWORD),
 				database: this.defaultDb,
 				entities: [`${__dirname}/../../shared/models/entities/**/*.{js,ts}`],
 				migrations: [`${__dirname}/../../shared/models/migrations/**/*.ts`],
 				synchronize: this.env.get<string>('NODE_ENV') !== 'production',
-				logger: new TypeORMLogger({logging: logging ? true : ['error']}),
+				logger: new TypeORMLogger({logging: this.getLogLevel()}),
 				namingStrategy: new SnakeNamingStrategy(),
 			};
 		} catch (e: any) {
 			this.logger.error(`Erro na verificação do banco de dados: ${e.message}`);
 		}
+	}
+	
+	private getLogLevel(): boolean | LogLevel[] {
+		const logLevel: string = this.env.get<string>(EnvKey.DB_LOGGING);
+		if (logLevel === 'true' || logLevel === 'false') {
+			return logLevel === 'true';
+		}
+		if (!!logLevel) {
+			return logLevel
+					.replace(/\s/g, '')
+					.split(',')
+					.map(lvl => lvl as LogLevel);
+		}
+		return ['error'];
 	}
 	
 	private async checkDatabaseExists(): Promise<boolean> {
