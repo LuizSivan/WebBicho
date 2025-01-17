@@ -35,12 +35,12 @@ export class HomeComponent {
     this.themeService.switchTheme();
     const sp: WhereParam<Post>[] = [
       {
-        id: {between: ['uuid1', 'uuid2']},
+        'between-id': ['uuid1', 'uuid2'],
         user: {
-          id: {equals: 'uuid3'},
-          name: {equals: ''},
+          id: 'uuid3',
+          name: '',
           comment: {
-            id: {equals: 'uuid4'},
+            id: 'uuid4',
           }
         }
       }
