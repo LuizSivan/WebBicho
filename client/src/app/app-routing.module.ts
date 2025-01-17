@@ -1,5 +1,8 @@
 import {NgModule} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {
+	RouterModule,
+	Routes
+} from '@angular/router';
 import {HTTP_INTERCEPTORS} from '@angular/common/http';
 import {AuthInterceptor} from './core/auth/auth.interceptor';
 import {LoginRegisterComponent} from './pages/login-register/login-register.component';
