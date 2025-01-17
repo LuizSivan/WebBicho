@@ -1799,6 +1799,13 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
+"@primeng/themes@^19.0.5":
+  version "19.0.5"
+  resolved "https://registry.yarnpkg.com/@primeng/themes/-/themes-19.0.5.tgz#5e80c9bb28b4274db2967ad2f5bb1b77cf007ec7"
+  integrity sha512-HHXAncyolxyuOR5p+7XtcY3Hg1J6MzbjrdVY3BoQZrRR0nQmatOUQkG/whmJ2dsATq2UHgOykT/a2s70kFF1Sw==
+  dependencies:
+    "@primeuix/styled" "^0.3.2"
+
 "@primeuix/styled@^0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@primeuix/styled/-/styled-0.3.2.tgz#a6093e81a66fc78b915b5e8d998cc73c2c47a1dc"
