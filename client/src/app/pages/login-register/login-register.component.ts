@@ -6,7 +6,8 @@ import {Router} from '@angular/router';
 @Component({
 	selector: 'wb-login-register',
 	templateUrl: './login-register.component.html',
-	styleUrls: ['./login-register.component.scss']
+	styleUrls: ['./login-register.component.scss'],
+	standalone: false
 })
 export class LoginRegisterComponent {
 	

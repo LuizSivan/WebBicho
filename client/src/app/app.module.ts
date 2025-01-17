@@ -24,6 +24,10 @@ import {
 	withInterceptorsFromDi
 } from '@angular/common/http';
 import {HomeModule} from './pages/home/home.module';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {providePrimeNG} from 'primeng/config';
+import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
+import Aura from '@primeng/themes/aura';
 
 registerLocaleData(pt, 'pt', ptExtra);
 
@@ -31,18 +35,29 @@ registerLocaleData(pt, 'pt', ptExtra);
 	declarations: [
 		AppComponent
 	],
-	bootstrap: [AppComponent], imports: [BrowserModule,
+	imports: [
+		BrowserModule,
+		BrowserAnimationsModule,
 		AppRoutingModule,
 		ButtonModule,
 		RippleModule,
 		DockModule,
 		LoginRegisterModule,
-		HomeModule], providers: [
+		HomeModule
+	],
+	providers: [
+		provideAnimationsAsync(),
+		providePrimeNG({
+			theme: {
+				preset: Aura,
+			}
+		}),
 		{provide: LocationStrategy, useClass: HashLocationStrategy},
 		{provide: LOCALE_ID, useValue: 'pt-BR'},
 		HttpClient,
 		provideHttpClient(withInterceptorsFromDi())
-	]
+	],
+	bootstrap: [AppComponent],
 })
 export class AppModule {
 }
