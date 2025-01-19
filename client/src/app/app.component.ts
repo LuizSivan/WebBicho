@@ -1,21 +1,12 @@
 import {Component} from '@angular/core';
-import {ThemeService} from './shared/services/theme.service';
-import {MenuItem} from 'primeng/api';
+import {ButtonModule} from 'primeng/button';
 
 @Component({
 	selector: 'app-root',
+	imports: [ButtonModule],
 	templateUrl: './app.component.html',
-	styleUrls: ['./app.component.scss'],
-	standalone: false
+	styleUrl: './app.component.scss'
 })
 export class AppComponent {
-	title: string = 'Webbicho';
-	items: MenuItem[] | undefined;
-	
-	constructor(
-			private themeService: ThemeService
-	) {
-		this.themeService.loadDefaultTheme();
-		
-	}
+	title = 'client';
 }
