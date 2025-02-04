@@ -5,14 +5,14 @@
     <scripts>
       <script value="start" />
     </scripts>
-    <node-interpreter value="$USER_HOME$/.nvm/versions/node/v22.13.0/bin/node" />
+    <node-interpreter value="$USER_HOME$/.nvm/versions/node/v23.7.0/bin/node" />
     <package-manager value="yarn" />
     <envs />
     <method v="2">
       <option name="NpmBeforeRunTask" enabled="true">
         <package-json value="$PROJECT_DIR$/client/package.json" />
         <command value="install" />
-        <node-interpreter value="$USER_HOME$/.nvm/versions/node/v22.13.0/bin/node" />
+        <node-interpreter value="$USER_HOME$/.nvm/versions/node/v23.7.0/bin/node" />
         <package-manager value="yarn" />
         <envs />
       </option>
@@ -22,7 +22,7 @@
         <scripts>
           <script value="sass" />
         </scripts>
-        <node-interpreter value="$USER_HOME$/.nvm/versions/node/v22.13.0/bin/node" />
+        <node-interpreter value="$USER_HOME$/.nvm/versions/node/v23.7.0/bin/node" />
         <package-manager value="yarn" />
         <envs />
       </option>

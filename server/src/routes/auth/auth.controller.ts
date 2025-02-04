@@ -102,11 +102,11 @@ export class AuthController {
 	@Get()
 	@UseGuards(AuthGuard)
 	@ApiOperation({summary: 'Autentica o token de um usuário'})
-	@ApiHeader({name: HEADER.AUTH, description: 'Token de autenticação'})
+	@ApiHeader({name: HEADER.AUTHORIZATION, description: 'Token de autenticação'})
 	@ApiOkResponse({description: 'Token autenticado com sucesso'})
 	@ApiUnauthorizedResponse({description: 'Access denied'})
 	public async authenticateToken(
-			@Headers(HEADER.AUTH) token: string,
+			@Headers(HEADER.AUTHORIZATION) token: string,
 	): Promise<object> {
 		try {
 			return this.tokenService.authenticateToken(token);

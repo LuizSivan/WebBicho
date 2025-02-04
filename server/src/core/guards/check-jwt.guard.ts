@@ -28,7 +28,7 @@ export class CheckJwtGuard implements CanActivate {
 	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request: Request = context.switchToHttp().getRequest();
 		const response: Response = context.switchToHttp().getResponse();
-		const token: string = request.headers[HEADER.AUTH] as string;
+		const token: string = request.headers[HEADER.AUTHORIZATION] as string;
 		try {
 			const SECRET: string = this.env.get('JWT_SECRET');
 			const decoded: JwtPayload | string = jwt.verify(token, SECRET);

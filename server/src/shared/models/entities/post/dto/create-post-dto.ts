@@ -3,7 +3,10 @@ import {
 	ApiProperty,
 	ApiPropertyOptional
 } from '@nestjs/swagger';
-import {IsNotEmpty} from 'class-validator';
+import {
+	IsBase64,
+	IsNotEmpty
+} from 'class-validator';
 
 export class CreatePostDto extends GenericEntity {
 	@ApiProperty({
@@ -14,10 +17,10 @@ export class CreatePostDto extends GenericEntity {
 	content: string;
 	
 	@ApiPropertyOptional({
-		type: 'base64',
+		type: String,
 		description: 'Arquivo da postagem em base64',
 		required: false,
 	})
-	// @IsBase64({}, {message: 'Arquivo da postagem deve ser base64!'})
+	@IsBase64({}, {message: 'Arquivo da postagem deve ser base64!'})
 	file?: string;
 }

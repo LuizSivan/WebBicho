@@ -1,4 +1,7 @@
-import {Test, TestingModule} from '@nestjs/testing';
+import {
+	Test,
+	TestingModule
+} from '@nestjs/testing';
 import {GenericService} from './generic.service';
 import {GenericEntity} from '../shared/models/entities/generic-entity';
 

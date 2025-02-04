@@ -1,4 +1,7 @@
-import {Test, TestingModule} from '@nestjs/testing';
+import {
+	Test,
+	TestingModule
+} from '@nestjs/testing';
 import {CommentService} from './comment.service';
 
 describe('CommentService', () => {

@@ -1,8 +1,16 @@
 import {
-	applyDecorators, Delete, Get, Post, Put
+	applyDecorators,
+	Delete,
+	Get,
+	Post,
+	Put
 } from '@nestjs/common';
 import {
-	ApiHeader, ApiInternalServerErrorResponse, ApiOperation, ApiParam, ApiProperty
+	ApiHeader,
+	ApiInternalServerErrorResponse,
+	ApiOperation,
+	ApiParam,
+	ApiProperty
 } from '@nestjs/swagger';
 import {PATH} from '../../core/cors/paths';
 import {HEADER} from '../../core/cors/headers';
@@ -10,7 +18,7 @@ import {WhereParam} from '../models/types/where-param';
 
 export function ApiFindOneOperation(): MethodDecorator {
 	return applyDecorators(
-			Get('find/:id?'),
+			Get('find/:id'),
 			ApiOperation({summary: 'Retorna apenas uma entidade'}),
 			ApiParam({name: 'id', required: false, description: 'Id da entidade'}),
 			ApiHeader({name: HEADER.FIELDS, required: false, description: 'Campos da entidade a serem buscados'}),
@@ -26,7 +34,7 @@ export function ApiListOperation(): MethodDecorator {
 			ApiOperation({summary: 'Retorna uma lista de entidades'}),
 			ApiParam({name: PATH.PAGE, description: 'Número da página'}),
 			ApiParam({name: PATH.SIZE, description: 'Tamanho da página'}),
-			ApiHeader({name: HEADER.AUTH, required: true, description: 'Token de autenticação'}),
+			ApiHeader({name: HEADER.AUTHORIZATION, required: true, description: 'Token de autenticação'}),
 			ApiHeader({name: HEADER.FIELDS, required: false, description: 'Campos da entidade a sem buscados'}),
 			ApiHeader({name: HEADER.RELATIONS, required: false, description: 'Relações a serem carregadas'}),
 			ApiHeader({name: HEADER.PARAMS, required: false, description: 'Parâmetros da busca'}),
