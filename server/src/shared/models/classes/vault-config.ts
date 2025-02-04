@@ -17,7 +17,7 @@ interface VaultDatabaseEnvironment {
 }
 
 interface VaultEmailEnvironment {
-	readonly EMAIL: string;
+	readonly USER: string;
 	readonly PASSWORD: string;
 	readonly SMTP: string;
 }
@@ -36,7 +36,7 @@ export class VaultConfig {
 		};
 		
 		VaultConfig.DATABASE = {
-			DEFAULT: String(data.DB_DEFAULT),
+			DEFAULT: String(data.DB_DEFAULT) ?? 'webbicho',
 			HOST: String(data.DB_HOST),
 			LOGGING: data.DB_LOGGING as boolean | LogLevel[],
 			PASSWORD: String(data.DB_PASSWORD),
@@ -45,7 +45,7 @@ export class VaultConfig {
 		};
 		
 		VaultConfig.MAIL = {
-			EMAIL: String(data.EMAIL),
+			USER: String(data.EMAIL),
 			PASSWORD: String(data.PASSWORD),
 			SMTP: String(data.SMTP),
 		};

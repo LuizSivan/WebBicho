@@ -4,35 +4,33 @@ import fs from 'fs';
 import nodemailer, {Transporter} from 'nodemailer';
 import {MailOptions} from 'nodemailer/lib/smtp-pool';
 import {TokenService} from './token.service';
-import {ConfigService} from '@nestjs/config';
 import {UserRegisterDto} from '../models/entities/user/dto/user-register-dto';
 import {pathAssets} from '../../assets/path-assets';
-import {EnvKey} from '../../core/env-key.enum';
+import {VaultConfig} from '../models/classes/vault-config';
 
 @Injectable()
 export class MailService {
-  
+	
 	transporter: Transporter;
-  
+	
 	constructor(
 			private readonly tokenService: TokenService,
-			private readonly env: ConfigService,
 	) {
 		this.transporter = nodemailer.createTransport({
-			service: this.env.get<string>('SMTP'),
+			service: VaultConfig.MAIL.SMTP,
 			port: 465,
 			secure: true,
 			auth: {
-				user: this.env.get<string>('EMAIL'),
-				pass: this.env.get<string>('PASSWORD'),
+				user: VaultConfig.MAIL.USER,
+				pass: VaultConfig.MAIL.PASSWORD,
 			},
 		});
 	}
-  
+	
 	public sendVerificationEmail(user: UserRegisterDto): Promise<void> {
 		return new Promise(async (resolve, reject): Promise<void> => {
 			const token: string = await this.tokenService.getToken(user, '15m');
-			const URL: string = this.env.get<string>(EnvKey.APP_HOST);
+			const URL: string = VaultConfig.APP.FRONTEND_URL;
 			const verificationLink: string = `${URL}/auth/verify?token=${token}`;
 			const templatePath: string = path.join(pathAssets.html, 'account-verification.html');
 			const htmlContent: string = fs.readFileSync(templatePath, 'utf-8')
@@ -50,10 +48,10 @@ export class MailService {
 			});
 		});
 	}
-  
+	
 	private getMailOptions(user: UserRegisterDto, htmlContent: string): MailOptions {
 		return {
-			from: `WebBicho Automático <${this.env.get<string>('EMAIL')}>`,
+			from: `WebBicho Automático <${VaultConfig.MAIL.USER}>`,
 			to: user?.email,
 			subject: 'Verificação de conta',
 			html: htmlContent,

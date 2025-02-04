@@ -1,14 +1,13 @@
 import {
 	Injectable,
-	Logger,
-	OnApplicationBootstrap
+	Logger
 } from '@nestjs/common';
 import {ConfigService} from '@nestjs/config';
 import VaultClient, {Lease} from 'node-vault-client';
 import {VaultConfig} from '../../shared/models/classes/vault-config';
 
 @Injectable()
-export class EnvironmentService implements OnApplicationBootstrap {
+export class EnvironmentService {
 	
 	private readonly vaultClient: VaultClient;
 	private readonly logger: Logger;
@@ -30,7 +29,7 @@ export class EnvironmentService implements OnApplicationBootstrap {
 		});
 	}
 	
-	async onApplicationBootstrap(): Promise<void> {
+	async loadEnvironmentVariables(): Promise<void> {
 		try {
 			const lease: Lease = await this.vaultClient.read('webbicho/server');
 			VaultConfig.factory(lease.getData());

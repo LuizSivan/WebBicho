@@ -14,35 +14,44 @@ import {
 } from '@nestjs/typeorm';
 import {TypeORMLogger} from './typeorm-logger';
 import {SnakeNamingStrategy} from 'typeorm-naming-strategies';
-import {EnvKey} from '../env-key.enum';
-import {LogLevel} from 'typeorm';
+import {EnvironmentService} from '../../modules/environment/environment.service';
+import {VaultConfig} from '../../shared/models/classes/vault-config';
 
 @Injectable()
 export class DatabaseService implements TypeOrmOptionsFactory {
-	private readonly clientConfig: ClientConfig;
-	private readonly client: Client;
-	private readonly defaultDb: string;
+	private clientConfig: ClientConfig;
+	private client: Client;
+	private defaultDb: string;
 	private readonly logger: Logger;
 	
 	
 	constructor(
 			private readonly env: ConfigService,
+			private readonly vault: EnvironmentService
 	) {
+		
 		this.logger = new Logger(this.constructor.name);
+		this.logger.debug('Construindo serviço');
+		
+	}
+	
+	async beforeCreateTypeOrmOptions(): Promise<void> {
+		await this.vault.loadEnvironmentVariables();
 		this.clientConfig = {
-			host: this.env.get<string>(EnvKey.DB_HOST),
-			port: this.env.get<number>(EnvKey.DB_PORT),
-			user: this.env.get<string>(EnvKey.DB_USER),
-			password: this.env.get<string>(EnvKey.DB_PASSWORD),
+			host: VaultConfig.DATABASE?.HOST,
+			port: VaultConfig.DATABASE?.PORT,
+			user: VaultConfig.DATABASE?.USER,
+			password: VaultConfig.DATABASE?.PASSWORD,
 		};
 		this.client = new Client({
 			...this.clientConfig,
 			database: 'postgres',
 		});
-		this.defaultDb = this.env.get<string>(EnvKey.DB_DEFAULT, 'webbicho');
+		this.defaultDb = VaultConfig.DATABASE?.DEFAULT;
 	}
 	
 	async createTypeOrmOptions(): Promise<TypeOrmModuleOptions> {
+		await this.beforeCreateTypeOrmOptions();
 		try {
 			await this.client.connect();
 			const databaseExists: boolean = await this.checkDatabaseExists();
@@ -52,34 +61,20 @@ export class DatabaseService implements TypeOrmOptionsFactory {
 			}
 			return {
 				type: 'postgres',
-				host: this.env.get<string>(EnvKey.DB_HOST),
-				port: this.env.get<number>(EnvKey.DB_PORT),
-				username: this.env.get<string>(EnvKey.DB_USER),
-				password: this.env.get<string>(EnvKey.DB_PASSWORD),
+				host: VaultConfig.DATABASE.HOST,
+				port: VaultConfig.DATABASE.PORT,
+				username: VaultConfig.DATABASE.USER,
+				password: VaultConfig.DATABASE.PASSWORD,
 				database: this.defaultDb,
 				entities: [`${__dirname}/../../shared/models/entities/**/*.{js,ts}`],
 				migrations: [`${__dirname}/../../shared/models/migrations/**/*.ts`],
 				synchronize: this.env.get<string>('NODE_ENV') !== 'production',
-				logger: new TypeORMLogger({logging: this.getLogLevel()}),
+				logger: new TypeORMLogger({logging: VaultConfig.DATABASE.LOGGING}),
 				namingStrategy: new SnakeNamingStrategy(),
 			};
 		} catch (e: any) {
 			this.logger.error(`Erro na verificação do banco de dados: ${e.message}`);
 		}
-	}
-	
-	private getLogLevel(): boolean | LogLevel[] {
-		const logLevel: string = this.env.get<string>(EnvKey.DB_LOGGING);
-		if (logLevel === 'true' || logLevel === 'false') {
-			return logLevel === 'true';
-		}
-		if (!!logLevel) {
-			return logLevel
-					.replace(/\s/g, '')
-					.split(',')
-					.map(lvl => lvl as LogLevel);
-		}
-		return ['error'];
 	}
 	
 	private async checkDatabaseExists(): Promise<boolean> {

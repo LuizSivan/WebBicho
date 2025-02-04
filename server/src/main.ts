@@ -10,12 +10,11 @@ import {
 	SwaggerModule
 } from '@nestjs/swagger';
 import {HEADER} from './core/cors/headers';
-import {ConfigService} from '@nestjs/config';
 import {NestExpressApplication} from '@nestjs/platform-express';
-import {EnvKey} from './core/env-key.enum';
 import {pathAssets} from './assets/path-assets';
+import {VaultConfig} from './shared/models/classes/vault-config';
 
-async function bootstrap(): Promise<ConfigService> {
+async function bootstrap(): Promise<void> {
 	const app: NestExpressApplication = await NestFactory.create<NestExpressApplication>(AppModule);
 	
 	app.useGlobalPipes(new ValidationPipe({whitelist: true}));
@@ -45,14 +44,10 @@ async function bootstrap(): Promise<ConfigService> {
 		jsonDocumentUrl: 'swagger/json',
 	});
 	
-	const env: ConfigService = app.get(ConfigService);
-	const PORT: number = env.get<number>(EnvKey.APP_PORT);
-	await app.listen(PORT);
-	return env;
+	await app.listen(VaultConfig.APP.PORT);
 }
 
-bootstrap().then((env: ConfigService): void => {
-	const HOST: string = env.get<string>(EnvKey.APP_HOST);
+bootstrap().then((): void => {
 	new Logger('NestApplication')
-			.log(`NestJS server running at ${HOST}`);
+			.log(`NestJS server running at ${VaultConfig.APP.PORT}`);
 });
